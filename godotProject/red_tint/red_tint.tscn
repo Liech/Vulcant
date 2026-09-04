@@ -1,0 +1,65 @@
+[gd_scene load_steps=8 format=3 uid="uid://bv7sw0sgqqnr7"]
+
+[ext_resource type="Script" uid="uid://x7n7wx7pnf3v" path="res://camera_3d.gd" id="1_3mek0"]
+[ext_resource type="Script" uid="uid://hrtc6l4lpvs0" path="res://red_tint/red_tint.gd" id="2_ckrxl"]
+
+[sub_resource type="GDScript" id="GDScript_epypp"]
+script/source = "extends Node
+
+# Drag your 'sphere_comp_effect.tres' into this slot in the Inspector
+#@export var compositor_resource : SphereImageCompositor 
+#@export var target_light : OmniLight3D
+
+func _process(_delta: float) -> void:
+#	if compositor_resource and target_light:
+		# Pushing the light position into the C++ Resource
+		# This will be picked up by your _render_callback on the next frame
+		#compositor_resource.light_pos = target_light.global_position
+		pass
+"
+
+[sub_resource type="SphereMesh" id="SphereMesh_0e48y"]
+
+[sub_resource type="Environment" id="Environment_epypp"]
+
+[sub_resource type="CompositorEffect" id="CompositorEffect_0hol4"]
+resource_local_to_scene = false
+resource_name = ""
+enabled = true
+effect_callback_type = 4
+needs_motion_vectors = false
+needs_normal_roughness = false
+script = ExtResource("2_ckrxl")
+metadata/_custom_type_script = "uid://hrtc6l4lpvs0"
+
+[sub_resource type="Compositor" id="Compositor_0hol4"]
+compositor_effects = Array[CompositorEffect]([SubResource("CompositorEffect_0hol4")])
+
+[node name="Node3D" type="Node3D"]
+script = SubResource("GDScript_epypp")
+
+[node name="TextureRect" type="TextureRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+flip_v = true
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 2.2909658)
+current = true
+script = ExtResource("1_3mek0")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, -0.014125109, -0.008126855, 0.012776136)
+mesh = SubResource("SphereMesh_0e48y")
+
+[node name="OmniLight3D" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.7668886, -1.1920929e-07, 1.3660678)
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_epypp")
+compositor = SubResource("Compositor_0hol4")

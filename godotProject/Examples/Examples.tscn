@@ -1,0 +1,51 @@
+[gd_scene load_steps=5 format=3 uid="uid://epow26jye0kv"]
+
+[ext_resource type="Script" uid="uid://b5px4vxltw8in" path="res://Examples/examples.gd" id="1_nuo71"]
+
+[sub_resource type="SphereMesh" id="SphereMesh_slr53"]
+
+[sub_resource type="Environment" id="Environment_3pmaq"]
+
+[sub_resource type="Compositor" id="Compositor_dcd2j"]
+
+[node name="Gigavoxel" type="ExampleRunner"]
+script = ExtResource("1_nuo71")
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 2.2222917)
+current = true
+
+[node name="OmniLight3D" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.0646365, -0.2272178, 2.2027454)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.1982689, 0.10484126, 0.079089165)
+mesh = SubResource("SphereMesh_slr53")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_3pmaq")
+compositor = SubResource("Compositor_dcd2j")
+
+[node name="Control" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Control"]
+layout_mode = 1
+anchors_preset = 11
+anchor_left = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 0
+grow_vertical = 2
+
+[node name="ExampleList" type="OptionButton" parent="Control/VBoxContainer"]
+layout_mode = 2
+mouse_filter = 1
+
+[connection signal="item_selected" from="Control/VBoxContainer/ExampleList" to="." method="_on_example_list_item_selected"]
