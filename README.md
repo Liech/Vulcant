@@ -1,6 +1,6 @@
 # Vulcant
 
-Graphic Interface with implementation in Glwf/vulkan1.2 and Godot using slang (or any spirv).
+Graphic Interface with implementation in Glwf/vulkan1.2 and Godot. slang and imgui is supported.
 
 # Origin
 
