@@ -17,7 +17,7 @@ config/icon="res://icon.svg"
 
 [autoload]
 
-Lightkeeper="*res://Gigavoxel/LightkeeperSingleton.gd"
+Lightkeeper="*res://Examples/LightkeeperSingleton.gd"
 
 [rendering]
 

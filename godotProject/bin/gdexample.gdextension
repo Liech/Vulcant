@@ -6,5 +6,5 @@ reloadable = true
 
 [libraries]
 
-windows.debug.x86_64 = "res://bin/LibraryGD.dll"
-windows.release.x86_64 = "res://bin/LibraryGD.dll"
+windows.debug.x86_64 = "res://bin/VulcantG.dll"
+windows.release.x86_64 = "res://bin/VulcantG.dll"

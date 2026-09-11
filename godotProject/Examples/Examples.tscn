@@ -8,7 +8,7 @@
 
 [sub_resource type="Compositor" id="Compositor_dcd2j"]
 
-[node name="Gigavoxel" type="ExampleRunner"]
+[node name="ExampleRunner" type="ExampleRunner"]
 script = ExtResource("1_nuo71")
 
 [node name="Camera3D" type="Camera3D" parent="."]
