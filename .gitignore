@@ -1,10 +1,10 @@
 out
-godotProject/bin/LibraryGD.dll
-godotProject/bin/LibraryGD.exp
-godotProject/bin/LibraryGD.lib
-godotProject/bin/LibraryGD.pdb
-/godotProject/bin/~LibraryGD.dll
-/godotProject/bin/~LibraryGD_0.pdb
+godotProject/bin/VulcantG.dll
+godotProject/bin/VulcantG.exp
+godotProject/bin/VulcantG.lib
+godotProject/bin/VulcantG.pdb
+/godotProject/bin/~VulcantG.dll
+/godotProject/bin/~VulcantG_0.pdb
 godotProject/bin/vulkan-1.dll
 *.dll
 /.vs/

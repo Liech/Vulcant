@@ -146,7 +146,6 @@ lodepng
 Vulkan::Vulkan
 unofficial::shaderc::shaderc
 unofficial::spirv-reflect
-ShaderVulcant
 glfw
 imgui::imgui
 )
@@ -161,7 +160,6 @@ lodepng
 Vulkan::Vulkan
 unofficial::shaderc::shaderc
 unofficial::spirv-reflect
-ShaderVulcant
 glfw
 imgui::imgui
 )
