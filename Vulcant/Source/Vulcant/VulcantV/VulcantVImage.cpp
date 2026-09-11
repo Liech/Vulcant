@@ -1,8 +1,8 @@
 #include "VulcantVImage.h"
 
-#include "Library/Vulcant/Wrapper/VulcanImage.h"
-#include "Library/Vulcant/Wrapper/VulcanResource.h"
-#include "Library/Vulcant/VulcantV/VulcantVResource.h"
+#include "Vulcant/Wrapper/VulcanImage.h"
+#include "Vulcant/Wrapper/VulcanResource.h"
+#include "Vulcant/VulcantV/VulcantVResource.h"
 #include <stdexcept>
 
 namespace Vulcant::VulcantV

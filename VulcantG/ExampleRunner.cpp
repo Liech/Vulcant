@@ -1,6 +1,6 @@
 #include "ExampleRunner.h"
 
-#include "Library/Vulcant/Examples/Example.h"
+#include "Examples/Example.h"
 #include "VulcantG/VulcantG/VulcantGDevice.h"
 #include <glm/gtc/type_ptr.hpp>
 #include <godot_cpp/classes/Engine.hpp>

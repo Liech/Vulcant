@@ -83,13 +83,15 @@ set_property(TARGET VulcantG PROPERTY CXX_STANDARD 23)
 
 target_include_directories(VulcantG PRIVATE 
 "${CMAKE_CURRENT_SOURCE_DIR}/src"
-./../Library/Source
+./../Vulcant/Source
 ./
 )
 
 target_link_libraries(VulcantG PUBLIC 
 godot::cpp 
-Library)
+Vulcant
+Examples
+)
 
 add_custom_command(TARGET VulcantG POST_BUILD 
                COMMAND ${CMAKE_COMMAND} -E copy_directory 

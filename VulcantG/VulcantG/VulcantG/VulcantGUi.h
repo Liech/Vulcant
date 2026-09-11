@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Library/Vulcant/Interface/VulcantUi.h"
+#include "Vulcant/Interface/VulcantUi.h"
 #include <memory>
 
 namespace Vulcant::VulcantG

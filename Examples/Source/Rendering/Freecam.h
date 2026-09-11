@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Library/Vulcant/Interface/VulcantWindow.h"
-#include "Library/Vulcant/Interface/VulcantInputValue.h"
+#include "Vulcant/Interface/VulcantWindow.h"
+#include "Vulcant/Interface/VulcantInputValue.h"
 #include "SceneData.h"
 
 namespace Vulcant::Rendering

@@ -1,41 +1,39 @@
 cmake_minimum_required(VERSION 3.24...4.0.2)
 
-find_package(Catch2 REQUIRED)
-
 project(Examples)
 
 set(Rendering_Files
-    "Source/Library/Vulcant/Rendering/SceneData.h"
-    "Source/Library/Vulcant/Rendering/DeferredShading.h"
-    "Source/Library/Vulcant/Rendering/DeferredShading.cpp"
-    "Source/Library/Vulcant/Rendering/BlitShader.h"
-    "Source/Library/Vulcant/Rendering/BlitShader.cpp"
-    "Source/Library/Vulcant/Rendering/BlitDepthAwareShader.h"
-    "Source/Library/Vulcant/Rendering/BlitDepthAwareShader.cpp"
-    "Source/Library/Vulcant/Rendering/Light.h"
-    "Source/Library/Vulcant/Rendering/Freecam.h"
-    "Source/Library/Vulcant/Rendering/Freecam.cpp"
+    "Source/Rendering/SceneData.h"
+    "Source/Rendering/DeferredShading.h"
+    "Source/Rendering/DeferredShading.cpp"
+    "Source/Rendering/BlitShader.h"
+    "Source/Rendering/BlitShader.cpp"
+    "Source/Rendering/BlitDepthAwareShader.h"
+    "Source/Rendering/BlitDepthAwareShader.cpp"
+    "Source/Rendering/Light.h"
+    "Source/Rendering/Freecam.h"
+    "Source/Rendering/Freecam.cpp"
 )
 source_group("Source/Vulcant/Rendering" FILES ${Rendering_Files})
 
 
 set(Example_Files
-    "Source/Library/Vulcant/Examples/MandelbrotImage.cpp"
-    "Source/Library/Vulcant/Examples/MandelbrotImage.h"
-    "Source/Library/Vulcant/Examples/SphereImage.cpp"
-    "Source/Library/Vulcant/Examples/SphereImage.h"
-    "Source/Library/Vulcant/Examples/CubeCaster.cpp"
-    "Source/Library/Vulcant/Examples/CubeCaster.h"
-    "Source/Library/Vulcant/Examples/CubeCasterFreecam.cpp"
-    "Source/Library/Vulcant/Examples/CubeCasterFreecam.h"
-    "Source/Library/Vulcant/Examples/Example.cpp"
-    "Source/Library/Vulcant/Examples/Example.h"
-    "Source/Library/Vulcant/Examples/UiExample.cpp"
-    "Source/Library/Vulcant/Examples/UiExample.h"
-    "Source/Library/Vulcant/Examples/GraphicPipelineTriangle.cpp"
-    "Source/Library/Vulcant/Examples/GraphicPipelineTriangle.h"
-    "Source/Library/Vulcant/Examples/GraphicPipelineCube.cpp"
-    "Source/Library/Vulcant/Examples/GraphicPipelineCube.h"
+    "Source/Examples/MandelbrotImage.cpp"
+    "Source/Examples/MandelbrotImage.h"
+    "Source/Examples/SphereImage.cpp"
+    "Source/Examples/SphereImage.h"
+    "Source/Examples/CubeCaster.cpp"
+    "Source/Examples/CubeCaster.h"
+    "Source/Examples/CubeCasterFreecam.cpp"
+    "Source/Examples/CubeCasterFreecam.h"
+    "Source/Examples/Example.cpp"
+    "Source/Examples/Example.h"
+    "Source/Examples/UiExample.cpp"
+    "Source/Examples/UiExample.h"
+    "Source/Examples/GraphicPipelineTriangle.cpp"
+    "Source/Examples/GraphicPipelineTriangle.h"
+    "Source/Examples/GraphicPipelineCube.cpp"
+    "Source/Examples/GraphicPipelineCube.h"
 )
 source_group("Source/Vulcant/Examples" FILES ${Example_Files})
 
@@ -45,7 +43,19 @@ set(ALL_FILES
     ${Rendering_Files}
 )
 
+
 ############################################################################
 ############################################################################
 ############################################################################
 
+add_library(Examples ${ALL_FILES})
+set_property(TARGET Examples PROPERTY CXX_STANDARD 23)
+
+target_link_libraries(Examples PRIVATE 
+Vulcant
+ShaderLibrary
+)
+
+target_include_directories(Examples PUBLIC 
+./Source/
+)

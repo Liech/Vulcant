@@ -1,7 +1,7 @@
 #include "VulcantVShader.h"
 
-#include "Library/Vulcant/Wrapper/ShaderCompiler.h"
-#include "Library/Vulcant/Wrapper/VulcanShader.h"
+#include "Vulcant/Wrapper/ShaderCompiler.h"
+#include "Vulcant/Wrapper/VulcanShader.h"
 
 namespace Vulcant::VulcantV
 {

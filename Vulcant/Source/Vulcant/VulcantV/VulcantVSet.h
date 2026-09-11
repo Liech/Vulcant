@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Library/Vulcant/Interface/VulcantSet.h"
+#include "Vulcant/Interface/VulcantSet.h"
 #include <memory>
 #include <vector>
 

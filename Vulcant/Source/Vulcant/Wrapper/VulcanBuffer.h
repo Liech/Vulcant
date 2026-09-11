@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Library/Vulcant/Interface/VulcantBufferType.h"
+#include "Vulcant/Interface/VulcantBufferType.h"
 #include <string>
 #include <vulkan/vulkan.h>
 

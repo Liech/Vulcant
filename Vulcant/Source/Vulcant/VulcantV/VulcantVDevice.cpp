@@ -1,9 +1,9 @@
 #include "VulcantVDevice.h"
 
-#include "Library/Vulcant/Wrapper/VulcanBuffer.h"
-#include "Library/Vulcant/Wrapper/VulcanDevice.h"
-#include "Library/Vulcant/Wrapper/VulcanInstance.h"
-#include "Library/Vulcant/Wrapper/VulcanPool.h"
+#include "Vulcant/Wrapper/VulcanBuffer.h"
+#include "Vulcant/Wrapper/VulcanDevice.h"
+#include "Vulcant/Wrapper/VulcanInstance.h"
+#include "Vulcant/Wrapper/VulcanPool.h"
 #include "VulcantVBuffer.h"
 #include "VulcantVComputeCommand.h"
 #include "VulcantVGraphicCommand.h"

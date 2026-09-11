@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Library/Vulcant/Interface/VulcantResourceLayout.h"
+#include "Vulcant/Interface/VulcantResourceLayout.h"
 #include <map>
 #include <set>
 #include <vector>

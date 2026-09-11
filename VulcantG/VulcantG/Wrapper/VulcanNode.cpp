@@ -1,7 +1,7 @@
 #include "VulcanNode.h"
 #include <stdexcept>
 
-#include "Library/Vulcant/Interface/VulcantImage.h"
+#include "Vulcant/Interface/VulcantImage.h"
 #include "VulcantG/VulcantG/VulcantGDevice.h"
 #include "VulcantG/Wrapper/VulcanDevice.h"
 #include "VulcantG/Wrapper/VulcanImage.h"

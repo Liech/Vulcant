@@ -1,10 +1,10 @@
 #include "VulcanTransfer.h"
 
-#include "Library/Vulcant/Wrapper/Helper/VulcanCommand.h"
-#include "Library/Vulcant/Wrapper/Helper/VulcanBarrier.h"
-#include "Library/Vulcant/Wrapper/VulcanDevice.h"
-#include "Library/Vulcant/Wrapper/VulcanImage.h"
-#include "Library/Vulcant/Wrapper/VulcanInstance.h"
+#include "Vulcant/Wrapper/Helper/VulcanCommand.h"
+#include "Vulcant/Wrapper/Helper/VulcanBarrier.h"
+#include "Vulcant/Wrapper/VulcanDevice.h"
+#include "Vulcant/Wrapper/VulcanImage.h"
+#include "Vulcant/Wrapper/VulcanInstance.h"
 #include <cassert>
 
 namespace Vulcant::Wrapper

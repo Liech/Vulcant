@@ -1,12 +1,12 @@
 #include "UiExample.h"
 
-#include "Library/Vulcant/Interface/VulcantDevice.h"
-#include "Library/Vulcant/Interface/VulcantGraphicCommand.h"
-#include "Library/Vulcant/Interface/VulcantImage.h"
-#include "Library/Vulcant/Interface/VulcantUi.h"
-#include "Library/Vulcant/Interface/VulcantWindow.h"
-#include "Library/Vulcant/VulcantV/VulcantVDevice.h"
-#include "Library/Vulcant/Wrapper/Window.h"
+#include "Vulcant/Interface/VulcantDevice.h"
+#include "Vulcant/Interface/VulcantGraphicCommand.h"
+#include "Vulcant/Interface/VulcantImage.h"
+#include "Vulcant/Interface/VulcantUi.h"
+#include "Vulcant/Interface/VulcantWindow.h"
+#include "Vulcant/VulcantV/VulcantVDevice.h"
+#include "Vulcant/Wrapper/Window.h"
 
 #include <imgui.h>
 

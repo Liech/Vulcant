@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Library/Vulcant/Interface/VulcantInputValue.h"
+#include "Vulcant/Interface/VulcantInputValue.h"
 
 namespace Vulcant::Wrapper
 {

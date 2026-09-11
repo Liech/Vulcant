@@ -1,7 +1,7 @@
 #include "VulcantVBuffer.h"
 
-#include "Library/Vulcant/Wrapper/VulcanBuffer.h"
-#include "Library/Vulcant/Wrapper/VulcanResource.h"
+#include "Vulcant/Wrapper/VulcanBuffer.h"
+#include "Vulcant/Wrapper/VulcanResource.h"
 #include "VulcantVResource.h"
 
 namespace Vulcant::VulcantV

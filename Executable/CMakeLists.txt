@@ -31,7 +31,8 @@ set_property(TARGET Executable PROPERTY CXX_STANDARD 20)
 target_link_libraries(Executable
 glm::glm
 nlohmann_json::nlohmann_json
-Library
+Vulcant
+Examples
 )
 
 target_include_directories(Executable PUBLIC 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Library/Vulcant/Interface/VulcantDevice.h"
+#include "Vulcant/Interface/VulcantDevice.h"
 
 namespace godot
 {

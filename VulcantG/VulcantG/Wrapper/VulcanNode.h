@@ -1,7 +1,7 @@
 #pragma once
 
 #include "VulcantG/VulcantG/VulcantGImage.h"
-#include "Library/Vulcant/Interface/VulcantInputValue.h"
+#include "Vulcant/Interface/VulcantInputValue.h"
 #include <functional>
 #include <godot_cpp/classes/node.hpp>
 #include <godot_cpp/classes/render_data.hpp>

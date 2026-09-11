@@ -1,10 +1,10 @@
 #include "VulcanGraphicPipeline.h"
 
-#include "Library/Vulcant/Wrapper/Graphic/GraphicPipelineGenerator.h"
-#include "Library/Vulcant/Wrapper/VulcanDevice.h"
-#include "Library/Vulcant/Wrapper/VulcanImage.h"
-#include "Library/Vulcant/Wrapper/VulcanInstance.h"
-#include "Library/Vulcant/Wrapper/VulcanShader.h"
+#include "Vulcant/Wrapper/Graphic/GraphicPipelineGenerator.h"
+#include "Vulcant/Wrapper/VulcanDevice.h"
+#include "Vulcant/Wrapper/VulcanImage.h"
+#include "Vulcant/Wrapper/VulcanInstance.h"
+#include "Vulcant/Wrapper/VulcanShader.h"
 #include <array>
 #include <stdexcept>
 

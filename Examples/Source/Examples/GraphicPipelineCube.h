@@ -1,8 +1,8 @@
 #pragma once
 
 #include "Example.h"
-#include "Library/Vulcant/Interface/VulcantSet.h"
-#include "Library/Vulcant/Interface/VulcantShader.h"
+#include "Vulcant/Interface/VulcantSet.h"
+#include "Vulcant/Interface/VulcantShader.h"
 #include <memory>
 #include <string>
 

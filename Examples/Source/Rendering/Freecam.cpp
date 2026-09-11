@@ -1,7 +1,7 @@
 #include "Freecam.h"
 
 #include <glm/gtc/matrix_transform.hpp>
-#include "Library/Vulcant/Interface/VulcantInput.h"
+#include "Vulcant/Interface/VulcantInput.h"
 
 namespace Vulcant::Rendering
 {

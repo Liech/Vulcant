@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Library/Vulcant/Interface/VulcantResource.h"
+#include "Vulcant/Interface/VulcantResource.h"
 #include "VulcantG/Wrapper/VulcanResource.h"
 
 namespace Vulcant::VulcantG

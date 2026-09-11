@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Library/Vulcant/Interface/VulcantShader.h"
+#include "Vulcant/Interface/VulcantShader.h"
 #include <memory>
 #include <string>
 #include <vector>

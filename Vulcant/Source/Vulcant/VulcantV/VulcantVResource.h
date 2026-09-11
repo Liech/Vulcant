@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Library/Vulcant/Wrapper/VulcanResource.h"
-#include "Library/Vulcant/Interface/VulcantResource.h"
+#include "Vulcant/Wrapper/VulcanResource.h"
+#include "Vulcant/Interface/VulcantResource.h"
 
 namespace Vulcant::VulcantV
 {

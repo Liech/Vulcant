@@ -1,10 +1,10 @@
-#include "Library/Vulcant/Examples/MandelbrotImage.h"
-#include "Library/Vulcant/Examples/SphereImage.h"
-#include "Library/Vulcant/Examples/CubeCaster.h"
-#include "Library/Vulcant/Examples/CubeCasterFreecam.h"
-#include "Library/Vulcant/Examples/GraphicPipelineTriangle.h"
-#include "Library/Vulcant/Examples/GraphicPipelineCube.h"
-#include "Library/Vulcant/Examples/UiExample.h"
+#include "Examples/MandelbrotImage.h"
+#include "Examples/SphereImage.h"
+#include "Examples/CubeCaster.h"
+#include "Examples/CubeCasterFreecam.h"
+#include "Examples/GraphicPipelineTriangle.h"
+#include "Examples/GraphicPipelineCube.h"
+#include "Examples/UiExample.h"
 
 const int WIDTH          = 1920; // Size of rendered mandelbrot set.
 const int HEIGHT         = 1080; // Size of renderered mandelbrot set.

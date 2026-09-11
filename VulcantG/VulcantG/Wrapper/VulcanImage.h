@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Library/Vulcant/Interface/VulcantImageUsage.h"
+#include "Vulcant/Interface/VulcantImageUsage.h"
 #include "VulcanResource.h"
 #include <godot_cpp/classes/rendering_device.hpp>
 #include <godot_cpp/classes/texture2drd.hpp>

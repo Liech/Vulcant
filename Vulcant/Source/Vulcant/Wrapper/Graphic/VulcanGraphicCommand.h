@@ -1,11 +1,11 @@
 #pragma once
 
 #include "VulcanGraphicPipeline.h"
-#include "Library/Vulcant/Wrapper/VulcanBuffer.h"
-#include "Library/Vulcant/Wrapper/VulcanImage.h"
-#include "Library/Vulcant/Wrapper/VulcanSet.h"
-#include "Library/Vulcant/Wrapper/Helper/VulcanBarrier.h"
-#include "Library/Vulcant/Wrapper/Helper/VulcanCommand.h"
+#include "Vulcant/Wrapper/VulcanBuffer.h"
+#include "Vulcant/Wrapper/VulcanImage.h"
+#include "Vulcant/Wrapper/VulcanSet.h"
+#include "Vulcant/Wrapper/Helper/VulcanBarrier.h"
+#include "Vulcant/Wrapper/Helper/VulcanCommand.h"
 
 #include <glm/glm.hpp>
 #include <memory>

@@ -1,9 +1,9 @@
 #include "VulcanCompositor.h"
 #include <stdexcept>
 
-#include "Library/Vulcant/Interface/VulcantImage.h"
-#include "Library/Vulcant/Interface/VulcantComputeCommand.h"
-#include "Library/Vulcant/Rendering/BlitShader.h"
+#include "Vulcant/Interface/VulcantImage.h"
+#include "Vulcant/Interface/VulcantComputeCommand.h"
+#include "Rendering/BlitShader.h"
 #include "VulcantG/VulcantG/VulcantGDevice.h"
 #include "VulcantG/VulcantG/VulcantGResource.h"
 #include "VulcantG/Wrapper/VulcanDevice.h"

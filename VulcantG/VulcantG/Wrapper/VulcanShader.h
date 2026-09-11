@@ -5,7 +5,7 @@
 #include <godot_cpp/variant/char_string.hpp>
 #include <godot_cpp/variant/packed_byte_array.hpp>
 #include <string>
-#include "Library/Vulcant/Wrapper/ShaderBindingDefinition.h"
+#include "Vulcant/Wrapper/ShaderBindingDefinition.h"
 
 namespace godot
 {

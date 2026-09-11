@@ -1,13 +1,13 @@
 #include "VulcantVGraphicCommand.h"
 
-#include "Library/Vulcant/Wrapper/Graphic/VulcanGraphicCommand.h"
-#include "Library/Vulcant/Wrapper/VulcanImage.h"
-#include "Library/Vulcant/Wrapper/VulcanShader.h"
-#include "Library/Vulcant/VulcantV/VulcantVImage.h"
-#include "Library/Vulcant/VulcantV/VulcantVShader.h"
-#include "Library/Vulcant/VulcantV/VulcantVSet.h"
-#include "Library/Vulcant/VulcantV/VulcantVGraphicPipeline.h"
-#include "Library/Vulcant/VulcantV/VulcantVBuffer.h"
+#include "Vulcant/Wrapper/Graphic/VulcanGraphicCommand.h"
+#include "Vulcant/Wrapper/VulcanImage.h"
+#include "Vulcant/Wrapper/VulcanShader.h"
+#include "Vulcant/VulcantV/VulcantVImage.h"
+#include "Vulcant/VulcantV/VulcantVShader.h"
+#include "Vulcant/VulcantV/VulcantVSet.h"
+#include "Vulcant/VulcantV/VulcantVGraphicPipeline.h"
+#include "Vulcant/VulcantV/VulcantVBuffer.h"
 
 namespace Vulcant::VulcantV
 {

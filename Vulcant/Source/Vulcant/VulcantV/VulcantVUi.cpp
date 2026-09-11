@@ -2,9 +2,9 @@
 #include "VulcantVGraphicCommand.h"
 #include "VulcantVImage.h"
 #include "VulcantVWindow.h"
-#include "Library/Vulcant/Wrapper/Graphic/VulcanGraphicCommand.h"
-#include "Library/Vulcant/Wrapper/VulcanImage.h"
-#include "Library/Vulcant/Wrapper/Window.h"
+#include "Vulcant/Wrapper/Graphic/VulcanGraphicCommand.h"
+#include "Vulcant/Wrapper/VulcanImage.h"
+#include "Vulcant/Wrapper/Window.h"
 
 namespace Vulcant::VulcantV
 {

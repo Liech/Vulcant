@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Library/Vulcant/Interface/VulcantUi.h"
-#include "Library/Vulcant/Wrapper/Helper/VulcanUi.h"
+#include "Vulcant/Interface/VulcantUi.h"
+#include "Vulcant/Wrapper/Helper/VulcanUi.h"
 #include <memory>
 
 namespace Vulcant::VulcantV

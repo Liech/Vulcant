@@ -3,7 +3,7 @@
 #include <memory>
 #include <string>
 #include <vector>
-#include "Library/Vulcant/Interface/VulcantShader.h"
+#include "Vulcant/Interface/VulcantShader.h"
 
 namespace Vulcant::Wrapper
 {

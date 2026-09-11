@@ -1,6 +1,6 @@
 #include "VulcanBarrier.h"
-#include "Library/Vulcant/Wrapper/VulcanBuffer.h"
-#include "Library/Vulcant/Wrapper/VulcanImage.h"
+#include "Vulcant/Wrapper/VulcanBuffer.h"
+#include "Vulcant/Wrapper/VulcanImage.h"
 #include "VulcanCommand.h"
 
 namespace Vulcant::Wrapper

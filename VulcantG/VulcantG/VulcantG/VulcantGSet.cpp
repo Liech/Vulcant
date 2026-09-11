@@ -1,6 +1,6 @@
 #include "VulcantGSet.h"
 
-#include "Library/Vulcant/Interface/VulcantResource.h"
+#include "Vulcant/Interface/VulcantResource.h"
 #include "VulcantG/VulcantG/VulcantGResource.h"
 #include "VulcantG/Wrapper/VulcanResource.h"
 #include "VulcantG/Wrapper/VulcanSet.h"

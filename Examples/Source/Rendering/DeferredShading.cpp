@@ -2,13 +2,13 @@
 #include <stdexcept>
 #include <string_view>
 
-#include "Library/Vulcant/Interface/VulcantBuffer.h"
-#include "Library/Vulcant/Interface/VulcantComputeCommand.h"
-#include "Library/Vulcant/Interface/VulcantDevice.h"
-#include "Library/Vulcant/Interface/VulcantImage.h"
-#include "Library/Vulcant/Interface/VulcantResource.h"
-#include "Library/Vulcant/Interface/VulcantSet.h"
-#include "Library/Vulcant/Interface/VulcantShader.h"
+#include "Vulcant/Interface/VulcantBuffer.h"
+#include "Vulcant/Interface/VulcantComputeCommand.h"
+#include "Vulcant/Interface/VulcantDevice.h"
+#include "Vulcant/Interface/VulcantImage.h"
+#include "Vulcant/Interface/VulcantResource.h"
+#include "Vulcant/Interface/VulcantSet.h"
+#include "Vulcant/Interface/VulcantShader.h"
 #include "ShaderLibrary/DeferredShader.h"
 
 namespace Vulcant::Rendering

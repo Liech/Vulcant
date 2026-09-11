@@ -2,8 +2,8 @@
 
 #include <memory>
 #include <vector>
-#include "Library/Vulcant/Wrapper/Graphic/VulcanGraphicPipeline.h"
-#include "Library/Vulcant/Interface/VulcantGraphicPipeline.h"
+#include "Vulcant/Wrapper/Graphic/VulcanGraphicPipeline.h"
+#include "Vulcant/Interface/VulcantGraphicPipeline.h"
 
 namespace Vulcant::Wrapper
 {

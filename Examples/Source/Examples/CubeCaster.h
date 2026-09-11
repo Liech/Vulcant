@@ -5,8 +5,8 @@
 #include <string>
 
 #include "Example.h"
-#include "Library/Vulcant/Rendering/Light.h"
-#include "Library/Vulcant/Rendering/SceneData.h"
+#include "Rendering/Light.h"
+#include "Rendering/SceneData.h"
 
 namespace Vulcant
 {

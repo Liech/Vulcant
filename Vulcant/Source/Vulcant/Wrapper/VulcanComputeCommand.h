@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Library/Vulcant/Interface/VulcantResourceLayout.h"
+#include "Vulcant/Interface/VulcantResourceLayout.h"
 #include <functional>
 #include <glm/glm.hpp>
 #include <map>

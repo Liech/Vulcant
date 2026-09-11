@@ -2,7 +2,6 @@
 
 #include "ExampleRunner.h"
 //#include "SphereExample.h"
-#include "Gigavox/Gigavoxel.h"
 #include "VulcantG/Wrapper/VulcanCompositor.h"
 #include "VulcantG/Wrapper/VulcanNode.h"
 

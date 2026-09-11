@@ -130,7 +130,7 @@ source_group("" FILES ${main_Files})
 
 set(ALL_FILES
     ${ALL_SLANG_FILES}
-	${GENERATED_SHADER_HEADERS}
+	  ${GENERATED_SHADER_HEADERS}
     ${main_Files}
 )
 

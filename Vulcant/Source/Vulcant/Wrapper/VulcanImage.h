@@ -1,5 +1,5 @@
 #pragma once
-#include "Library/Vulcant/Interface/VulcantImageUsage.h"
+#include "Vulcant/Interface/VulcantImageUsage.h"
 #include <string>
 #include <vector>
 #include <vulkan/vulkan.h>

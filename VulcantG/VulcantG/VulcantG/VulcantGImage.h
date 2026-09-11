@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Library/Vulcant/Interface/VulcantImage.h"
-#include "Library/Vulcant/Interface/VulcantImageFormat.h"
+#include "Vulcant/Interface/VulcantImage.h"
+#include "Vulcant/Interface/VulcantImageFormat.h"
 #include <memory>
 
 namespace Vulcant::VulcantG

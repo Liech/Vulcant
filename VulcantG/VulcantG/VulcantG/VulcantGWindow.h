@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Library/Vulcant/Interface/VulcantWindow.h"
+#include "Vulcant/Interface/VulcantWindow.h"
 #include <godot_cpp/classes/ref.hpp>
 #include <map>
 #include <memory>

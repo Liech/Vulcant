@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Library/Vulcant/Interface/VulcantInputValue.h"
+#include "Vulcant/Interface/VulcantInputValue.h"
 #include <godot_cpp/classes/ref.hpp>
 #include <godot_cpp/classes/input_event_key.hpp>
 #include <godot_cpp/classes/input_event_mouse_button.hpp>

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Library/Vulcant/Interface/VulcantBuffer.h"
-#include "Library/Vulcant/Interface/VulcantBufferType.h"
+#include "Vulcant/Interface/VulcantBuffer.h"
+#include "Vulcant/Interface/VulcantBufferType.h"
 #include <memory>
 
 namespace Vulcant::Wrapper

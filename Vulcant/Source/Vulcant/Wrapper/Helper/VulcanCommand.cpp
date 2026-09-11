@@ -1,8 +1,8 @@
 #include "VulcanCommand.h"
 
-#include "Library/Vulcant/Wrapper/VulcanDevice.h"
-#include "Library/Vulcant/Wrapper/VulcanInstance.h"
-#include "Library/Vulcant/Wrapper/VulcanPool.h"
+#include "Vulcant/Wrapper/VulcanDevice.h"
+#include "Vulcant/Wrapper/VulcanInstance.h"
+#include "Vulcant/Wrapper/VulcanPool.h"
 
 namespace Vulcant::Wrapper
 {

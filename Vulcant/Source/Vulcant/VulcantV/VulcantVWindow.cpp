@@ -1,10 +1,10 @@
 #include "VulcantVWindow.h"
 
-#include "Library/Vulcant/Wrapper/VulcanDevice.h"
-#include "Library/Vulcant/Wrapper/Window.h"
-#include "Library/Vulcant/VulcantV/VulcantVDevice.h"
-#include "Library/Vulcant/VulcantV/VulcantVImage.h"
-#include "Library/Vulcant/VulcantV/VulcantVInput.h"
+#include "Vulcant/Wrapper/VulcanDevice.h"
+#include "Vulcant/Wrapper/Window.h"
+#include "Vulcant/VulcantV/VulcantVDevice.h"
+#include "Vulcant/VulcantV/VulcantVImage.h"
+#include "Vulcant/VulcantV/VulcantVInput.h"
 
 namespace Vulcant::VulcantV
 {

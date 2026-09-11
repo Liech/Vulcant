@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Library/Vulcant/Interface/VulcantComputeCommand.h"
+#include "Vulcant/Interface/VulcantComputeCommand.h"
 #include <memory>
 
 namespace Vulcant::Wrapper

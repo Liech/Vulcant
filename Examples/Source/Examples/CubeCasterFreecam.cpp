@@ -3,19 +3,19 @@
 #include <stdexcept>
 #include <string_view>
 
-#include "Library/Vulcant/Interface/VulcantBuffer.h"
-#include "Library/Vulcant/Interface/VulcantComputeCommand.h"
-#include "Library/Vulcant/Interface/VulcantDevice.h"
-#include "Library/Vulcant/Interface/VulcantImage.h"
-#include "Library/Vulcant/Interface/VulcantInput.h"
-#include "Library/Vulcant/Interface/VulcantResource.h"
-#include "Library/Vulcant/Interface/VulcantSet.h"
-#include "Library/Vulcant/Interface/VulcantShader.h"
-#include "Library/Vulcant/Interface/VulcantWindow.h"
-#include "Library/Vulcant/Rendering/DeferredShading.h"
-#include "Library/Vulcant/Rendering/Freecam.h"
-#include "Library/Vulcant/Wrapper/Window.h"
-#include "Library/Vulcant/VulcantV/VulcantVDevice.h"
+#include "Vulcant/Interface/VulcantBuffer.h"
+#include "Vulcant/Interface/VulcantComputeCommand.h"
+#include "Vulcant/Interface/VulcantDevice.h"
+#include "Vulcant/Interface/VulcantImage.h"
+#include "Vulcant/Interface/VulcantInput.h"
+#include "Vulcant/Interface/VulcantResource.h"
+#include "Vulcant/Interface/VulcantSet.h"
+#include "Vulcant/Interface/VulcantShader.h"
+#include "Vulcant/Interface/VulcantWindow.h"
+#include "Rendering/DeferredShading.h"
+#include "Rendering/Freecam.h"
+#include "Vulcant/Wrapper/Window.h"
+#include "Vulcant/VulcantV/VulcantVDevice.h"
 #include "ShaderLibrary/Example/CubeCaster.h"
 
 namespace Vulcant::Examples

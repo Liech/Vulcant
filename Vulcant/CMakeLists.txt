@@ -138,12 +138,6 @@ add_library(Vulcant ${ALL_FILES})
 set_property(TARGET VulcantTest PROPERTY CXX_STANDARD 23)
 set_property(TARGET Vulcant PROPERTY CXX_STANDARD 23)
 
-
-if(MSVC) # strangly necessary because of heavy templating in openvdb and BrickSVOReader
-    target_compile_options(VulcantTest PRIVATE /bigobj)
-    target_compile_options(Vulcant PRIVATE /bigobj)
-endif()
-
 target_link_libraries(VulcantTest PRIVATE 
 Catch2::Catch2
 glm::glm

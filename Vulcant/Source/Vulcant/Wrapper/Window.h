@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Library/Vulcant/Interface/VulcantInputValue.h"
+#include "Vulcant/Interface/VulcantInputValue.h"
 #include <functional>
 #include <glm/glm.hpp>
 #include <memory>

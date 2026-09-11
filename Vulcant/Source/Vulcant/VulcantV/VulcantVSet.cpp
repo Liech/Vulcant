@@ -1,9 +1,9 @@
 #include "VulcantVSet.h"
 
-#include "Library/Vulcant/Interface/VulcantResource.h"
-#include "Library/Vulcant/Wrapper/VulcanResource.h"
-#include "Library/Vulcant/Wrapper/VulcanSet.h"
-#include "Library/Vulcant/VulcantV/VulcantVResource.h"
+#include "Vulcant/Interface/VulcantResource.h"
+#include "Vulcant/Wrapper/VulcanResource.h"
+#include "Vulcant/Wrapper/VulcanSet.h"
+#include "Vulcant/VulcantV/VulcantVResource.h"
 
 namespace Vulcant::VulcantV
 {

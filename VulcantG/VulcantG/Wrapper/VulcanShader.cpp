@@ -4,7 +4,7 @@
 #include <godot_cpp/classes/rd_shader_spirv.hpp>
 
 #include "VulcanDevice.h"
-#include "Library/Vulcant/Wrapper/ShaderCompiler.h"
+#include "Vulcant/Wrapper/ShaderCompiler.h"
 
 namespace Vulcant::VulcantG::Wrapper
 {
