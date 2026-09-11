@@ -14,7 +14,7 @@ set(Rendering_Files
     "Source/Rendering/Freecam.h"
     "Source/Rendering/Freecam.cpp"
 )
-source_group("Source/Vulcant/Rendering" FILES ${Rendering_Files})
+source_group("Source/Rendering" FILES ${Rendering_Files})
 
 
 set(Example_Files
@@ -35,7 +35,7 @@ set(Example_Files
     "Source/Examples/GraphicPipelineCube.cpp"
     "Source/Examples/GraphicPipelineCube.h"
 )
-source_group("Source/Vulcant/Examples" FILES ${Example_Files})
+source_group("Source/Examples" FILES ${Example_Files})
 
 
 set(ALL_FILES

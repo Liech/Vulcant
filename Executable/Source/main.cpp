@@ -1,48 +1,55 @@
-#include "Examples/MandelbrotImage.h"
-#include "Examples/SphereImage.h"
-#include "Examples/CubeCaster.h"
-#include "Examples/CubeCasterFreecam.h"
-#include "Examples/GraphicPipelineTriangle.h"
-#include "Examples/GraphicPipelineCube.h"
-#include "Examples/UiExample.h"
-
-const int WIDTH          = 1920; // Size of rendered mandelbrot set.
-const int HEIGHT         = 1080; // Size of renderered mandelbrot set.
-const int WORKGROUP_SIZE = 32;
-
-
-//void img()
-//{
-//    Vulcant::VulcantV::VulcantVDevice dev;
-//    auto&                             cmd   = dev.getDefaultCommand();
-//    auto                              img   = Library::Gigavox::Gigavoxel();
-//    Library::Gigavox::SceneData       scene = Library::Gigavox::Example::create_test_data();
-//
-//    std::string path = "C:/Users/nicol/Downloads/";
-//
-//    cmd.startRecord();
-//    img.setDevice(dev, cmd);
-//    img.setResolution(glm::ivec2(WIDTH, HEIGHT));
-//    img.setSceneData(scene);
-//    img.render();
-//    cmd.endRecord();
-//    cmd.runSync();
-//
-//    img.getColor().saveRenderedImage(path + "color.png");
-//    img.getDepth().saveRenderedImage(path + "depth.png");
-//    img.getNormal().saveRenderedImage(path + "normal.png");
-//}
-
+#include "Examples/Example.h"
+#include <iostream>
+#include <limits>
+#include <cstdlib>
+#include "Vulcant/Wrapper/Window.h"
+#include "Vulcant/VulcantV/VulcantVDevice.h"
+#include "Vulcant/Interface/VulcantDevice.h"
+#include "Vulcant/Interface/VulcantWindow.h"
 
 int main()
 {
-    //Vulcant::Examples::MandelbrotImage::demo();
-    //Vulcant::Examples::SphereImage::demo();
-    //Vulcant::Examples::CubeCaster::demo();
-    //Vulcant::Examples::CubeCasterFreecam::demo();
-    //Vulcant::Examples::GraphicPipelineTriangle::demo();
-    //Vulcant::Examples::GraphicPipelineCube::demo();
-    Vulcant::Examples::UiExample::demo();
+    auto all = Vulcant::Examples::Example::getAll();
+
+    if (all.empty())
+    {
+        std::cout << "No examples available.\n";
+        return EXIT_FAILURE;
+    }
+
+    std::cout << "Available examples:\n";
+    for (size_t i = 0; i < all.size(); ++i)
+    {
+        std::cout << i << ": " << all[i]->getName() << " - " << all[i]->getDescription() << "\n";
+    }
+
+    std::cout << "Choose example index: ";
+    int index = -1;
+    while (!(std::cin >> index) || index < 0 || static_cast<size_t>(index) >= all.size())
+    {
+        std::cin.clear();
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        std::cout << "Invalid selection. Enter a number between 0 and " << (all.size() - 1) << ": ";
+    }
+
+    auto chosen = all[static_cast<size_t>(index)];
+    std::cout << "Selected: " << chosen->getName() << "\n";
+
+    all.clear();
+    
+    {
+        auto                              windowExtensions = Vulcant::Wrapper::Window::getVulkanExtensions();
+        Vulcant::VulcantV::VulcantVDevice device(windowExtensions);
+        {
+            chosen->createWindow(device, glm::ivec2(800, 600)); // full window render loop
+            auto& window = chosen->getWindow();
+
+            while (!window.isClosed())
+            {
+                window.tick();
+            }
+        }
+    }
 
     return EXIT_SUCCESS;
 }

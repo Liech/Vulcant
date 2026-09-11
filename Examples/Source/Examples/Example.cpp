@@ -4,6 +4,9 @@
 #include "MandelbrotImage.h"
 #include "CubeCaster.h"
 #include "CubeCasterFreecam.h"
+#include "UiExample.h"
+#include "GraphicPipelineTriangle.h"
+#include "GraphicPipelineCube.h"
 
 namespace Vulcant::Examples
 {
@@ -14,6 +17,9 @@ namespace Vulcant::Examples
         result.push_back(std::make_shared<SphereImage>());
         result.push_back(std::make_shared<CubeCaster>());
         result.push_back(std::make_shared<CubeCasterFreecam>());
+        result.push_back(std::make_shared<UiExample>());
+        result.push_back(std::make_shared<GraphicPipelineTriangle>());
+        result.push_back(std::make_shared<GraphicPipelineCube>());
         return result;
     }
 }

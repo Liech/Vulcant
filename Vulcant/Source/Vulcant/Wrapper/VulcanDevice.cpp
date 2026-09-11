@@ -233,9 +233,9 @@ namespace Vulcant::Wrapper
             supportedExtensions.insert(ext.extensionName);
         }
 
-        std::cout << "[Vulcant] Selected GPU: " << deviceName
-                  << " (Vulkan API: " << VK_API_VERSION_MAJOR(apiVersion) << "."
-                  << VK_API_VERSION_MINOR(apiVersion) << "."
-                  << VK_API_VERSION_PATCH(apiVersion) << ")" << std::endl;
+        //std::cout << "[Vulcant] Selected GPU: " << deviceName
+        //          << " (Vulkan API: " << VK_API_VERSION_MAJOR(apiVersion) << "."
+        //          << VK_API_VERSION_MINOR(apiVersion) << "."
+        //          << VK_API_VERSION_PATCH(apiVersion) << ")" << std::endl;
     }
 }

@@ -51,7 +51,7 @@ namespace Vulcant::Examples
     void CubeCasterFreecam::createWindow(Vulcant::VulcantDevice& device, const glm::ivec2& res)
     {
         resolution = res;
-        window     = device.createWindow(resolution, "Cube Window (WASD)");
+        window     = device.createWindow(resolution, "Cube Window (ESC + WASD + Mouse)");
 
         glm::vec3 eye    = glm::vec3(0.0, 0.0, 3.0);
         glm::vec3 center = glm::vec3(0,0, 0.0);
