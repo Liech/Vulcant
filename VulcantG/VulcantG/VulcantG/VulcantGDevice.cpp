@@ -32,17 +32,17 @@ namespace Vulcant::VulcantG
 
     std::unique_ptr<VulcantBuffer> VulcantGDevice::createBuffer(size_t numberOfElements, size_t elementSize, bool gpuOnly)
     {
-        return std::make_unique<VulcantGBuffer>(numberOfElements, elementSize, *device, true, gpuOnly);
+        return std::make_unique<VulcantGBuffer>(numberOfElements, elementSize, *device, VulcantBufferType::Storage, gpuOnly);
     }
 
     std::unique_ptr<VulcantBuffer> VulcantGDevice::createVertexBuffer(size_t numberOfElements, size_t elementSize, bool gpuOnly)
     {
-        return std::make_unique<VulcantGBuffer>(numberOfElements, elementSize, *device, false, gpuOnly);
+        return std::make_unique<VulcantGBuffer>(numberOfElements, elementSize, *device, VulcantBufferType::Vertex, gpuOnly);
     }
 
     std::unique_ptr<VulcantBuffer> VulcantGDevice::createUniform(size_t numberOfElements, size_t elementSize)
     {
-        return std::make_unique<VulcantGBuffer>(numberOfElements, elementSize, *device, false, false);
+        return std::make_unique<VulcantGBuffer>(numberOfElements, elementSize, *device, VulcantBufferType::Uniform, false);
     }
 
     std::unique_ptr<VulcantComputeCommand> VulcantGDevice::createComputeCommand()
@@ -117,6 +117,6 @@ namespace Vulcant::VulcantG
 
     std::unique_ptr<VulcantUi> VulcantGDevice::createUi(VulcantWindow& window)
     {
-        return std::make_unique<VulcantGUi>();
+        return std::make_unique<VulcantGUi>(*device, &static_cast<VulcantGWindow&>(window));
     }
 }

@@ -19,16 +19,19 @@ namespace Vulcant::VulcantG::Wrapper
 
         godot::RID getPipeline() const;
         godot::RID getFramebuffer() const;
+        godot::RID getShader() const;
+        int64_t    getVertexFormat() const;
         glm::uvec2 getExtent() const;
 
       private:
         VulcanDevice& device;
         godot::RID    pipeline;
         godot::RID    framebuffer;
+        godot::RID    shaderRid;
+        int64_t       vertexFormat = 0;
         glm::uvec2    extent{ 0, 0 };
 
         void createFramebuffer(const std::vector<VulcanImage*>& color, VulcanImage* depth, VulcanImage* stencil);
         void createPipeline(const std::vector<VulcanShader*>& shader, const std::vector<VulcanImage*>& color, VulcanImage* depth, VulcanImage* stencil);
-
     };
 }

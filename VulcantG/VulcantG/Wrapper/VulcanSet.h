@@ -22,6 +22,7 @@ namespace Vulcant::VulcantG::Wrapper
         void updateResource(size_t set_idx, size_t binding_idx, const VulcanResource& newResource);
 
         void bind(int64_t compute_list) const;
+        void bindDrawList(int64_t draw_list) const;
 
       private:
         void createDescriptorSet(int target_set_idx = -1);

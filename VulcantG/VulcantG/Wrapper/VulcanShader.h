@@ -6,6 +6,7 @@
 #include <godot_cpp/variant/packed_byte_array.hpp>
 #include <string>
 #include "Vulcant/Wrapper/ShaderBindingDefinition.h"
+#include "Vulcant/Wrapper/ShaderCompiler.h"
 
 namespace godot
 {
@@ -21,7 +22,7 @@ namespace Vulcant::VulcantG::Wrapper
       public:
         VulcanShader(const std::string& source, VulcanDevice& device, godot::RenderingDevice::ShaderStage stage = godot::RenderingDevice::ShaderStage::SHADER_STAGE_COMPUTE);
         VulcanShader(const godot::String& source, VulcanDevice& device, godot::RenderingDevice::ShaderStage stage = godot::RenderingDevice::ShaderStage::SHADER_STAGE_COMPUTE);
-        VulcanShader(const std::vector<uint32_t>& spriv, VulcanDevice& device, godot::RenderingDevice::ShaderStage stage = godot::RenderingDevice::ShaderStage::SHADER_STAGE_COMPUTE);
+        VulcanShader(const std::vector<uint32_t>& spriv, VulcanDevice& device, godot::RenderingDevice::ShaderStage stage = godot::RenderingDevice::ShaderStage::SHADER_STAGE_MAX);
 
         static godot::RID compile(const std::string& source, VulcanDevice&, godot::RenderingDevice::ShaderStage = godot::RenderingDevice::ShaderStage::SHADER_STAGE_COMPUTE);
         static godot::RID compile(const godot::String& source, VulcanDevice&, godot::RenderingDevice::ShaderStage = godot::RenderingDevice::ShaderStage::SHADER_STAGE_COMPUTE);
@@ -32,6 +33,10 @@ namespace Vulcant::VulcantG::Wrapper
         void bind(int64_t compute_list);
 
         const std::vector<std::vector<Vulcant::Wrapper::ShaderBindingDefinition>>& getLayout() const;
+        const std::vector<uint32_t>& getSpirv() const;
+        godot::RenderingDevice::ShaderStage getStage() const;
+        godot::PackedByteArray getBytecode() const;
+        std::vector<Vulcant::Wrapper::VertexAttribute> getVertexLayout() const;
 
       private:
         std::vector<std::vector<Vulcant::Wrapper::ShaderBindingDefinition>> layouts;
@@ -39,5 +44,8 @@ namespace Vulcant::VulcantG::Wrapper
 
         godot::RID shader;
         godot::RID pipeline;
+        std::vector<uint32_t> spirv;
+        godot::RenderingDevice::ShaderStage stage = godot::RenderingDevice::SHADER_STAGE_COMPUTE;
+        godot::PackedByteArray bytecode;
     };
 }

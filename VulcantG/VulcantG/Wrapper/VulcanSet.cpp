@@ -88,6 +88,19 @@ namespace Vulcant::VulcantG::Wrapper
         }
     }
 
+    void VulcanSet::bindDrawList(int64_t draw_list) const
+    {
+        godot::RenderingDevice& rd = device.getDevice();
+
+        for (uint32_t set_idx = 0; set_idx < uniformSetRids.size(); ++set_idx)
+        {
+            if (uniformSetRids[set_idx].is_valid())
+            {
+                rd.draw_list_bind_uniform_set(draw_list, uniformSetRids[set_idx], set_idx);
+            }
+        }
+    }
+
     void VulcanSet::updateResource(size_t set_idx, size_t binding_idx, const VulcanResource& newResource)
     {
         if (set_idx >= resources.size() || binding_idx >= resources[set_idx].size())

@@ -23,16 +23,33 @@ namespace Vulcant::VulcantG::Wrapper
         pipeline = device.getDevice().compute_pipeline_create(shader);
     }
 
-    VulcanShader::VulcanShader(const std::vector<uint32_t>& spriv, VulcanDevice& deviceInput, godot::RenderingDevice::ShaderStage stage)
+    VulcanShader::VulcanShader(const std::vector<uint32_t>& spriv, VulcanDevice& deviceInput, godot::RenderingDevice::ShaderStage stageInput)
       : device(deviceInput)
+      , spirv(spriv)
     {
         layouts = Vulcant::Wrapper::ShaderCompiler::getLayout(spriv);
-        godot::PackedByteArray bytecode;
+
+        if (stageInput == godot::RenderingDevice::SHADER_STAGE_MAX)
+        {
+            VkShaderStageFlagBits stageFlags = Vulcant::Wrapper::ShaderCompiler::getShaderStage(spriv);
+            if (stageFlags & VK_SHADER_STAGE_VERTEX_BIT)
+                stage = godot::RenderingDevice::SHADER_STAGE_VERTEX;
+            else if (stageFlags & VK_SHADER_STAGE_FRAGMENT_BIT)
+                stage = godot::RenderingDevice::SHADER_STAGE_FRAGMENT;
+            else
+                stage = godot::RenderingDevice::SHADER_STAGE_COMPUTE;
+        }
+        else
+        {
+            stage = stageInput;
+        }
+
         bytecode.resize(spriv.size() * sizeof(uint32_t));
         if (!spriv.empty())
         {
             memcpy(bytecode.ptrw(), spriv.data(), bytecode.size());
         }
+
         godot::Ref<godot::RDShaderSPIRV> rd_spirv;
         rd_spirv.instantiate();
         rd_spirv->set_stage_bytecode(stage, bytecode);
@@ -44,7 +61,10 @@ namespace Vulcant::VulcantG::Wrapper
             throw std::runtime_error("Failed to create shader from Slang-generated SPIR-V.");
         }
 
-        pipeline = device.getDevice().compute_pipeline_create(shader);
+        if (stage == godot::RenderingDevice::SHADER_STAGE_COMPUTE)
+        {
+            pipeline = device.getDevice().compute_pipeline_create(shader);
+        }
     }
 
     godot::RID VulcanShader::getShader() const
@@ -58,7 +78,10 @@ namespace Vulcant::VulcantG::Wrapper
 
     void VulcanShader::bind(int64_t compute_list)
     {
-        device.getDevice().compute_list_bind_compute_pipeline(compute_list, pipeline);
+        if (pipeline.is_valid())
+        {
+            device.getDevice().compute_list_bind_compute_pipeline(compute_list, pipeline);
+        }
     }
 
     godot::RID VulcanShader::compile(const std::string& source, VulcanDevice& device, godot::RenderingDevice::ShaderStage stage)
@@ -87,5 +110,27 @@ namespace Vulcant::VulcantG::Wrapper
     const std::vector<std::vector<Vulcant::Wrapper::ShaderBindingDefinition>>& VulcanShader::getLayout() const
     {
         return layouts;
+    }
+
+    const std::vector<uint32_t>& VulcanShader::getSpirv() const
+    {
+        return spirv;
+    }
+
+    godot::RenderingDevice::ShaderStage VulcanShader::getStage() const
+    {
+        return stage;
+    }
+
+    godot::PackedByteArray VulcanShader::getBytecode() const
+    {
+        return bytecode;
+    }
+
+    std::vector<Vulcant::Wrapper::VertexAttribute> VulcanShader::getVertexLayout() const
+    {
+        if (spirv.empty())
+            return {};
+        return Vulcant::Wrapper::ShaderCompiler::getVertexInputLayout(spirv);
     }
 }

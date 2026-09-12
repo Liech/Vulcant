@@ -6,6 +6,11 @@
 
 namespace Vulcant::VulcantG
 {
+    VulcantGBuffer::VulcantGBuffer(size_t numberOfElements, size_t elementSize, Wrapper::VulcanDevice& device, VulcantBufferType type, bool gpu)
+    {
+        buffer = std::make_unique<Wrapper::VulcanBuffer>(numberOfElements, elementSize, device, type, gpu);
+    }
+
     VulcantGBuffer::VulcantGBuffer(size_t numberOfElements, size_t elementSize, Wrapper::VulcanDevice& device, bool ssbo, bool gpu)
     {
         buffer = std::make_unique<Wrapper::VulcanBuffer>(numberOfElements, elementSize, device, ssbo, gpu);

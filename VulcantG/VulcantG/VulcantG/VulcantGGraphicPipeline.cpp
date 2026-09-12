@@ -22,7 +22,10 @@ namespace Vulcant::VulcantG
         for (const auto& x : color)
             wColor.push_back(x->img.get());
 
-        pipe = std::make_unique<Wrapper::VulcanGraphicPipeline>(device.__getDevice(), wShader, wColor, depth->img.get(), stencil->img.get());
+        Wrapper::VulcanImage* wDepth   = depth ? depth->img.get() : nullptr;
+        Wrapper::VulcanImage* wStencil = stencil ? stencil->img.get() : nullptr;
+
+        pipe = std::make_unique<Wrapper::VulcanGraphicPipeline>(device.__getDevice(), wShader, wColor, wDepth, wStencil);
     }
 
     VulcantGGraphicPipeline::~VulcantGGraphicPipeline() {}

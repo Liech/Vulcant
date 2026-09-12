@@ -25,7 +25,12 @@ namespace Vulcant::VulcantG::Wrapper
         void endRendering();
 
         void startRecord();
+        void setViewportAndScissor(glm::uvec2 extent);
+        void draw(uint32_t vertexCount, VulcanSet* set = nullptr, VulcanBuffer* vertexBuffer = nullptr);
         void add(uint32_t vertexCount, const VulcanSet& set, VulcanShader& shader, VulcanBuffer* vertexBuffer);
+        void addBarrier(VulcanImage& inputImg, const VulcantResourceLayout& dest);
+        void addBarrier(VulcanBuffer& buffer);
+        void queueTask(std::function<void()> task);
         void endRecord();
 
         void runAsync();
@@ -33,17 +38,20 @@ namespace Vulcant::VulcantG::Wrapper
         void wait();
 
         int64_t getDrawList() const;
+        VulcanDevice& getDevice();
 
       private:
         VulcanDevice& device;
         bool          isRecording = false;
         bool          isSubmitted = false;
         int64_t       drawList    = 0;
+        glm::uvec2    viewportExtent{ 0, 0 };
 
         VulcanGraphicPipeline* currentPipeline = nullptr;
 
         std::vector<std::function<void()>> beforeQueue;
         std::vector<std::function<void()>> drawListQueue;
         std::vector<std::function<void()>> afterQueue;
+        std::vector<godot::RID>            createdVertexArrays;
     };
 }

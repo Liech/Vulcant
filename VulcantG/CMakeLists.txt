@@ -28,7 +28,8 @@ set(VulcantG_Wrapper_Files
     "VulcantG/Wrapper/VulcanGraphicCommand.h"    
     "VulcantG/Wrapper/VulcanGraphicPipeline.h"    
     "VulcantG/Wrapper/VulcanGraphicPipeline.cpp"    
-	
+    "VulcantG/Wrapper/VulcanUi.h"
+    "VulcantG/Wrapper/VulcanUi.cpp"
 )
 source_group("Source/VulcantG/Wrapper" FILES ${VulcantG_Wrapper_Files})
 

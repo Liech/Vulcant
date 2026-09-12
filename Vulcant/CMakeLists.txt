@@ -153,6 +153,7 @@ imgui::imgui
 target_link_libraries(Vulcant PUBLIC 
 glm::glm
 nlohmann_json::nlohmann_json
+imgui::imgui
 )
 
 target_link_libraries(Vulcant PRIVATE 
@@ -161,7 +162,6 @@ Vulkan::Vulkan
 unofficial::shaderc::shaderc
 unofficial::spirv-reflect
 glfw
-imgui::imgui
 )
 
 target_include_directories(Vulcant PUBLIC 

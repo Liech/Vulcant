@@ -6,14 +6,19 @@
 
 namespace Vulcant::VulcantG::Wrapper
 {
-    VulcanBuffer::VulcanBuffer(size_t numberOfElements, size_t elementSize, VulcanDevice& device, bool ssbo, bool gpuOnlyInput)
+    VulcanBuffer::VulcanBuffer(size_t numberOfElements, size_t elementSize, VulcanDevice& device, VulcantBufferType type, bool gpuOnlyInput)
       : device(device)
       , numberOfElements(static_cast<uint32_t>(numberOfElements))
       , elementSize(static_cast<uint32_t>(elementSize))
       , gpuOnly(gpuOnlyInput)
-      , isSSBO(ssbo)
+      , bufferType(type)
     {
         createBuffer();
+    }
+
+    VulcanBuffer::VulcanBuffer(size_t numberOfElements, size_t elementSize, VulcanDevice& device, bool ssbo, bool gpuOnlyInput)
+      : VulcanBuffer(numberOfElements, elementSize, device, ssbo ? VulcantBufferType::Storage : VulcantBufferType::Uniform, gpuOnlyInput)
+    {
     }
 
     VulcanBuffer::~VulcanBuffer()
@@ -28,13 +33,21 @@ namespace Vulcant::VulcantG::Wrapper
     {
         size_t total_size = getTotalByteSize();
 
-        if (isSSBO)
+        switch (bufferType)
         {
-            bufferRid = device.getDevice().storage_buffer_create(total_size);
-        }
-        else
-        {
-            bufferRid = device.getDevice().uniform_buffer_create(total_size);
+            case VulcantBufferType::Storage:
+                bufferRid = device.getDevice().storage_buffer_create(total_size);
+                break;
+            case VulcantBufferType::Uniform:
+                bufferRid = device.getDevice().uniform_buffer_create(total_size);
+                break;
+            case VulcantBufferType::Vertex:
+                bufferRid = device.getDevice().vertex_buffer_create(static_cast<uint32_t>(total_size));
+                break;
+            case VulcantBufferType::Index:
+                bufferRid = device.getDevice().index_buffer_create(static_cast<uint32_t>(numberOfElements),
+                                                                    elementSize == 2 ? godot::RenderingDevice::INDEX_BUFFER_FORMAT_UINT16 : godot::RenderingDevice::INDEX_BUFFER_FORMAT_UINT32);
+                break;
         }
     }
 
@@ -58,9 +71,16 @@ namespace Vulcant::VulcantG::Wrapper
         return numberOfElements * elementSize;
     }
 
+    VulcantBufferType VulcanBuffer::getBufferType() const
+    {
+        return bufferType;
+    }
+
     VulcanResource VulcanBuffer::asResource() const
     {
-        godot::RenderingDevice::UniformType type = isSSBO ? godot::RenderingDevice::UNIFORM_TYPE_STORAGE_BUFFER : godot::RenderingDevice::UNIFORM_TYPE_UNIFORM_BUFFER;
+        godot::RenderingDevice::UniformType type = (bufferType == VulcantBufferType::Storage) ?
+            godot::RenderingDevice::UNIFORM_TYPE_STORAGE_BUFFER :
+            godot::RenderingDevice::UNIFORM_TYPE_UNIFORM_BUFFER;
         return { type, getRid() };
     }
 

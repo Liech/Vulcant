@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Vulcant/Interface/VulcantBufferType.h"
 #include <godot_cpp/classes/rendering_device.hpp>
 #include <godot_cpp/variant/rid.hpp>
 #include <string>
@@ -12,7 +13,8 @@ namespace Vulcant::VulcantG::Wrapper
     class VulcanBuffer
     {
       public:
-        VulcanBuffer(size_t numberOfElements, size_t elementSize, VulcanDevice& device, bool ssbo = true, bool gpuOnly = false);
+        VulcanBuffer(size_t numberOfElements, size_t elementSize, VulcanDevice& device, VulcantBufferType bufferType = VulcantBufferType::Storage, bool gpuOnly = false);
+        VulcanBuffer(size_t numberOfElements, size_t elementSize, VulcanDevice& device, bool ssbo, bool gpuOnly = false);
         virtual ~VulcanBuffer();
 
         godot::RID getRid() const;
@@ -20,6 +22,7 @@ namespace Vulcant::VulcantG::Wrapper
         size_t getNumberOfElements() const;
         size_t getElementSize() const;
         size_t getTotalByteSize() const;
+        VulcantBufferType getBufferType() const;
 
         VulcanResource asResource() const;
 
@@ -35,6 +38,6 @@ namespace Vulcant::VulcantG::Wrapper
         uint32_t   numberOfElements;
         uint32_t   elementSize;
         bool       gpuOnly = false;
-        bool       isSSBO  = true;
+        VulcantBufferType bufferType = VulcantBufferType::Storage;
     };
 }

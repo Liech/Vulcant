@@ -100,8 +100,28 @@ namespace Vulcant::VulcantG::Wrapper
         tf->set_array_layers(1);
         tf->set_mipmaps(1);
 
-        tf->set_usage_bits(RenderingDevice::TEXTURE_USAGE_STORAGE_BIT | RenderingDevice::TEXTURE_USAGE_SAMPLING_BIT | RenderingDevice::TEXTURE_USAGE_CAN_COPY_FROM_BIT |
-                           RenderingDevice::TEXTURE_USAGE_CAN_UPDATE_BIT);
+        bool isDepth = (format == RenderingDevice::DATA_FORMAT_D32_SFLOAT ||
+                        format == RenderingDevice::DATA_FORMAT_D16_UNORM ||
+                        format == RenderingDevice::DATA_FORMAT_D24_UNORM_S8_UINT ||
+                        format == RenderingDevice::DATA_FORMAT_D32_SFLOAT_S8_UINT ||
+                        format == RenderingDevice::DATA_FORMAT_X8_D24_UNORM_PACK32);
+
+        uint32_t usageBits = RenderingDevice::TEXTURE_USAGE_SAMPLING_BIT |
+                             RenderingDevice::TEXTURE_USAGE_CAN_COPY_FROM_BIT |
+                             RenderingDevice::TEXTURE_USAGE_CAN_COPY_TO_BIT |
+                             RenderingDevice::TEXTURE_USAGE_CAN_UPDATE_BIT;
+
+        if (isDepth)
+        {
+            usageBits |= RenderingDevice::TEXTURE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+        }
+        else
+        {
+            usageBits |= RenderingDevice::TEXTURE_USAGE_STORAGE_BIT |
+                         RenderingDevice::TEXTURE_USAGE_COLOR_ATTACHMENT_BIT;
+        }
+
+        tf->set_usage_bits(usageBits);
         Ref<RDTextureView> tv;
         tv.instantiate();
 

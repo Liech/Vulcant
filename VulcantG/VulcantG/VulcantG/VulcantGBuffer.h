@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Vulcant/Interface/VulcantBuffer.h"
+#include "Vulcant/Interface/VulcantBufferType.h"
 #include <memory>
 
 namespace Vulcant::VulcantG
@@ -14,6 +15,7 @@ namespace Vulcant::VulcantG
     class VulcantGBuffer : public VulcantBuffer
     {
       public:
+        VulcantGBuffer(size_t numberOfElements, size_t elementSize, Wrapper::VulcanDevice& device, VulcantBufferType type, bool gpu);
         VulcantGBuffer(size_t numberOfElements, size_t elementSize, Wrapper::VulcanDevice& device, bool ssbo, bool gpu);
         virtual ~VulcantGBuffer();
 

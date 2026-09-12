@@ -13,64 +13,150 @@ namespace Vulcant::VulcantG::Wrapper
     {
         if (isRecording)
             endRecord();
+
+        auto& rd = device.getDevice();
+        for (auto& va : createdVertexArrays)
+        {
+            if (va.is_valid())
+            {
+                rd.free_rid(va);
+            }
+        }
+        createdVertexArrays.clear();
     }
 
-    void VulcanGraphicCommand::beginRendering(VulcanGraphicPipeline& pipeline) { currentPipeline = &pipeline; }
+    void VulcanGraphicCommand::beginRendering(VulcanGraphicPipeline& pipeline)
+    {
+        currentPipeline = &pipeline;
+    }
+
     void VulcanGraphicCommand::endRendering()
     {
+        drawListQueue.push_back(
+          [this]()
+          {
+              if (drawList != 0)
+              {
+                  device.getDevice().draw_list_end();
+                  drawList = 0;
+              }
+          });
         currentPipeline = nullptr;
     }
 
-
     void VulcanGraphicCommand::startRecord()
     {
-        assert(drawListQueue.size() == 0);
-        assert(!isSubmitted);
-        assert(!isRecording);
+        auto& rd = device.getDevice();
+        for (auto& va : createdVertexArrays)
+        {
+            if (va.is_valid())
+            {
+                rd.free_rid(va);
+            }
+        }
+        createdVertexArrays.clear();
+
+        beforeQueue.clear();
+        drawListQueue.clear();
+        afterQueue.clear();
 
         drawListQueue.push_back([this]() { device.getDevice().capture_timestamp("VulcanGraphicCommand::startRecord"); });
         isRecording = true;
         isSubmitted = false;
+        drawList    = 0;
     }
 
-    void VulcanGraphicCommand::add(uint32_t vertexCount, const VulcanSet& set, VulcanShader& shader, VulcanBuffer* vertexBuffer)
+    void VulcanGraphicCommand::setViewportAndScissor(glm::uvec2 extent)
+    {
+        viewportExtent = extent;
+        drawListQueue.push_back(
+          [this, extent]()
+          {
+              if (drawList != 0)
+              {
+                  device.getDevice().draw_list_enable_scissor(drawList, godot::Rect2(0, 0, extent.x, extent.y));
+              }
+          });
+    }
+
+    void VulcanGraphicCommand::draw(uint32_t vertexCount, VulcanSet* set, VulcanBuffer* vertexBuffer)
     {
         assert(currentPipeline);
+        auto* pipe   = currentPipeline;
+        auto  extent = (viewportExtent.x > 0 && viewportExtent.y > 0) ? viewportExtent : pipe->getExtent();
 
         drawListQueue.push_back(
-          [this, vertexCount, &set, &shader, vertexBuffer]()
+          [this, pipe, extent, vertexCount, set, vertexBuffer]()
           {
               auto& rd = device.getDevice();
 
               if (drawList == 0)
               {
                   godot::PackedColorArray clear_colors;
-                  clear_colors.push_back(godot::Color(0.1f, 0.1f, 0.1f, 1.0f));
+                  clear_colors.push_back(godot::Color(0.0f, 0.0f, 0.0f, 1.0f));
 
-                  auto         extent = currentPipeline->getExtent();
                   godot::Rect2 region(0, 0, extent.x, extent.y);
 
-                  drawList = rd.draw_list_begin(currentPipeline->getFramebuffer(),
+                  drawList = rd.draw_list_begin(pipe->getFramebuffer(),
                                                 godot::RenderingDevice::DRAW_DEFAULT_ALL,
                                                 clear_colors,
-                                                1.0f, // Clear Depth
-                                                0,    // Clear Stencil
+                                                1.0f,
+                                                0,
                                                 region,
-                                                0 // Breadcrumb
-                  );
+                                                0);
               }
 
-              rd.draw_list_bind_render_pipeline(drawList, currentPipeline->getPipeline());
-              shader.bind(drawList);
-              set.bind(drawList);
+              rd.draw_list_bind_render_pipeline(drawList, pipe->getPipeline());
+
+              if (set)
+              {
+                  set->bindDrawList(drawList);
+              }
 
               if (vertexBuffer && vertexBuffer->getRid().is_valid())
               {
-                  rd.draw_list_bind_vertex_array(drawList, vertexBuffer->getRid());
+                  godot::TypedArray<godot::RID> src_buffers;
+                  src_buffers.push_back(vertexBuffer->getRid());
+                  godot::PackedInt64Array offsets;
+                  offsets.push_back(0);
+                  godot::RID vertexArray = rd.vertex_array_create(vertexCount, pipe->getVertexFormat(), src_buffers, offsets);
+                  if (vertexArray.is_valid())
+                  {
+                      createdVertexArrays.push_back(vertexArray);
+                      rd.draw_list_bind_vertex_array(drawList, vertexArray);
+                  }
               }
 
               rd.draw_list_draw(drawList, false, 1, vertexCount);
           });
+    }
+
+    void VulcanGraphicCommand::add(uint32_t vertexCount, const VulcanSet& set, VulcanShader& shader, VulcanBuffer* vertexBuffer)
+    {
+        draw(vertexCount, const_cast<VulcanSet*>(&set), vertexBuffer);
+    }
+
+    void VulcanGraphicCommand::addBarrier(VulcanImage& inputImg, const VulcantResourceLayout& dest)
+    {
+        drawListQueue.push_back(
+          [this]()
+          {
+              device.getDevice().full_barrier();
+          });
+    }
+
+    void VulcanGraphicCommand::addBarrier(VulcanBuffer& buffer)
+    {
+        drawListQueue.push_back(
+          [this]()
+          {
+              device.getDevice().full_barrier();
+          });
+    }
+
+    void VulcanGraphicCommand::queueTask(std::function<void()> task)
+    {
+        drawListQueue.push_back(std::move(task));
     }
 
     void VulcanGraphicCommand::endRecord()
@@ -115,16 +201,23 @@ namespace Vulcant::VulcantG::Wrapper
 
     void VulcanGraphicCommand::wait()
     {
-        assert(isSubmitted);
-        if (!device.isGlobal())
+        if (isSubmitted)
         {
-            device.getDevice().sync();
+            if (!device.isGlobal())
+            {
+                device.getDevice().sync();
+            }
+            isSubmitted = false;
         }
-        isSubmitted = false;
     }
 
     int64_t VulcanGraphicCommand::getDrawList() const
     {
         return drawList;
+    }
+
+    VulcanDevice& VulcanGraphicCommand::getDevice()
+    {
+        return device;
     }
 }
