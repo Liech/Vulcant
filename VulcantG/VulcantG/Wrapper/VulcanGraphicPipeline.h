@@ -22,6 +22,7 @@ namespace Vulcant::VulcantG::Wrapper
         godot::RID getShader() const;
         int64_t    getVertexFormat() const;
         glm::uvec2 getExtent() const;
+        size_t     getVertexAttributeCount() const;
 
       private:
         VulcanDevice& device;
@@ -30,6 +31,7 @@ namespace Vulcant::VulcantG::Wrapper
         godot::RID    shaderRid;
         int64_t       vertexFormat = 0;
         glm::uvec2    extent{ 0, 0 };
+        size_t        vertexAttributeCount = 0;
 
         void createFramebuffer(const std::vector<VulcanImage*>& color, VulcanImage* depth, VulcanImage* stencil);
         void createPipeline(const std::vector<VulcanShader*>& shader, const std::vector<VulcanImage*>& color, VulcanImage* depth, VulcanImage* stencil);

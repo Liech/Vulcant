@@ -1,15 +1,15 @@
 #include "VulcanGraphicPipeline.h"
-#include <godot_cpp/classes/rendering_device.hpp>
-#include <godot_cpp/classes/rd_vertex_attribute.hpp>
-#include <godot_cpp/classes/rd_pipeline_rasterization_state.hpp>
+#include "VulcanDevice.h"
 #include <godot_cpp/classes/rd_pipeline_color_blend_state.hpp>
 #include <godot_cpp/classes/rd_pipeline_color_blend_state_attachment.hpp>
 #include <godot_cpp/classes/rd_pipeline_depth_stencil_state.hpp>
 #include <godot_cpp/classes/rd_pipeline_multisample_state.hpp>
+#include <godot_cpp/classes/rd_pipeline_rasterization_state.hpp>
 #include <godot_cpp/classes/rd_shader_spirv.hpp>
+#include <godot_cpp/classes/rd_vertex_attribute.hpp>
+#include <godot_cpp/classes/rendering_device.hpp>
 #include <godot_cpp/variant/typed_array.hpp>
 #include <stdexcept>
-#include "VulcanDevice.h"
 
 namespace Vulcant::VulcantG::Wrapper
 {
@@ -129,7 +129,8 @@ namespace Vulcant::VulcantG::Wrapper
         godot::TypedArray<godot::RDVertexAttribute> vertex_attributes;
         if (vertShader)
         {
-            auto     layout = vertShader->getVertexLayout();
+            auto layout          = vertShader->getVertexLayout();
+            vertexAttributeCount = static_cast<uint32_t>(layout.size());
             uint32_t stride = 0;
             for (const auto& attr : layout)
             {
@@ -177,9 +178,8 @@ namespace Vulcant::VulcantG::Wrapper
                         break;
                 }
                 rd_attr->set_format(df);
-                rd_attr->set_frequency(attr.rate == Vulcant::Wrapper::InputRate::Instance ?
-                                        godot::RenderingDevice::VERTEX_FREQUENCY_INSTANCE :
-                                        godot::RenderingDevice::VERTEX_FREQUENCY_VERTEX);
+                rd_attr->set_frequency(attr.rate == Vulcant::Wrapper::InputRate::Instance ? godot::RenderingDevice::VERTEX_FREQUENCY_INSTANCE : godot::RenderingDevice::VERTEX_FREQUENCY_VERTEX);
+
                 vertex_attributes.push_back(rd_attr);
                 currentOffset += attr.size;
             }
@@ -226,15 +226,12 @@ namespace Vulcant::VulcantG::Wrapper
         }
         color_blend_state->set_attachments(blend_attachments);
 
-        pipeline = rd.render_pipeline_create(shaderRid,
-                                             framebufferFormat,
-                                             vertexFormat,
-                                             godot::RenderingDevice::RENDER_PRIMITIVE_TRIANGLES,
-                                             rasterization_state,
-                                             multisample_state,
-                                             depth_stencil_state,
-                                             color_blend_state,
-                                             0,
-                                             0);
+        pipeline = rd.render_pipeline_create(
+          shaderRid, framebufferFormat, vertexFormat, godot::RenderingDevice::RENDER_PRIMITIVE_TRIANGLES, rasterization_state, multisample_state, depth_stencil_state, color_blend_state, 0, 0);
+    }
+
+    size_t VulcanGraphicPipeline::getVertexAttributeCount() const
+    {
+        return vertexAttributeCount;
     }
 }
