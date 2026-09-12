@@ -48,6 +48,7 @@ int main()
             {
                 window.tick();
             }
+            chosen.reset();
         }
     }
 

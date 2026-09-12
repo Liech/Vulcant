@@ -1,32 +1,33 @@
 #include "VulcanUi.h"
 
 #include "VulcanDevice.h"
-#include "VulcanImage.h"
 #include "VulcanGraphicCommand.h"
-#include "VulcantG/VulcantG/VulcantGWindow.h"
+#include "VulcanImage.h"
 #include "Vulcant/Interface/VulcantInput.h"
 #include "Vulcant/Interface/VulcantInputValue.h"
+#include "VulcantG/VulcantG/VulcantGWindow.h"
 
-#include <imgui.h>
+#include <godot_cpp/classes/engine.hpp>
+#include <godot_cpp/classes/rd_pipeline_color_blend_state.hpp>
+#include <godot_cpp/classes/rd_pipeline_color_blend_state_attachment.hpp>
+#include <godot_cpp/classes/rd_pipeline_depth_stencil_state.hpp>
+#include <godot_cpp/classes/rd_pipeline_multisample_state.hpp>
+#include <godot_cpp/classes/rd_pipeline_rasterization_state.hpp>
+#include <godot_cpp/classes/rd_sampler_state.hpp>
 #include <godot_cpp/classes/rd_shader_source.hpp>
 #include <godot_cpp/classes/rd_shader_spirv.hpp>
 #include <godot_cpp/classes/rd_texture_format.hpp>
 #include <godot_cpp/classes/rd_texture_view.hpp>
-#include <godot_cpp/classes/rd_sampler_state.hpp>
 #include <godot_cpp/classes/rd_uniform.hpp>
 #include <godot_cpp/classes/rd_vertex_attribute.hpp>
-#include <godot_cpp/classes/rd_pipeline_rasterization_state.hpp>
-#include <godot_cpp/classes/rd_pipeline_multisample_state.hpp>
-#include <godot_cpp/classes/rd_pipeline_depth_stencil_state.hpp>
-#include <godot_cpp/classes/rd_pipeline_color_blend_state.hpp>
-#include <godot_cpp/classes/rd_pipeline_color_blend_state_attachment.hpp>
-#include <godot_cpp/variant/typed_array.hpp>
 #include <godot_cpp/variant/packed_byte_array.hpp>
 #include <godot_cpp/variant/packed_color_array.hpp>
 #include <godot_cpp/variant/rect2.hpp>
+#include <godot_cpp/variant/typed_array.hpp>
+#include <imgui.h>
 
-#include <cstring>
 #include <algorithm>
+#include <cstring>
 
 namespace Vulcant::VulcantG::Wrapper
 {
@@ -108,31 +109,31 @@ namespace Vulcant::VulcantG::Wrapper
         shader_source.instantiate();
 
         shader_source->set_stage_source(godot::RenderingDevice::SHADER_STAGE_VERTEX,
-            "#version 450\n"
-            "layout(location = 0) in vec2 aPos;\n"
-            "layout(location = 1) in vec2 aUV;\n"
-            "layout(location = 2) in vec4 aColor;\n"
-            "layout(push_constant) uniform PushConstants {\n"
-            "    vec2 uScale;\n"
-            "    vec2 uTranslate;\n"
-            "} pc;\n"
-            "layout(location = 0) out vec2 vUV;\n"
-            "layout(location = 1) out vec4 vColor;\n"
-            "void main() {\n"
-            "    vUV = aUV;\n"
-            "    vColor = aColor;\n"
-            "    gl_Position = vec4(aPos * pc.uScale + pc.uTranslate, 0.0, 1.0);\n"
-            "}\n");
+                                        "#version 450\n"
+                                        "layout(location = 0) in vec2 aPos;\n"
+                                        "layout(location = 1) in vec2 aUV;\n"
+                                        "layout(location = 2) in vec4 aColor;\n"
+                                        "layout(push_constant) uniform PushConstants {\n"
+                                        "    vec2 uScale;\n"
+                                        "    vec2 uTranslate;\n"
+                                        "} pc;\n"
+                                        "layout(location = 0) out vec2 vUV;\n"
+                                        "layout(location = 1) out vec4 vColor;\n"
+                                        "void main() {\n"
+                                        "    vUV = aUV;\n"
+                                        "    vColor = aColor;\n"
+                                        "    gl_Position = vec4(aPos * pc.uScale + pc.uTranslate, 0.0, 1.0);\n"
+                                        "}\n");
 
         shader_source->set_stage_source(godot::RenderingDevice::SHADER_STAGE_FRAGMENT,
-            "#version 450\n"
-            "layout(location = 0) in vec2 vUV;\n"
-            "layout(location = 1) in vec4 vColor;\n"
-            "layout(binding = 0) uniform sampler2D sTexture;\n"
-            "layout(location = 0) out vec4 fColor;\n"
-            "void main() {\n"
-            "    fColor = vColor * texture(sTexture, vUV);\n"
-            "}\n");
+                                        "#version 450\n"
+                                        "layout(location = 0) in vec2 vUV;\n"
+                                        "layout(location = 1) in vec4 vColor;\n"
+                                        "layout(binding = 0) uniform sampler2D sTexture;\n"
+                                        "layout(location = 0) out vec4 fColor;\n"
+                                        "void main() {\n"
+                                        "    fColor = vColor * texture(sTexture, vUV);\n"
+                                        "}\n");
 
         auto spirv  = rd.shader_compile_spirv_from_source(shader_source);
         auto binary = rd.shader_compile_binary_from_spirv(spirv);
@@ -172,9 +173,9 @@ namespace Vulcant::VulcantG::Wrapper
 
     void VulcanUi::initFontTexture()
     {
-        ImGuiIO& io = ImGui::GetIO();
+        ImGuiIO&       io     = ImGui::GetIO();
         unsigned char* pixels = nullptr;
-        int width = 0, height = 0;
+        int            width = 0, height = 0;
         io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);
 
         auto& rd = device.getDevice();
@@ -212,7 +213,7 @@ namespace Vulcant::VulcantG::Wrapper
         fontSampler = rd.sampler_create(ss);
 
         godot::TypedArray<godot::RDUniform> uniforms;
-        godot::Ref<godot::RDUniform> u;
+        godot::Ref<godot::RDUniform>        u;
         u.instantiate();
         u->set_uniform_type(godot::RenderingDevice::UNIFORM_TYPE_SAMPLER_WITH_TEXTURE);
         u->set_binding(0);
@@ -222,14 +223,14 @@ namespace Vulcant::VulcantG::Wrapper
 
         fontUniformSet = rd.uniform_set_create(uniforms, shaderRid, 0);
 
-        io.Fonts->SetTexID(reinterpret_cast<ImTextureID>(static_cast<uintptr_t>(fontUniformSet.get_id())));
+        io.Fonts->SetTexID((ImTextureID)(uintptr_t)fontUniformSet.get_id());
     }
 
     godot::RID VulcanUi::getOrCreateFramebuffer(VulcanImage& targetImage)
     {
-        auto& rd  = device.getDevice();
+        auto&    rd  = device.getDevice();
         uint64_t key = targetImage.getRid().get_id();
-        auto it   = framebufferCache.find(key);
+        auto     it  = framebufferCache.find(key);
         if (it != framebufferCache.end() && it->second.is_valid())
         {
             return it->second;
@@ -237,7 +238,7 @@ namespace Vulcant::VulcantG::Wrapper
 
         godot::TypedArray<godot::RID> attachments;
         attachments.push_back(targetImage.getRid());
-        godot::RID fb = rd.framebuffer_create(attachments);
+        godot::RID fb         = rd.framebuffer_create(attachments);
         framebufferCache[key] = fb;
         return fb;
     }
@@ -255,16 +256,16 @@ namespace Vulcant::VulcantG::Wrapper
             io.AddMousePosEvent(static_cast<float>(mPos.x), static_cast<float>(res.y - mPos.y));
 
             auto& input = window->getInput();
-            io.AddMouseButtonEvent(0, input.isDown(Vulcant::VulcantInputValue::MouseLeft));
-            io.AddMouseButtonEvent(1, input.isDown(Vulcant::VulcantInputValue::MouseRight));
-            io.AddMouseButtonEvent(2, input.isDown(Vulcant::VulcantInputValue::MouseMiddle));
+            io.AddMouseButtonEvent(0, input.isPressed(Vulcant::VulcantInputValue::MouseLeft));
+            io.AddMouseButtonEvent(1, input.isPressed(Vulcant::VulcantInputValue::MouseRight));
+            io.AddMouseButtonEvent(2, input.isPressed(Vulcant::VulcantInputValue::MouseMiddle));
         }
 
-        auto currentTime = std::chrono::steady_clock::now();
-        std::chrono::duration<float> elapsed = currentTime - lastFrameTime;
-        float dt = elapsed.count();
-        io.DeltaTime  = dt > 0.0f ? dt : (1.0f / 60.0f);
-        lastFrameTime = currentTime;
+        auto                         currentTime = std::chrono::steady_clock::now();
+        std::chrono::duration<float> elapsed     = currentTime - lastFrameTime;
+        float                        dt          = elapsed.count();
+        io.DeltaTime                             = dt > 0.0f ? dt : (1.0f / 60.0f);
+        lastFrameTime                            = currentTime;
 
         ImGui::NewFrame();
     }
@@ -278,7 +279,7 @@ namespace Vulcant::VulcantG::Wrapper
             return;
         }
 
-        auto& rd = device.getDevice();
+        auto&      rd = device.getDevice();
         godot::RID fb = getOrCreateFramebuffer(targetImage);
 
         int64_t fbFormat = rd.framebuffer_get_format(fb);
@@ -304,7 +305,7 @@ namespace Vulcant::VulcantG::Wrapper
             godot::Ref<godot::RDPipelineColorBlendState> blend_state;
             blend_state.instantiate();
             godot::TypedArray<godot::Ref<godot::RDPipelineColorBlendStateAttachment>> blend_attachments;
-            godot::Ref<godot::RDPipelineColorBlendStateAttachment> blend_att;
+            godot::Ref<godot::RDPipelineColorBlendStateAttachment>                    blend_att;
             blend_att.instantiate();
             blend_att->set_enable_blend(true);
             blend_att->set_src_color_blend_factor(godot::RenderingDevice::BLEND_FACTOR_SRC_ALPHA);
@@ -320,14 +321,7 @@ namespace Vulcant::VulcantG::Wrapper
             blend_attachments.push_back(blend_att);
             blend_state->set_attachments(blend_attachments);
 
-            pipeline = rd.render_pipeline_create(shaderRid,
-                                                 fbFormat,
-                                                 vertexFormat,
-                                                 godot::RenderingDevice::RENDER_PRIMITIVE_TRIANGLES,
-                                                 raster_state,
-                                                 ms_state,
-                                                 ds_state,
-                                                 blend_state);
+            pipeline                  = rd.render_pipeline_create(shaderRid, fbFormat, vertexFormat, godot::RenderingDevice::RENDER_PRIMITIVE_TRIANGLES, raster_state, ms_state, ds_state, blend_state);
             pipelineFramebufferFormat = fbFormat;
         }
 
@@ -339,10 +333,10 @@ namespace Vulcant::VulcantG::Wrapper
         godot::PackedByteArray pc_data;
         pc_data.resize(sizeof(float) * 4);
         float* pc_floats = reinterpret_cast<float*>(pc_data.ptrw());
-        pc_floats[0] = scaleX;
-        pc_floats[1] = scaleY;
-        pc_floats[2] = transX;
-        pc_floats[3] = transY;
+        pc_floats[0]     = scaleX;
+        pc_floats[1]     = scaleY;
+        pc_floats[2]     = transX;
+        pc_floats[3]     = transY;
 
         struct DrawBatch
         {
@@ -368,10 +362,12 @@ namespace Vulcant::VulcantG::Wrapper
                 batch.vtxOffset = static_cast<uint32_t>(unrolledVertices.size());
                 batch.vtxCount  = pcmd->ElemCount;
 
-                godot::RID texRid;
-                if (pcmd->TextureId)
+                godot::RID  texRid;
+                ImTextureID rawTexID = pcmd->GetTexID();
+                if (rawTexID)
                 {
-                    texRid = godot::RID::from_uint64(reinterpret_cast<uintptr_t>(pcmd->TextureId));
+                    uint64_t texIDVal = static_cast<uint64_t>(rawTexID);
+                    texRid            = godot::UtilityFunctions::rid_from_int64(texIDVal);
                 }
                 batch.uniformSet = texRid.is_valid() ? texRid : fontUniformSet;
 
@@ -385,8 +381,8 @@ namespace Vulcant::VulcantG::Wrapper
                 unrolledVertices.reserve(unrolledVertices.size() + pcmd->ElemCount);
                 for (unsigned int i = 0; i < pcmd->ElemCount; i++)
                 {
-                    ImDrawIdx idx = cmd_list->IdxBuffer[pcmd->IdxOffset + i];
-                    const ImDrawVert& v = cmd_list->VtxBuffer[pcmd->VtxOffset + idx];
+                    ImDrawIdx         idx = cmd_list->IdxBuffer[pcmd->IdxOffset + i];
+                    const ImDrawVert& v   = cmd_list->VtxBuffer[pcmd->VtxOffset + idx];
                     unrolledVertices.push_back(v);
                 }
 
@@ -399,7 +395,7 @@ namespace Vulcant::VulcantG::Wrapper
 
         cleanupFrameResources();
 
-        size_t totalByteSize = unrolledVertices.size() * sizeof(ImDrawVert);
+        size_t                 totalByteSize = unrolledVertices.size() * sizeof(ImDrawVert);
         godot::PackedByteArray vtx_bytes;
         vtx_bytes.resize(totalByteSize);
         std::memcpy(vtx_bytes.ptrw(), unrolledVertices.data(), totalByteSize);
@@ -421,7 +417,7 @@ namespace Vulcant::VulcantG::Wrapper
             batchVertexArrays.push_back(va);
         }
 
-        auto targetExtent = glm::uvec2(targetImage.getWidth(), targetImage.getHeight());
+        auto       targetExtent  = glm::uvec2(targetImage.getWidth(), targetImage.getHeight());
         godot::RID pipelineToUse = pipeline;
 
         cmd.queueTask(
@@ -433,13 +429,7 @@ namespace Vulcant::VulcantG::Wrapper
               clear_colors.push_back(godot::Color(0.1f, 0.1f, 0.15f, 1.0f));
 
               godot::Rect2 region(0, 0, targetExtent.x, targetExtent.y);
-              int64_t drawList = rd.draw_list_begin(fb,
-                                                    godot::RenderingDevice::DRAW_DEFAULT_ALL,
-                                                    clear_colors,
-                                                    1.0f,
-                                                    0,
-                                                    region,
-                                                    0);
+              int64_t      drawList = rd.draw_list_begin(fb, godot::RenderingDevice::DRAW_DEFAULT_ALL, clear_colors, 1.0f, 0, region, 0);
 
               rd.draw_list_bind_render_pipeline(drawList, pipelineToUse);
               rd.draw_list_set_push_constant(drawList, pc_data, sizeof(float) * 4);

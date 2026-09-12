@@ -9,5 +9,8 @@ namespace Vulcant
 {
     class VulcantGraphicPipeline
     {
+      public:
+        VulcantGraphicPipeline()          = default;
+        virtual ~VulcantGraphicPipeline() = default;
     };
 }
