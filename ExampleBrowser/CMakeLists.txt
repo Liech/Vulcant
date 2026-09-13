@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.24...4.0.2)
-project(Executable)
+project(ExampleBrowser)
 
 ############################################################################
 ############################################################################
@@ -25,20 +25,20 @@ set(ALL_FILES
 ############################################################################
 ############################################################################
 
-add_executable(Executable ${ALL_FILES})
-set_property(TARGET Executable PROPERTY CXX_STANDARD 20)
+add_executable(ExampleBrowser ${ALL_FILES})
+set_property(TARGET ExampleBrowser PROPERTY CXX_STANDARD 20)
 
-target_link_libraries(Executable
+target_link_libraries(ExampleBrowser
 glm::glm
 nlohmann_json::nlohmann_json
 Vulcant
 Examples
 )
 
-target_include_directories(Executable PUBLIC 
+target_include_directories(ExampleBrowser PUBLIC 
 ./Source/
 )
 
 
 
-set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT Executable)
+set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT ExampleBrowser)

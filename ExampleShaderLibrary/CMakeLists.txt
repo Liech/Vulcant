@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.24...4.0.2)
 
-project(ShaderLibrary)
+project(ExampleShaderLibrary)
 
 find_program(SLANG_COMPILER slangc)
 
@@ -136,5 +136,5 @@ set(ALL_FILES
 
 include_directories(${SHADER_GEN_DIR})
 
-add_library(ShaderLibrary ${ALL_FILES})
-target_include_directories(ShaderLibrary PUBLIC ${SHADER_GEN_DIR})
+add_library(ExampleShaderLibrary ${ALL_FILES})
+target_include_directories(ExampleShaderLibrary PUBLIC ${SHADER_GEN_DIR})

@@ -115,7 +115,7 @@ namespace Vulcant::VulcantG
         return *device;
     }
 
-    std::unique_ptr<VulcantUi> VulcantGDevice::createUi(VulcantWindow& window)
+    std::unique_ptr<VulcantUi> VulcantGDevice::createUi(VulcantWindow& window, VulcantImageFormat format, bool clear)
     {
         return std::make_unique<VulcantGUi>(*device, &static_cast<VulcantGWindow&>(window));
     }

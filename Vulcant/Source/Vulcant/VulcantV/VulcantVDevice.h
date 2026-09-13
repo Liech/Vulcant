@@ -37,7 +37,7 @@ namespace Vulcant::VulcantV
                                                                                     VulcantImage*                      stencil = nullptr) override;
         virtual std::unique_ptr<VulcantSet>             createSet(const std::vector<std::vector<std::shared_ptr<VulcantResource>>>& buffer, VulcantShader& shader) override;
         virtual std::unique_ptr<VulcantWindow>          createWindow(const glm::ivec2& resolution, const std::string& title) override;
-        virtual std::unique_ptr<VulcantUi>              createUi(VulcantWindow& window) override;
+        virtual std::unique_ptr<VulcantUi>              createUi(VulcantWindow& window, VulcantImageFormat format = VulcantImageFormat::R32G32B32A32_SFLOAT, bool clear = true) override;
         virtual VulcantComputeCommand&                  getDefaultCommand() override;
 
         Vulcant::Wrapper::VulcanDevice& __getDevice() const;

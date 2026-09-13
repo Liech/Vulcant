@@ -18,6 +18,12 @@ namespace Vulcant::Wrapper
     {
         assert(state != status::recording);
         destroyFence();
+
+        if (commandBuffer != VK_NULL_HANDLE)
+        {
+            vkFreeCommandBuffers(device.getDevice(), pool.getCommands(), 1, &commandBuffer);
+            commandBuffer = VK_NULL_HANDLE;
+        }
     }
 
     void VulcanCommand::startRecord()

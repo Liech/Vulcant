@@ -18,7 +18,7 @@ namespace Vulcant::Wrapper
     class VulcanUi
     {
       public:
-        VulcanUi(VulcanDevice& device, VulcanPool& pool, Window& window);
+        VulcanUi(VulcanDevice& device, VulcanPool& pool, Window& window, VkFormat formatInput = VK_FORMAT_R8G8B8A8_UNORM, bool clear = false);
         virtual ~VulcanUi();
 
         void newFrame();
@@ -36,6 +36,7 @@ namespace Vulcant::Wrapper
         VkDescriptorPool descriptorPool   = VK_NULL_HANDLE;
         VkRenderPass     renderPass       = VK_NULL_HANDLE;
         VkFormat         renderPassFormat = VK_FORMAT_UNDEFINED;
+        bool             clear            = false;
 
         std::unordered_map<VkImageView, VkFramebuffer> framebufferCache;
     };

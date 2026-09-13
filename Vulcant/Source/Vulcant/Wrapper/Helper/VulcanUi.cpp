@@ -15,10 +15,11 @@
 
 namespace Vulcant::Wrapper
 {
-    VulcanUi::VulcanUi(VulcanDevice& deviceInput, VulcanPool& poolInput, Window& windowInput)
+    VulcanUi::VulcanUi(VulcanDevice& deviceInput, VulcanPool& poolInput, Window& windowInput, VkFormat formatInput, bool clearInput)
       : device(deviceInput)
       , pool(poolInput)
       , window(windowInput)
+      , clear(clearInput)
     {
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
@@ -31,20 +32,20 @@ namespace Vulcant::Wrapper
         ImGui_ImplGlfw_InitForVulkan(window.getGlfwWindow(), true);
 
         initDescriptorPool();
-        initRenderPass(VK_FORMAT_R8G8B8A8_UNORM);
+        initRenderPass(formatInput);
 
-        ImGui_ImplVulkan_InitInfo init_info = {};
-        init_info.Instance                  = device.getInstance().getInstance();
-        init_info.PhysicalDevice            = device.getPhysicalDevice();
-        init_info.Device                    = device.getDevice();
-        init_info.QueueFamily               = device.getQueueFamilyIndex();
-        init_info.Queue                     = device.getQueue();
-        init_info.DescriptorPool            = descriptorPool;
+        ImGui_ImplVulkan_InitInfo init_info    = {};
+        init_info.Instance                     = device.getInstance().getInstance();
+        init_info.PhysicalDevice               = device.getPhysicalDevice();
+        init_info.Device                       = device.getDevice();
+        init_info.QueueFamily                  = device.getQueueFamilyIndex();
+        init_info.Queue                        = device.getQueue();
+        init_info.DescriptorPool               = descriptorPool;
         init_info.PipelineInfoMain.RenderPass  = renderPass;
         init_info.PipelineInfoMain.Subpass     = 0;
         init_info.PipelineInfoMain.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
-        init_info.MinImageCount             = 2;
-        init_info.ImageCount                = 2;
+        init_info.MinImageCount                = 2;
+        init_info.ImageCount                   = 2;
 
         if (!ImGui_ImplVulkan_Init(&init_info))
         {
@@ -85,17 +86,17 @@ namespace Vulcant::Wrapper
     void VulcanUi::initDescriptorPool()
     {
         VkDescriptorPoolSize pool_sizes[] = {
-            { VK_DESCRIPTOR_TYPE_SAMPLER,                100 },
+            {                VK_DESCRIPTOR_TYPE_SAMPLER, 100 },
             { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 100 },
-            { VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE,          100 },
-            { VK_DESCRIPTOR_TYPE_STORAGE_IMAGE,          100 },
-            { VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER,   100 },
-            { VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER,   100 },
-            { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,         100 },
-            { VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,         100 },
+            {          VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 100 },
+            {          VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 100 },
+            {   VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER, 100 },
+            {   VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER, 100 },
+            {         VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 100 },
+            {         VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 100 },
             { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 100 },
             { VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, 100 },
-            { VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT,       100 }
+            {       VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, 100 }
         };
 
         VkDescriptorPoolCreateInfo pool_info = {};
@@ -118,12 +119,13 @@ namespace Vulcant::Wrapper
         VkAttachmentDescription colorAttachment = {};
         colorAttachment.format                  = format;
         colorAttachment.samples                 = VK_SAMPLE_COUNT_1_BIT;
-        colorAttachment.loadOp                  = VK_ATTACHMENT_LOAD_OP_CLEAR;
+        colorAttachment.loadOp                  = clear ? VK_ATTACHMENT_LOAD_OP_CLEAR : VK_ATTACHMENT_LOAD_OP_LOAD;
         colorAttachment.storeOp                 = VK_ATTACHMENT_STORE_OP_STORE;
         colorAttachment.stencilLoadOp           = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
         colorAttachment.stencilStoreOp          = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-        colorAttachment.initialLayout           = VK_IMAGE_LAYOUT_UNDEFINED;
-        colorAttachment.finalLayout             = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+
+        colorAttachment.initialLayout = clear ? VK_IMAGE_LAYOUT_UNDEFINED : VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+        colorAttachment.finalLayout   = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
 
         VkAttachmentReference colorAttachmentRef = {};
         colorAttachmentRef.attachment            = 0;
@@ -137,10 +139,22 @@ namespace Vulcant::Wrapper
         VkSubpassDependency dependency = {};
         dependency.srcSubpass          = VK_SUBPASS_EXTERNAL;
         dependency.dstSubpass          = 0;
-        dependency.srcStageMask        = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-        dependency.dstStageMask        = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-        dependency.srcAccessMask       = 0;
-        dependency.dstAccessMask       = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+
+        if (clear)
+        {
+            // Standard graphics-to-graphics setup
+            dependency.srcStageMask  = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+            dependency.srcAccessMask = 0;
+        }
+        else
+        {
+            // Compute-to-graphics setup: Wait for compute storage writes to finish
+            dependency.srcStageMask  = VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT;
+            dependency.srcAccessMask = VK_ACCESS_SHADER_WRITE_BIT;
+        }
+
+        dependency.dstStageMask  = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+        dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
 
         VkRenderPassCreateInfo renderPassInfo = {};
         renderPassInfo.sType                  = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;

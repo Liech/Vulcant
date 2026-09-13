@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Vulcant/Interface/VulcantUi.h"
+#include "Vulcant/Interface/VulcantImageFormat.h"
 #include "Vulcant/Wrapper/Helper/VulcanUi.h"
 #include <memory>
 
@@ -9,7 +10,7 @@ namespace Vulcant::VulcantV
     class VulcantVUi : public VulcantUi
     {
       public:
-        VulcantVUi(Wrapper::VulcanDevice& device, Wrapper::VulcanPool& pool, Wrapper::Window& window);
+        VulcantVUi(Wrapper::VulcanDevice& device, Wrapper::VulcanPool& pool, Wrapper::Window& window, VulcantImageFormat format, bool clear);
         virtual ~VulcantVUi();
 
         virtual void newFrame() override;

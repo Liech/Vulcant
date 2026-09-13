@@ -15,11 +15,11 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(GDExtension)
 
-add_subdirectory(Executable)
+add_subdirectory(ExampleBrowser)
 add_subdirectory(Vulcant)
 add_subdirectory(Examples)
 add_subdirectory(VulcantG)
-add_subdirectory(ShaderLibrary)
+add_subdirectory(ExampleShaderLibrary)
 
 set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT Executable)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)

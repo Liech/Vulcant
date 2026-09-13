@@ -98,9 +98,9 @@ namespace Vulcant::VulcantV
     }
 
     std::unique_ptr<VulcantGraphicPipeline> VulcantVDevice::createVulcanGraphicPipeline(const std::vector<VulcantShader*>& shader,
-                                                                                         const std::vector<VulcantImage*>&  color,
-                                                                                         VulcantImage*                      depth,
-                                                                                         VulcantImage*                      stencil)
+                                                                                        const std::vector<VulcantImage*>&  color,
+                                                                                        VulcantImage*                      depth,
+                                                                                        VulcantImage*                      stencil)
     {
         std::vector<Vulcant::Wrapper::VulcanShader*> shaderConverted;
         for (auto* s : shader)
@@ -129,10 +129,10 @@ namespace Vulcant::VulcantV
         return std::make_unique<VulcantVGraphicPipeline>(*device, shaderConverted, colorConverted, depthConverted, stencilConverted);
     }
 
-    std::unique_ptr<VulcantUi> VulcantVDevice::createUi(VulcantWindow& window)
+    std::unique_ptr<VulcantUi> VulcantVDevice::createUi(VulcantWindow& window, VulcantImageFormat format, bool clear)
     {
         auto& vwin = static_cast<VulcantVWindow&>(window);
-        return std::make_unique<VulcantVUi>(*device, *pool, vwin.getWrapper());
+        return std::make_unique<VulcantVUi>(*device, *pool, vwin.getWrapper(), format,clear);
     }
 
     Vulcant::Wrapper::VulcanDevice& VulcantVDevice::__getDevice() const
