@@ -23,17 +23,21 @@ namespace Vulcant::Wrapper
         VkFramebuffer    getFramebuffer();
         glm::uvec2       getExtent() const;
 
+        const std::vector<VkClearValue>& getClearValues() const;
+
       private:
         void createRenderPass(const std::vector<VulcanImage*>& color, VulcanImage* depth, VulcanImage* stencil);
         void createFramebuffer(const std::vector<VulcanImage*>& color, VulcanImage* depth, VulcanImage* stencil);
         void createPipeline(const std::vector<VulcanShader*>& shader, const std::vector<VulcanImage*>& color, VulcanImage* depth, VulcanImage* stencil);
+        void createClearValues(const std::vector<VulcanImage*>& color, VulcanImage* depth = nullptr, VulcanImage* stencil = nullptr);
 
         VulcanDevice& device;
 
-        VkPipeline       pipeline    = VK_NULL_HANDLE;
-        VkPipelineLayout layout      = VK_NULL_HANDLE;
-        VkRenderPass     renderPass  = VK_NULL_HANDLE;
-        VkFramebuffer    framebuffer = VK_NULL_HANDLE;
-        glm::uvec2       extent      = { 0, 0 };
+        VkPipeline                pipeline    = VK_NULL_HANDLE;
+        VkPipelineLayout          layout      = VK_NULL_HANDLE;
+        VkRenderPass              renderPass  = VK_NULL_HANDLE;
+        VkFramebuffer             framebuffer = VK_NULL_HANDLE;
+        glm::uvec2                extent      = { 0, 0 };
+        std::vector<VkClearValue> clearValues;
     };
 }

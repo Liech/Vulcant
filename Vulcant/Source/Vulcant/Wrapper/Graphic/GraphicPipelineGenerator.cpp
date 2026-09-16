@@ -95,9 +95,7 @@ namespace Vulcant::Wrapper::Graphic
         pipeInfo.pColorBlendState = &colorBlending;
     }
 
-    void GraphicPipelineGenerator::setDepthStencil(VulcanImage* depth, VulcanImage* stencil)
-    {
-    }
+    void GraphicPipelineGenerator::setDepthStencil(VulcanImage* depth, VulcanImage* stencil) {}
 
     void GraphicPipelineGenerator::setRenderPass(VkRenderPass renderPass, uint32_t subpass)
     {

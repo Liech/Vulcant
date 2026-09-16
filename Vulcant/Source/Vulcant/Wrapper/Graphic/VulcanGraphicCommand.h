@@ -34,7 +34,8 @@ namespace Vulcant::Wrapper
         // 3. Render Pipeline & Draw Call
         void draw(uint32_t vertexCount, 
                   VulcanSet* set = nullptr, 
-                  VulcanBuffer* vertexBuffer = nullptr);
+                  VulcanBuffer* vertexBuffer = nullptr,
+                  uint32_t instanceCount = 1);
 
         void addBarrier(VulcanImage& inputImg, const VulcantResourceLayout& dest);
         void addBarrier(VulcanBuffer& buffer);

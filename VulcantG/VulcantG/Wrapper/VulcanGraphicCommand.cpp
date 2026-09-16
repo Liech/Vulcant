@@ -88,7 +88,7 @@ namespace Vulcant::VulcantG::Wrapper
           });
     }
 
-    void VulcanGraphicCommand::draw(uint32_t vertexCount, VulcanSet* set, VulcanBuffer* vertexBuffer)
+    void VulcanGraphicCommand::draw(uint32_t vertexCount, VulcanSet* set, VulcanBuffer* vertexBuffer, uint32_t instanceCount)
     {
         assert(currentPipeline);
         auto* pipe = currentPipeline;
@@ -122,7 +122,7 @@ namespace Vulcant::VulcantG::Wrapper
 
         // 2. Queue the draw call actions during playback step
         drawListQueue.push_back(
-          [this, pipe, vertexCount, set, vertexArray]()
+          [this, pipe, vertexCount, set, vertexArray, instanceCount]()
           {
               if (drawList == 0)
                   return;
@@ -141,7 +141,7 @@ namespace Vulcant::VulcantG::Wrapper
                   rd.draw_list_bind_vertex_array(drawList, vertexArray);
               }
 
-              rd.draw_list_draw(drawList, false, 1, vertexCount);
+              rd.draw_list_draw(drawList, false, instanceCount, vertexCount);
           });
     }
 

@@ -156,10 +156,15 @@ namespace Vulcant::Wrapper
             throw std::runtime_error("Device '" + deviceName + "' does not support required feature: 'timelineSemaphore'");
         }
 
-        // 3. Configure Vulkan 1.2 feature chain
+        // 3. Configure Vulkan 1.1 & 1.2 feature chain
+        VkPhysicalDeviceVulkan11Features vulkan11Features{};
+        vulkan11Features.sType                = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_FEATURES;
+        vulkan11Features.shaderDrawParameters = VK_TRUE;
+
         VkPhysicalDeviceVulkan12Features vulkan12Features{};
         vulkan12Features.sType             = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES;
         vulkan12Features.timelineSemaphore = VK_TRUE;
+        vulkan12Features.pNext             = &vulkan11Features;
 
         VkPhysicalDeviceFeatures2 deviceFeatures2{};
         deviceFeatures2.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;

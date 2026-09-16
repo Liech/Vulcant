@@ -37,20 +37,17 @@ namespace Vulcant::Wrapper
     {
         assert(currentStatus == status::started);
         assert(currentPipeline == nullptr);
-        
+
         currentPipeline = &pipeline;
 
         VkRenderPassBeginInfo renderPassInfo{};
-        renderPassInfo.sType       = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-        renderPassInfo.renderPass  = pipeline.getRenderPass();
-        renderPassInfo.framebuffer = pipeline.getFramebuffer();
+        renderPassInfo.sType             = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+        renderPassInfo.renderPass        = pipeline.getRenderPass();
+        renderPassInfo.framebuffer       = pipeline.getFramebuffer();
         renderPassInfo.renderArea.offset = { 0, 0 };
         renderPassInfo.renderArea.extent = { pipeline.getExtent().x, pipeline.getExtent().y };
 
-        std::array<VkClearValue, 2> clearValues{};
-        clearValues[0].color        = { { 0.1f, 0.1f, 0.1f, 1.0f } };
-        clearValues[1].depthStencil = { 1.0f, 0 };
-
+        auto clearValues               = pipeline.getClearValues();
         renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
         renderPassInfo.pClearValues    = clearValues.data();
 
@@ -77,7 +74,7 @@ namespace Vulcant::Wrapper
         vkCmdSetScissor(cmd->getCommandBuffer(), 0, 1, &scissor);
     }
 
-    void VulcanGraphicCommand::draw(uint32_t vertexCount, VulcanSet* set, VulcanBuffer* vertexBuffer)
+    void VulcanGraphicCommand::draw(uint32_t vertexCount, VulcanSet* set, VulcanBuffer* vertexBuffer, uint32_t instanceCount)
     {
         assert(currentStatus == status::inRenderPass);
 
@@ -96,7 +93,7 @@ namespace Vulcant::Wrapper
             vkCmdBindVertexBuffers(cmd->getCommandBuffer(), 0, 1, buffers, offsets);
         }
 
-        vkCmdDraw(cmd->getCommandBuffer(), vertexCount, 1, 0, 0);
+        vkCmdDraw(cmd->getCommandBuffer(), vertexCount, instanceCount, 0, 0);
     }
 
     void VulcanGraphicCommand::endRendering()
@@ -104,7 +101,7 @@ namespace Vulcant::Wrapper
         assert(currentStatus == status::inRenderPass);
         vkCmdEndRenderPass(cmd->getCommandBuffer());
         currentPipeline = nullptr;
-        currentStatus = status::filled;
+        currentStatus   = status::filled;
     }
 
     void VulcanGraphicCommand::endRecord()

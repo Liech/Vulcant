@@ -108,10 +108,10 @@ namespace Vulcant::Wrapper
 
                 VkDescriptorSetLayoutBinding binding = {};
 
-                binding.binding                    = (uint32_t)j;
-                binding.descriptorCount = (uint32_t)definition.count; // Use the count from the struct
-                binding.descriptorType  = definition.type;            // Use the type from the struct
-                binding.stageFlags      = stage;
+                binding.binding         = (uint32_t)j;
+                binding.descriptorCount = (uint32_t)definition.count;   // Use the count from the struct
+                binding.descriptorType  = definition.type;              // Use the type from the struct
+                binding.stageFlags      = VK_SHADER_STAGE_ALL;          // stage;
 
                 setBindings.push_back(binding);
             }

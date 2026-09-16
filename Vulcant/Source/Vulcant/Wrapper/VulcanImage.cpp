@@ -108,20 +108,94 @@ namespace Vulcant::Wrapper
         vkBindImageMemory(device.getDevice(), image, imageMemory, 0);
     }
 
+    bool isIntegerFormat(VkFormat format)
+    {
+        switch (format)
+        {
+            // 8-bit Integer Formats
+            case VK_FORMAT_R8_SINT:
+            case VK_FORMAT_R8_UINT:
+            case VK_FORMAT_R8G8_SINT:
+            case VK_FORMAT_R8G8_UINT:
+            case VK_FORMAT_R8G8B8_SINT:
+            case VK_FORMAT_R8G8B8_UINT:
+            case VK_FORMAT_R8G8B8A8_SINT:
+            case VK_FORMAT_R8G8B8A8_UINT:
+            case VK_FORMAT_B8G8R8A8_SINT:
+            case VK_FORMAT_B8G8R8A8_UINT:
+
+            // 16-bit Integer Formats
+            case VK_FORMAT_R16_SINT:
+            case VK_FORMAT_R16_UINT:
+            case VK_FORMAT_R16G16_SINT:
+            case VK_FORMAT_R16G16_UINT:
+            case VK_FORMAT_R16G16B16_SINT:
+            case VK_FORMAT_R16G16B16_UINT:
+            case VK_FORMAT_R16G16B16A16_SINT:
+            case VK_FORMAT_R16G16B16A16_UINT:
+
+            // 32-bit Integer Formats
+            case VK_FORMAT_R32_SINT:
+            case VK_FORMAT_R32_UINT:
+            case VK_FORMAT_R32G32_SINT:
+            case VK_FORMAT_R32G32_UINT:
+            case VK_FORMAT_R32G32B32_SINT:
+            case VK_FORMAT_R32G32B32_UINT:
+            case VK_FORMAT_R32G32B32A32_SINT:
+            case VK_FORMAT_R32G32B32A32_UINT:
+
+            // Stencil formats (always integer)
+            case VK_FORMAT_S8_UINT:
+            case VK_FORMAT_D16_UNORM_S8_UINT:
+            case VK_FORMAT_D24_UNORM_S8_UINT:
+            case VK_FORMAT_D32_SFLOAT_S8_UINT:
+                return true;
+
+            default:
+                return false;
+        }
+    }
+
+    VkFilter getFilterForFormat(VkFormat format, VkFilter preferredFilter = VK_FILTER_LINEAR)
+    {
+        if (isIntegerFormat(format))
+        {
+            return VK_FILTER_NEAREST; // Integer formats MUST use NEAREST
+        }
+        return preferredFilter;
+    }
+
+    VkSamplerMipmapMode getMipmapModeForFormat(VkFormat format, VkSamplerMipmapMode preferredMode = VK_SAMPLER_MIPMAP_MODE_LINEAR)
+    {
+        if (isIntegerFormat(format))
+        {
+            return VK_SAMPLER_MIPMAP_MODE_NEAREST; // Integer formats MUST use NEAREST
+        }
+        return preferredMode;
+    }
+
     void VulcanImage::createSampler()
     {
+        VkFilter            filterMode = getFilterForFormat(format, VK_FILTER_LINEAR);
+        VkSamplerMipmapMode mipmapMode = getMipmapModeForFormat(format, VK_SAMPLER_MIPMAP_MODE_LINEAR);
+
         VkSamplerCreateInfo samplerInfo{};
-        samplerInfo.sType                   = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
-        samplerInfo.magFilter               = VK_FILTER_LINEAR; // Oder VK_FILTER_NEAREST
-        samplerInfo.minFilter               = VK_FILTER_LINEAR;
-        samplerInfo.addressModeU            = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-        samplerInfo.addressModeV            = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-        samplerInfo.addressModeW            = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-        samplerInfo.anisotropyEnable        = VK_FALSE; // Für den Anfang auslassen
+        samplerInfo.sType        = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+        samplerInfo.magFilter    = filterMode;
+        samplerInfo.minFilter    = filterMode;
+        samplerInfo.mipmapMode   = mipmapMode;
+        samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+        samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+        samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+
+        // Disable anisotropy for integer formats or set a safe default
+        // Change to VK_FALSE if samplerAnisotropy is not enabled on your VkDevice
+        samplerInfo.anisotropyEnable = VK_FALSE;
+        samplerInfo.maxAnisotropy    = 1.0f; // Must be >= 1.0f whenever specified
+
         samplerInfo.borderColor             = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
         samplerInfo.unnormalizedCoordinates = VK_FALSE;
         samplerInfo.compareEnable           = VK_FALSE;
-        samplerInfo.mipmapMode              = VK_SAMPLER_MIPMAP_MODE_LINEAR;
 
         if (vkCreateSampler(device.getDevice(), &samplerInfo, nullptr, &sampler) != VK_SUCCESS)
         {

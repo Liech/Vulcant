@@ -20,6 +20,8 @@ namespace Vulcant::VulcantV
             formatC = VK_FORMAT_R32_SFLOAT;
         else if (format == VulcantImageFormat::D32_SFLOAT)
             formatC = VK_FORMAT_D32_SFLOAT;
+        else if (format == VulcantImageFormat::R32_UINT)
+            formatC = VK_FORMAT_R32_UINT;
         else
             throw std::runtime_error("Unkown Image Format");
         img = std::make_unique<Wrapper::VulcanImage>(width, height,depth, formatC, pool, device);

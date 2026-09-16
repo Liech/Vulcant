@@ -13,6 +13,7 @@ namespace Vulcant::Wrapper
     VulcanGraphicPipeline::VulcanGraphicPipeline(VulcanDevice& deviceInput, const std::vector<VulcanShader*>& shader, const std::vector<VulcanImage*>& color, VulcanImage* depth, VulcanImage* stencil)
       : device(deviceInput)
     {
+        createClearValues(color, depth, stencil);
         createRenderPass(color, depth, stencil);
         createFramebuffer(color, depth, stencil);
         createPipeline(shader, color, depth, stencil);
@@ -57,6 +58,22 @@ namespace Vulcant::Wrapper
     glm::uvec2 VulcanGraphicPipeline::getExtent() const
     {
         return extent;
+    }
+    
+    const std::vector<VkClearValue>& VulcanGraphicPipeline::getClearValues() const
+    {
+        return clearValues;
+    }
+
+    void VulcanGraphicPipeline::createClearValues(const std::vector<VulcanImage*>& color, VulcanImage* depth, VulcanImage* stencil)
+    {
+        // todo: scheinbar reicht ein default clear value nicht aus. alle bilder sollten mit default wert kommen (oder sogar einem lösch mich nicht tag?)
+
+        clearValues.resize(2);
+        clearValues[0].color = {
+            { 0.1f, 0.1f, 0.1f, 1.0f }
+        };
+        clearValues[1].depthStencil = { 1.0f, 0 };
     }
 
     void VulcanGraphicPipeline::createRenderPass(const std::vector<VulcanImage*>& color, VulcanImage* depth, VulcanImage* stencil)

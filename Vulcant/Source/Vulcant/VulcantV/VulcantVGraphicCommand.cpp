@@ -56,7 +56,7 @@ namespace Vulcant::VulcantV
         cmd->setViewportAndScissor(extent);
     }
 
-    void VulcantVGraphicCommand::draw(uint32_t vertexCount, VulcantSet* set, VulcantBuffer* vertexBuffer)
+    void VulcantVGraphicCommand::draw(uint32_t vertexCount, VulcantSet* set, VulcantBuffer* vertexBuffer, uint32_t instanceCount)
     {
         Wrapper::VulcanSet* s = nullptr;
         if (set)
@@ -68,7 +68,7 @@ namespace Vulcant::VulcantV
             vb = static_cast<VulcantVBuffer*>(vertexBuffer)->buffer.get();
         }
 
-        cmd->draw(vertexCount, s, vb);
+        cmd->draw(vertexCount, s, vb, instanceCount);
     }
 
     void VulcantVGraphicCommand::addBarrier(VulcantImage& inputImg, const VulcantResourceLayout& dest)

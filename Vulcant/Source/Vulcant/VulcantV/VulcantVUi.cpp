@@ -19,6 +19,8 @@ namespace Vulcant::VulcantV
             formatC = VK_FORMAT_R8G8B8A8_UNORM;
         else if (format == VulcantImageFormat::R32_SFLOAT)
             formatC = VK_FORMAT_R32_SFLOAT;
+        else if (format == VulcantImageFormat::R32_UINT)
+            formatC = VK_FORMAT_R32_UINT;
         else if (format == VulcantImageFormat::D32_SFLOAT)
             formatC = VK_FORMAT_D32_SFLOAT;
         else
