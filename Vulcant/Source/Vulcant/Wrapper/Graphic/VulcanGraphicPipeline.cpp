@@ -67,13 +67,29 @@ namespace Vulcant::Wrapper
 
     void VulcanGraphicPipeline::createClearValues(const std::vector<VulcanImage*>& color, VulcanImage* depth, VulcanImage* stencil)
     {
-        // todo: scheinbar reicht ein default clear value nicht aus. alle bilder sollten mit default wert kommen (oder sogar einem lösch mich nicht tag?)
+        clearValues.clear();
+        clearValues.reserve(color.size() + (depth ? 1 : 0) + (stencil ? 1 : 0));
 
-        clearValues.resize(2);
-        clearValues[0].color = {
-            { 0.1f, 0.1f, 0.1f, 1.0f }
-        };
-        clearValues[1].depthStencil = { 1.0f, 0 };
+        for (size_t i = 0; i < color.size(); i++)
+        {
+            VkClearValue cv{};
+            cv.color = { { 0.0f, 0.0f, 0.0f, 0.0f } };
+            clearValues.push_back(cv);
+        }
+
+        if (depth)
+        {
+            VkClearValue cv{};
+            cv.depthStencil = { 1.0f, 0 };
+            clearValues.push_back(cv);
+        }
+
+        if (stencil)
+        {
+            VkClearValue cv{};
+            cv.depthStencil = { 1.0f, 0 };
+            clearValues.push_back(cv);
+        }
     }
 
     void VulcanGraphicPipeline::createRenderPass(const std::vector<VulcanImage*>& color, VulcanImage* depth, VulcanImage* stencil)
