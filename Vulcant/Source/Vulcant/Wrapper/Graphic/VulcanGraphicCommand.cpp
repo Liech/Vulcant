@@ -152,8 +152,10 @@ namespace Vulcant::Wrapper
 
     void VulcanGraphicCommand::wait()
     {
-        assert(currentStatus == status::ongpu);
-        cmd->wait();
-        currentStatus = status::ready;
+        if (currentStatus == status::ongpu)
+        {
+            cmd->wait();
+            currentStatus = status::ready;
+        }
     }
 }

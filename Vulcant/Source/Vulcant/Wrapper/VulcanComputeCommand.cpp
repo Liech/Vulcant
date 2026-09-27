@@ -60,11 +60,12 @@ namespace Vulcant::Wrapper
 
     void VulcanComputeCommand::wait()
     {
-        assert(currentStatus == status::ongpu);
-        cmd->wait();
-        transfer->process();
-
-        currentStatus = status::ready;
+        if (currentStatus == status::ongpu)
+        {
+            cmd->wait();
+            transfer->process();
+            currentStatus = status::ready;
+        }
     }
 
     void VulcanComputeCommand::startRecord()
