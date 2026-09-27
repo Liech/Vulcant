@@ -45,8 +45,10 @@ namespace Vulcant::Rendering
 
         auto& input       = window.getInput();
 
-        auto  currentPos  = window.getInput().getMousePosition();
-        auto  diff        = lastMousePosition - currentPos;
+        const glm::dvec2 mouseCenter = glm::dvec2(window.getResolution()) * 0.5;
+        auto             currentPos = input.getMousePosition();
+        auto             diff       = lastMousePosition == mouseCenter ? lastMousePosition - currentPos : glm::dvec2(0.0);
+        lastMousePosition = mouseCenter;
         float sensitivity = 0.0002f;
 
         glm::dvec3 lookDir  = glm::normalize(target - eye);
@@ -91,7 +93,7 @@ namespace Vulcant::Rendering
             target -= up * velocity;
         }
 
-         input.setMousePosition(glm::dvec2(window.getResolution()) * 0.5);
+        input.setMousePosition(mouseCenter);
     }
 
     bool Freecam::keyEvent(const Vulcant::VulcantInputValue& key)

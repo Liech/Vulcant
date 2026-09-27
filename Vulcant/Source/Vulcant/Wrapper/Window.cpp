@@ -117,6 +117,9 @@ namespace Vulcant::Wrapper
             recreateSwapChain();
             framebufferResized = false;
             p->pool.reset();
+            int width = 0, height = 0;
+            glfwGetFramebufferSize(p->window, &width, &height);
+            p->resolution = glm::ivec2(width, height);
             p->onResize(p->resolution);
             return;
         }
