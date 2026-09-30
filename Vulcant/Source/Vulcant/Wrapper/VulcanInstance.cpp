@@ -1,5 +1,6 @@
 #include "VulcanInstance.h"
 
+#include <cstring>
 #include <stdexcept>
 
 namespace Vulcant::Wrapper

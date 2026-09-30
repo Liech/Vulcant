@@ -2,13 +2,13 @@
 
 #include "Vulcant/Interface/VulcantImage.h"
 #include "Vulcant/Interface/VulcantImageFormat.h"
+#include "Vulcant/Wrapper/VulcanImage.h"
 #include <memory>
 
 namespace Vulcant::Wrapper
 {
     class VulcanPool;
     class VulcanDevice;
-    class VulcanImage;
 }
 
 namespace Vulcant::VulcantV

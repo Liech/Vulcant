@@ -55,7 +55,7 @@ set_property(TARGET Examples PROPERTY CXX_STANDARD 23)
 
 target_link_libraries(Examples PRIVATE 
 Vulcant
-ShaderLibrary
+ExampleShaderLibrary
 )
 
 target_include_directories(Examples PUBLIC 

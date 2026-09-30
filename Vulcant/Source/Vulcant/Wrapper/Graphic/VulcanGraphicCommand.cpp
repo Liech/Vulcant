@@ -96,6 +96,28 @@ namespace Vulcant::Wrapper
         vkCmdDraw(cmd->getCommandBuffer(), vertexCount, instanceCount, 0, 0);
     }
 
+    void VulcanGraphicCommand::drawIndirect(VulcanBuffer& indirectBuffer, VulcanSet* set, VulcanBuffer* vertexBuffer, uint32_t offset, uint32_t drawCount, uint32_t stride)
+    {
+        assert(currentStatus == status::inRenderPass);
+
+        vkCmdBindPipeline(cmd->getCommandBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, currentPipeline->getPipeline());
+
+        if (set)
+        {
+            const auto& allSets = set->getSets();
+            vkCmdBindDescriptorSets(cmd->getCommandBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, currentPipeline->getLayout(), 0, static_cast<uint32_t>(allSets.size()), allSets.data(), 0, nullptr);
+        }
+
+        if (vertexBuffer)
+        {
+            VkBuffer     buffers[] = { vertexBuffer->__getBuffer() };
+            VkDeviceSize offsets[] = { 0 };
+            vkCmdBindVertexBuffers(cmd->getCommandBuffer(), 0, 1, buffers, offsets);
+        }
+
+        vkCmdDrawIndirect(cmd->getCommandBuffer(), indirectBuffer.__getBuffer(), offset, drawCount, stride);
+    }
+
     void VulcanGraphicCommand::endRendering()
     {
         assert(currentStatus == status::inRenderPass);

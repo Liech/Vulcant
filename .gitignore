@@ -8,3 +8,5 @@ godotProject/bin/VulcantG.pdb
 godotProject/bin/vulkan-1.dll
 *.dll
 /.vs/
+build/
+vcpkg_installed/
