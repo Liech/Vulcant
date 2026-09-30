@@ -34,6 +34,8 @@ set(Example_Files
     "Source/Examples/GraphicPipelineTriangle.h"
     "Source/Examples/GraphicPipelineCube.cpp"
     "Source/Examples/GraphicPipelineCube.h"
+    "Source/Examples/SphereRasterizer.cpp"
+    "Source/Examples/SphereRasterizer.h"
 )
 source_group("Source/Examples" FILES ${Example_Files})
 
