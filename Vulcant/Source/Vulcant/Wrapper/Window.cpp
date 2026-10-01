@@ -80,9 +80,18 @@ namespace Vulcant::Wrapper
         for (size_t i = 0; i < p->imageAvailableSemaphores.size(); i++)
         {
             vkDestroySemaphore(p->device.getDevice(), p->imageAvailableSemaphores[i], nullptr);
+        }
+        for (size_t i = 0; i < p->renderFinishedSemaphores.size(); i++)
+        {
             vkDestroySemaphore(p->device.getDevice(), p->renderFinishedSemaphores[i], nullptr);
+        }
+        for (size_t i = 0; i < p->inFlightFences.size(); i++)
+        {
             vkDestroyFence(p->device.getDevice(), p->inFlightFences[i], nullptr);
         }
+        p->imageAvailableSemaphores.clear();
+        p->renderFinishedSemaphores.clear();
+        p->inFlightFences.clear();
 
         p->swapchainImages.clear();
         p->depthImages.clear();
@@ -181,7 +190,7 @@ namespace Vulcant::Wrapper
         VkPresentInfoKHR presentInfo{};
         presentInfo.sType              = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
         presentInfo.waitSemaphoreCount = 1;
-        presentInfo.pWaitSemaphores    = &p->renderFinishedSemaphores[p->semaphoreAndFenceIndex];
+        presentInfo.pWaitSemaphores    = &p->renderFinishedSemaphores[p->currentImageIndex];
         presentInfo.swapchainCount     = 1;
         presentInfo.pSwapchains        = &p->swapchain;
         presentInfo.pImageIndices      = &p->currentImageIndex;
@@ -231,7 +240,7 @@ namespace Vulcant::Wrapper
 
         // Synchronisation
         p->imageAvailableSemaphores.resize(p->numberFramesInFlight);
-        p->renderFinishedSemaphores.resize(p->numberFramesInFlight);
+        p->renderFinishedSemaphores.resize(p->numberOfSwapchainImages);
         p->inFlightFences.resize(p->numberFramesInFlight);
 
         VkSemaphoreCreateInfo semaphoreInfo{};
@@ -241,11 +250,15 @@ namespace Vulcant::Wrapper
         fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
         fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
-        for (size_t i = 0; i < p->inFlightFences.size(); i++)
+        for (size_t i = 0; i < p->numberFramesInFlight; i++)
         {
             VK_CHECK_RESULT(vkCreateSemaphore(p->device.getDevice(), &semaphoreInfo, nullptr, &p->imageAvailableSemaphores[i]));
-            VK_CHECK_RESULT(vkCreateSemaphore(p->device.getDevice(), &semaphoreInfo, nullptr, &p->renderFinishedSemaphores[i]));
             VK_CHECK_RESULT(vkCreateFence(p->device.getDevice(), &fenceInfo, nullptr, &p->inFlightFences[i]));
+        }
+
+        for (size_t i = 0; i < p->numberOfSwapchainImages; i++)
+        {
+            VK_CHECK_RESULT(vkCreateSemaphore(p->device.getDevice(), &semaphoreInfo, nullptr, &p->renderFinishedSemaphores[i]));
         }
     }
 
@@ -424,7 +437,7 @@ namespace Vulcant::Wrapper
         timelineInfo.pSignalSemaphoreValues    = submitSignalValues;
 
         VkSemaphore          waitSemaphores[2]   = { imageTimelineSem, p->imageAvailableSemaphores[p->semaphoreAndFenceIndex] };
-        VkSemaphore          signalSemaphores[2] = { imageTimelineSem, p->renderFinishedSemaphores[p->semaphoreAndFenceIndex] };
+        VkSemaphore          signalSemaphores[2] = { imageTimelineSem, p->renderFinishedSemaphores[p->currentImageIndex] };
         VkPipelineStageFlags stages[2]           = { VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
 
         VkSubmitInfo submitInfo{};
@@ -455,9 +468,18 @@ namespace Vulcant::Wrapper
         for (size_t i = 0; i < p->imageAvailableSemaphores.size(); i++)
         {
             vkDestroySemaphore(p->device.getDevice(), p->imageAvailableSemaphores[i], nullptr);
+        }
+        for (size_t i = 0; i < p->renderFinishedSemaphores.size(); i++)
+        {
             vkDestroySemaphore(p->device.getDevice(), p->renderFinishedSemaphores[i], nullptr);
+        }
+        for (size_t i = 0; i < p->inFlightFences.size(); i++)
+        {
             vkDestroyFence(p->device.getDevice(), p->inFlightFences[i], nullptr);
         }
+        p->imageAvailableSemaphores.clear();
+        p->renderFinishedSemaphores.clear();
+        p->inFlightFences.clear();
         p->swapchainImages.clear();
 
         vkDestroySwapchainKHR(p->device.getDevice(), p->swapchain, nullptr);
