@@ -4,6 +4,7 @@
 #include "VulcanInstance.h"
 #include "VulcanResource.h"
 #include "lodepng.h"
+#include <cstring>
 #include <stdexcept>
 
 namespace Vulcant::Wrapper
@@ -69,6 +70,9 @@ namespace Vulcant::Wrapper
             case VulcantBufferType::Index:
                 bufferCreateInfo.usage |= VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
                 break;
+            case VulcantBufferType::Indirect:
+                bufferCreateInfo.usage |= VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
+                break;
         }
 
         bufferCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
@@ -122,6 +126,9 @@ namespace Vulcant::Wrapper
                 break;
             case VulcantBufferType::Index:
                 throw std::runtime_error("Index buffers cannot be used as resources!");
+                break;
+            case VulcantBufferType::Indirect:
+                type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
                 break;
             default:
                 throw std::runtime_error("Unkown Buffer Type!");

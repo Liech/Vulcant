@@ -6,6 +6,7 @@
 #include "Vulcant/Wrapper/VulcanImage.h"
 #include "Vulcant/Wrapper/VulcanInstance.h"
 #include <cassert>
+#include <cstring>
 
 namespace Vulcant::Wrapper
 {

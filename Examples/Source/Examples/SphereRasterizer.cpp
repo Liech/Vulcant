@@ -2,6 +2,7 @@
 
 #include "Rendering/DeferredShading.h"
 #include "Rendering/Freecam.h"
+#include "ShaderLibrary/Example/SphereFrustumCull_comp.h"
 #include "ShaderLibrary/Example/SphereRasterizer_frag.h"
 #include "ShaderLibrary/Example/SphereRasterizer_vert.h"
 #include "Vulcant/Interface/VulcantBuffer.h"
@@ -146,22 +147,30 @@ void SphereRasterizer::createWindow(Vulcant::VulcantDevice& deviceInput, const g
         {
             auto& frame = frameResources[i];
 
-            frame.cmdG   = device->createGraphicCommand();
-            frame.uiCmdG = device->createGraphicCommand();
-            frame.defcmd = device->createComputeCommand();
+            frame.cmdG    = device->createGraphicCommand();
+            frame.uiCmdG  = device->createGraphicCommand();
+            frame.defcmd  = device->createComputeCommand();
+            frame.cullcmd = device->createComputeCommand();
 
-            // 1. Graphic Pass für Frame i
+            // 1. Frustum Culling Pass
+            frame.cullcmd->startRecord();
+            frame.cullcmd->add(glm::ivec3((activeSphereCount + 255) / 256, 1, 1), *frame.cullSet, *cullShader);
+            frame.cullcmd->addBarrier(*frame.culledSpheresBuffer);
+            frame.cullcmd->addBarrier(*frame.indirectDrawBuffer);
+            frame.cullcmd->endRecord();
+
+            // 2. Graphic Pass für Frame i
             frame.cmdG->startRecord();
             frame.cmdG->beginRendering(*pipeline);
             frame.cmdG->setViewportAndScissor(glm::uvec2(resolution.x, resolution.y));
-            frame.cmdG->draw(6 * (uint32_t)activeSphereCount, frame.graphicSet.get(), nullptr);
+            frame.cmdG->drawIndirect(*frame.indirectDrawBuffer, frame.graphicSet.get(), nullptr);
             frame.cmdG->endRendering();
             frame.cmdG->addBarrier(getColor(), Vulcant::VulcantResourceLayout::ShaderReadOnly);
             frame.cmdG->addBarrier(getDepth(), Vulcant::VulcantResourceLayout::ShaderReadOnly);
             frame.cmdG->addBarrier(getNormal(), Vulcant::VulcantResourceLayout::ShaderReadOnly);
             frame.cmdG->endRecord();
 
-            // 2. Compute Pass für Frame i
+            // 3. Deferred Lighting Pass
             frame.defcmd->startRecord();
             frame.defcmd->addBarrier(deferred->getTexture(), Vulcant::VulcantResourceLayout::General);
             deferred->record(*frame.defcmd);
@@ -236,6 +245,7 @@ void SphereRasterizer::createWindow(Vulcant::VulcantDevice& deviceInput, const g
           auto& frame = frameResources[currentFrame];
 
           // 1. Warten, bis genau DIESER Frame-Slot auf der GPU fertig abgearbeitet wurde
+          frame.cullcmd->wait();
           frame.cmdG->wait();
           frame.defcmd->wait();
           frame.uiCmdG->wait();
@@ -244,6 +254,7 @@ void SphereRasterizer::createWindow(Vulcant::VulcantDevice& deviceInput, const g
           prepareRun();
 
           // 3. Render-Commands starten
+          frame.cullcmd->runAsync();
           frame.cmdG->runAsync();
           frame.defcmd->runAsync();
 
@@ -280,11 +291,20 @@ void SphereRasterizer::prepare(Vulcant::VulcantDevice& deviceInput, const glm::i
 
     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
     {
-        frameResources[i].sceneDataUbo  = device->createUniform(1, sizeof(Vulcant::Rendering::SceneData));
-        frameResources[i].spheresBuffer = device->createBuffer(MAX_SPHERES, sizeof(SphereData));
+        frameResources[i].sceneDataUbo        = device->createUniform(1, sizeof(Vulcant::Rendering::SceneData));
+        frameResources[i].spheresBuffer       = device->createBuffer(MAX_SPHERES, sizeof(SphereData));
+        frameResources[i].culledSpheresBuffer = device->createBuffer(MAX_SPHERES, sizeof(SphereData));
+        frameResources[i].indirectDrawBuffer = device->createIndirectBuffer(1, sizeof(VkDrawIndirectCommandCPU));
+        frameResources[i].cullParamsUbo       = device->createUniform(1, sizeof(CullParams));
     }
 
     // Shaders
+    const auto* cull_slang = SphereFrustumCull_comp_spirv;
+    auto        cull_size  = SphereFrustumCull_comp_spirv_sizeInBytes;
+    auto        cull_spirv = std::vector<uint32_t>(cull_slang, cull_slang + cull_size / sizeof(uint32_t));
+
+    cullShader = device->createShader(cull_spirv);
+
     const auto* vert_slang = SphereRasterizer_vert_spirv;
     auto        vert_size  = SphereRasterizer_vert_spirv_sizeInBytes;
     auto        vert_spirv = std::vector<uint32_t>(vert_slang, vert_slang + vert_size / sizeof(uint32_t));
@@ -323,8 +343,16 @@ void SphereRasterizer::changeResolution(const glm::ivec2& newResolution)
     {
         auto& frame = frameResources[i];
 
-        // Sets verlinken auf die Frame-spezifischen Buffer
-        frame.graphicSet = device->createSet({ { frame.sceneDataUbo->asResource() }, { frame.spheresBuffer->asResource() } }, *vertShader);
+        // Graphic set points to sceneDataUbo and culledSpheresBuffer
+        frame.graphicSet = device->createSet({ { frame.sceneDataUbo->asResource() }, { frame.culledSpheresBuffer->asResource() } }, *vertShader);
+
+        // Cull set points to sceneDataUbo, spheresBuffer, cullParamsUbo, culledSpheresBuffer, indirectDrawBuffer all in set 0
+        frame.cullSet = device->createSet({ { frame.sceneDataUbo->asResource(),
+                                              frame.spheresBuffer->asResource(),
+                                              frame.cullParamsUbo->asResource(),
+                                              frame.culledSpheresBuffer->asResource(),
+                                              frame.indirectDrawBuffer->asResource() } },
+                                          *cullShader);
     }
 
     deferred->setInputTextures(getColor(), getDepth(), getNormal());
@@ -337,6 +365,12 @@ void SphereRasterizer::prepareRun()
 
     frame.sceneDataUbo->uploadToGPU(&s, 1);
     frame.spheresBuffer->uploadToGPU(spheres.data(), activeSphereCount);
+
+    CullParams cp{ (uint32_t)activeSphereCount, 0, 0, 0 };
+    frame.cullParamsUbo->uploadToGPU(&cp, 1);
+
+    VkDrawIndirectCommandCPU drawCmd{ 6, 0, 0, 0 };
+    frame.indirectDrawBuffer->uploadToGPU(&drawCmd, 1);
 
     deferred->setSceneData(s);
     deferred->setLight(lightData);

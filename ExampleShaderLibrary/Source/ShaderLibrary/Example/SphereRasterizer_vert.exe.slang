@@ -33,11 +33,11 @@ static const float2 quadOffsets[6] = {
 };
 
 [shader("vertex")]
-SphereVertexOutput main(uint vertexID : SV_VertexID)
+SphereVertexOutput main(uint vertexID : SV_VertexID, uint instanceID : SV_InstanceID)
 {
     SphereVertexOutput output;
 
-    uint sphereID = vertexID / 6;
+    uint sphereID = instanceID;
     uint cornerID = vertexID % 6;
     float2 quadPos = quadOffsets[cornerID];
 

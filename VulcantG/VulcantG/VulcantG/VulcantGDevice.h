@@ -25,6 +25,7 @@ namespace Vulcant::VulcantG
         virtual std::unique_ptr<VulcantBuffer>         createBuffer(size_t numberOfElements, size_t elementSize, bool gpuOnly) override;
         virtual std::unique_ptr<VulcantBuffer>         createUniform(size_t numberOfElements, size_t elementSize) override;
         virtual std::unique_ptr<VulcantBuffer>         createVertexBuffer(size_t numberOfElements, size_t elementSize, bool gpuOnly) override;
+        virtual std::unique_ptr<VulcantBuffer>         createIndirectBuffer(size_t numberOfElements, size_t elementSize, bool gpuOnly = false) override;
         virtual std::unique_ptr<VulcantShader>         createShader(const std::string& shader) override;
         virtual std::unique_ptr<VulcantShader>         createShader(const std::vector<uint32_t>& spirv) override;
         virtual std::unique_ptr<VulcantImage>          createImage(uint32_t width, uint32_t height, uint32_t depth, VulcantImageFormat = VulcantImageFormat::R32G32B32A32_SFLOAT) override;

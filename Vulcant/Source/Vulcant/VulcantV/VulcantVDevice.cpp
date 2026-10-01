@@ -45,6 +45,11 @@ namespace Vulcant::VulcantV
         return std::make_unique<VulcantVBuffer>(numberOfElements, elementSize, *device, VulcantBufferType::Vertex, gpuOnly);
     }
 
+    std::unique_ptr<VulcantBuffer> VulcantVDevice::createIndirectBuffer(size_t numberOfElements, size_t elementSize, bool gpuOnly)
+    {
+        return std::make_unique<VulcantVBuffer>(numberOfElements, elementSize, *device, VulcantBufferType::Indirect, gpuOnly);
+    }
+
     std::unique_ptr<VulcantBuffer> VulcantVDevice::createUniform(size_t numberOfElements, size_t elementSize)
     {
         return std::make_unique<VulcantVBuffer>(numberOfElements, elementSize, *device, VulcantBufferType::Uniform, false);

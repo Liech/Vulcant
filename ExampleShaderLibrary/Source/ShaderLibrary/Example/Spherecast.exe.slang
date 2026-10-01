@@ -3,8 +3,8 @@
 [[vk::binding(0, 0)]] 
 RWTexture2D<float4> resultImage;
 
-import raycast.Ray;
-import raycast.Intersect;
+import Raycast.Ray;
+import Raycast.Intersect;
 using namespace Raycast;
 
 // 2. Buffer declaration: GLSL 'buffer' maps to 'StructuredBuffer' or 'RWStructuredBuffer'

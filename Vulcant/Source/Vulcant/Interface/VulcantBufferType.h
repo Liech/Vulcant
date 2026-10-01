@@ -9,6 +9,7 @@ namespace Vulcant
         Storage,
         Uniform,
         Vertex,
-        Index
+        Index,
+        Indirect
     };
 }
