@@ -23,20 +23,20 @@ struct CullParams
     uint pad2;
 };
 
-// Set 0: Scene Data
+// Set 0, Binding 0: Scene Data
 [[vk::binding(0, 0)]] ConstantBuffer<Render.Scene> scene;
 
-// Set 1: Input Spheres
-[[vk::binding(0, 1)]] StructuredBuffer<SphereData> gSpheres;
+// Set 0, Binding 1: Input Spheres
+[[vk::binding(1, 0)]] StructuredBuffer<SphereData> gSpheres;
 
-// Set 2: Cull Parameters
-[[vk::binding(0, 2)]] ConstantBuffer<CullParams> cullParams;
+// Set 0, Binding 2: Cull Parameters
+[[vk::binding(2, 0)]] ConstantBuffer<CullParams> cullParams;
 
-// Set 3: Output Culled Spheres
-[[vk::binding(0, 3)]] RWStructuredBuffer<SphereData> gCulledSpheres;
+// Set 0, Binding 3: Output Culled Spheres
+[[vk::binding(3, 0)]] RWStructuredBuffer<SphereData> gCulledSpheres;
 
-// Set 4: Output Indirect Draw Command
-[[vk::binding(0, 4)]] RWStructuredBuffer<DrawIndirectCommand> gIndirectCommand;
+// Set 0, Binding 4: Output Indirect Draw Command
+[[vk::binding(4, 0)]] RWStructuredBuffer<DrawIndirectCommand> gIndirectCommand;
 
 [shader("compute")]
 [numthreads(256, 1, 1)]

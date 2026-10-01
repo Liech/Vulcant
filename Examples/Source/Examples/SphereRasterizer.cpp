@@ -346,12 +346,12 @@ void SphereRasterizer::changeResolution(const glm::ivec2& newResolution)
         // Graphic set points to sceneDataUbo and culledSpheresBuffer
         frame.graphicSet = device->createSet({ { frame.sceneDataUbo->asResource() }, { frame.culledSpheresBuffer->asResource() } }, *vertShader);
 
-        // Cull set points to sceneDataUbo, spheresBuffer, cullParamsUbo, culledSpheresBuffer, indirectDrawBuffer
-        frame.cullSet = device->createSet({ { frame.sceneDataUbo->asResource() },
-                                            { frame.spheresBuffer->asResource() },
-                                            { frame.cullParamsUbo->asResource() },
-                                            { frame.culledSpheresBuffer->asResource() },
-                                            { frame.indirectDrawBuffer->asResource() } },
+        // Cull set points to sceneDataUbo, spheresBuffer, cullParamsUbo, culledSpheresBuffer, indirectDrawBuffer all in set 0
+        frame.cullSet = device->createSet({ { frame.sceneDataUbo->asResource(),
+                                              frame.spheresBuffer->asResource(),
+                                              frame.cullParamsUbo->asResource(),
+                                              frame.culledSpheresBuffer->asResource(),
+                                              frame.indirectDrawBuffer->asResource() } },
                                           *cullShader);
     }
 
