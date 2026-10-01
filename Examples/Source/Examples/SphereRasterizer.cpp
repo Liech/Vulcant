@@ -146,6 +146,19 @@ void SphereRasterizer::createWindow(Vulcant::VulcantDevice& deviceInput, const g
         for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
         {
             auto& frame = frameResources[i];
+            if (frame.cullcmd)
+                frame.cullcmd->wait();
+            if (frame.cmdG)
+                frame.cmdG->wait();
+            if (frame.defcmd)
+                frame.defcmd->wait();
+            if (frame.uiCmdG)
+                frame.uiCmdG->wait();
+        }
+
+        for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
+        {
+            auto& frame = frameResources[i];
 
             frame.cmdG    = device->createGraphicCommand();
             frame.uiCmdG  = device->createGraphicCommand();

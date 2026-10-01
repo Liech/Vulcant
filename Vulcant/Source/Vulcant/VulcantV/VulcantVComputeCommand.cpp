@@ -7,6 +7,7 @@
 #include "Vulcant/Wrapper/VulcanShader.h"
 #include "Vulcant/VulcantV/VulcantVImage.h"
 #include "Vulcant/VulcantV/VulcantVSet.h"
+#include "Vulcant/VulcantV/VulcantVBuffer.h"
 #include "Vulcant/VulcantV/VulcantVShader.h"
 
 namespace Vulcant::VulcantV
@@ -47,7 +48,7 @@ namespace Vulcant::VulcantV
 
     void VulcantVComputeCommand::addBarrier(VulcantBuffer& buffer)
     {
-        cmd->addBarrier((Wrapper::VulcanBuffer&)buffer);
+        cmd->addBarrier(*static_cast<VulcantVBuffer&>(buffer).buffer);
     }
 
     void VulcantVComputeCommand::addBarrier(VulcantImage& img, const VulcantResourceLayout& dest)
@@ -57,7 +58,7 @@ namespace Vulcant::VulcantV
 
     void VulcantVComputeCommand::addCopyBuffer(VulcantBuffer& source, VulcantBuffer& dest, size_t elementCount, size_t sourceOffset, size_t destOffset)
     {
-        cmd->addCopyBuffer((Wrapper::VulcanBuffer&)source, (Wrapper::VulcanBuffer&)dest, elementCount, sourceOffset, destOffset);
+        cmd->addCopyBuffer(*static_cast<VulcantVBuffer&>(source).buffer, *static_cast<VulcantVBuffer&>(dest).buffer, elementCount, sourceOffset, destOffset);
     }
 
     void VulcantVComputeCommand::uploadImageToGPU(VulcantImage& destImage, const void* cpuData, glm::uvec3 extent, glm::uvec3 offset)

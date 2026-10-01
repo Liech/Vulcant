@@ -94,6 +94,6 @@ namespace Vulcant::VulcantV
 
     void VulcantVGraphicCommand::addBarrier(VulcantBuffer& buffer)
     {
-        cmd->addBarrier((Wrapper::VulcanBuffer&)buffer);
+        cmd->addBarrier(*static_cast<VulcantVBuffer&>(buffer).buffer);
     }
 }
