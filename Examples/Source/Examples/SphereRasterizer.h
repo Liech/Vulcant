@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "Examples/Example.h"
+#include "Examples/SphereRasterizerScenes/SphereScene.h"
 #include "Rendering/SceneData.h"
 namespace Vulcant
 {
@@ -28,23 +29,6 @@ namespace Vulcant
 }
 
 constexpr uint32_t MAX_FRAMES_IN_FLIGHT = 3;
-
-struct SphereData
-{
-    alignas(16) glm::vec3 center;
-    float        radius;
-    unsigned int colorPacked; // RGBA8 packed
-};
-
-struct SphereInitData
-{
-    alignas(16) glm::vec3 basePosition;
-    float                orbitSpeed;
-    float                orbitRadius;
-    float                baseTheta;
-    float                radiusScale;
-    uint32_t             packedColor;
-};
 
 struct SphereAnimUniforms
 {
@@ -140,8 +124,9 @@ class SphereRasterizer : public Vulcant::Examples::Example
 
     std::vector<SphereData>     spheres;
     std::vector<SphereInitData> sphereInitData;
-    std::vector<glm::vec3>      basePositions;
-    std::vector<glm::vec3>      velocities;
+
+    std::vector<std::unique_ptr<Vulcant::Examples::SphereScene>> scenes;
+    int                                                           currentSceneIndex = 0;
 
     // Simulation / Rendering parameters
     static constexpr size_t MAX_SPHERES = 50000000;
