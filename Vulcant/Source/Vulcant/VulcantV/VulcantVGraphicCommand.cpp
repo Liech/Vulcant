@@ -126,7 +126,7 @@ TEST_CASE("VulcantVGraphicCommand Setup and Pipeline Recording", "[VulcantVGraph
     REQUIRE(vertShader != nullptr);
     REQUIRE(fragShader != nullptr);
 
-    auto colorImage = device.createImage(800, 600, 1, VulcantImageFormat::R8G8B8A8_UNORM);
+    auto colorImage = device.createImage(800, 600, 1, Vulcant::VulcantImageFormat::R8G8B8A8_UNORM);
     REQUIRE(colorImage != nullptr);
 
     std::vector<Vulcant::VulcantShader*> shaders = { vertShader.get(), fragShader.get() };
@@ -139,7 +139,7 @@ TEST_CASE("VulcantVGraphicCommand Setup and Pipeline Recording", "[VulcantVGraph
     REQUIRE(graphicCmd != nullptr);
 
     graphicCmd->startRecord();
-    graphicCmd->addBarrier(*colorImage, VulcantResourceLayout::ColorAttachment);
+    graphicCmd->addBarrier(*colorImage, Vulcant::VulcantResourceLayout::ColorAttachment);
     graphicCmd->beginRendering(*pipeline);
     graphicCmd->setViewportAndScissor(glm::uvec2(800, 600));
     graphicCmd->draw(3, nullptr, nullptr, 1);

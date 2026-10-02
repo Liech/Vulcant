@@ -25,6 +25,7 @@ namespace Vulcant::VulcantV
 #include <catch2/catch_test_macros.hpp>
 #include "VulcantVDevice.h"
 #include "Vulcant/Interface/VulcantBuffer.h"
+#include "VulcantVShader.h"
 
 TEST_CASE("VulcantVSet Creation and Resource Update", "[VulcantVSet]")
 {
