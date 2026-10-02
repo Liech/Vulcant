@@ -29,30 +29,12 @@ FragmentOutput main(FragmentInput input)
     float3 normalView;
     float3 hitPosView;
 
-    if (input.sphereRadius < 0.0)
-    {
-        // --- 3D Gaussian Splatting Mode ---
-        // Smooth radial Gaussian radiance decay from center to rim
-        float gaussian = exp(-3.0 * distSq);
-        outColor.rgb *= gaussian;
-        outColor.a   *= gaussian;
+    // Hemispherical 3D normal for analytical curved sphere shading
+    float z = sqrt(max(0.0, 1.0 - distSq));
+    normalView = normalize(float3(input.uv.x, input.uv.y, z));
 
-        // Soft, camera-facing normal for smooth volumetric splat shading
-        normalView = float3(0.0, 0.0, 1.0);
-
-        // Splat plane at sphere center depth (avoids hard shell intersecting edges)
-        hitPosView = input.sphereCenterView;
-    }
-    else
-    {
-        // --- Opaque Sphere Impostor Mode ---
-        // Hemispherical 3D normal for analytical curved sphere shading
-        float z = sqrt(max(0.0, 1.0 - distSq));
-        normalView = normalize(float3(input.uv.x, input.uv.y, z));
-
-        // Surface point on front hemisphere for pixel-perfect spherical depth
-        hitPosView = input.sphereCenterView + normalView * r;
-    }
+    // Surface point on front hemisphere for pixel-perfect spherical depth
+    hitPosView = input.sphereCenterView + normalView * r;
 
     // Transform view space hit position to clip space depth using passed projection parameters
     float clipZ = input.projParams.x * hitPosView.z + input.projParams.y;

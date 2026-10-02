@@ -101,8 +101,6 @@ void SphereRasterizer::regenerateSpheres(size_t count)
 
         float radiusScale = 0.5f + 0.8f * ((float)rand() / RAND_MAX);
         float sphereRad   = baseRadius * radiusScale;
-        if (gaussianMode)
-            sphereRad = -sphereRad;
 
         SphereData sd;
         sd.center      = pos;
@@ -213,7 +211,10 @@ void SphereRasterizer::createWindow(Vulcant::VulcantDevice& deviceInput, const g
       [this, rec](double delta) // onLogic
       {
           float dt = (float)delta;
-          elapsedTime += dt;
+          if (animate)
+          {
+              elapsedTime += dt;
+          }
 
           cam->tick(delta);
           updateSpheres(elapsedTime, dt);
@@ -221,7 +222,9 @@ void SphereRasterizer::createWindow(Vulcant::VulcantDevice& deviceInput, const g
           ui->newFrame();
 
           ImGui::Begin("Sphere Rasterizer Controls");
-          ImGui::Text("Performance: %.2f ms (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+          float frameTimeMs = ImGui::GetIO().Framerate > 0.0f ? (1000.0f / ImGui::GetIO().Framerate) : 0.0f;
+          ImGui::Text("Frametime: %.2f ms", frameTimeMs);
+          ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
           ImGui::Text("Rendered Spheres: %d", activeSphereCount);
           ImGui::Separator();
 
@@ -241,13 +244,13 @@ void SphereRasterizer::createWindow(Vulcant::VulcantDevice& deviceInput, const g
           }
           ImGui::NewLine();
 
-          ImGui::Checkbox("Gaussian Splatting Falloff", &gaussianMode);
-
           ImGui::Checkbox("Animate Dynamic Spheres", &animate);
           if (animate)
           {
               ImGui::SliderFloat("Animation Speed", &animSpeed, 0.0f, 5.0f);
           }
+
+          ImGui::Checkbox("Enable Frustum Culling", &enableCulling);
 
           ImGui::SliderFloat("Base Radius", &baseRadius, 0.01f, 0.25f);
 
@@ -270,10 +273,7 @@ void SphereRasterizer::createWindow(Vulcant::VulcantDevice& deviceInput, const g
           prepareRun();
 
           // 3. Render-Commands starten
-          if (animate)
-          {
-              frame.animCmd->runAsync();
-          }
+          frame.animCmd->runAsync();
           frame.cullcmd->runAsync();
           frame.cmdG->runAsync();
           frame.defcmd->runAsync();
@@ -404,13 +404,12 @@ void SphereRasterizer::prepareRun()
     animUnif.time              = elapsedTime;
     animUnif.animSpeed         = animSpeed;
     animUnif.baseRadius        = baseRadius;
-    animUnif.radiusSign        = gaussianMode ? -1.0f : 1.0f;
     animUnif.activeSphereCount = (uint32_t)activeSphereCount;
     animUnif.pad0 = animUnif.pad1 = animUnif.pad2 = 0;
 
     frame.animUbo->uploadToGPU(&animUnif, 1);
 
-    CullParams cp{ (uint32_t)activeSphereCount, 0, 0, 0 };
+    CullParams cp{ (uint32_t)activeSphereCount, enableCulling ? 1u : 0u, 0, 0 };
     frame.cullParamsUbo->uploadToGPU(&cp, 1);
 
     VkDrawIndirectCommandCPU drawCmd{ 6, 0, 0, 0 };

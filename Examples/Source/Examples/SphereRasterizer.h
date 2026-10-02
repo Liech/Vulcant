@@ -51,7 +51,6 @@ struct SphereAnimUniforms
     float    time;
     float    animSpeed;
     float    baseRadius;
-    float    radiusSign;
     uint32_t activeSphereCount;
     uint32_t pad0;
     uint32_t pad1;
@@ -69,9 +68,9 @@ struct VkDrawIndirectCommandCPU
 struct CullParams
 {
     uint32_t activeSphereCount;
+    uint32_t enableCulling;
     uint32_t pad0;
     uint32_t pad1;
-    uint32_t pad2;
 };
 
 struct FrameResources
@@ -112,7 +111,7 @@ class SphereRasterizer : public Vulcant::Examples::Example
 
     virtual std::string getDescription() override
     {
-        return "High-performance instanced dynamic sphere rasterization & Gaussian splatting";
+        return "High-performance instanced dynamic sphere rasterization";
     }
 
     Vulcant::VulcantImage& getColor();
@@ -150,7 +149,7 @@ class SphereRasterizer : public Vulcant::Examples::Example
     float baseRadius        = 0.05f;
     float animSpeed         = 1.0f;
     bool  animate           = true;
-    bool  gaussianMode      = false;
+    bool  enableCulling     = true;
     float elapsedTime       = 0.0f;
 
     std::vector<FrameResources> frameResources;

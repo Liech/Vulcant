@@ -18,9 +18,9 @@ struct DrawIndirectCommand
 struct CullParams
 {
     uint activeSphereCount;
+    uint enableCulling;
     uint pad0;
     uint pad1;
-    uint pad2;
 };
 
 // Set 0, Binding 0: Scene Data
@@ -62,17 +62,20 @@ void main(uint3 dispatchThreadID : SV_DispatchThreadID)
     planes[5] = vp[3] - vp[2]; // Far
 
     bool visible = true;
-    for (int i = 0; i < 6; ++i)
+    if (cullParams.enableCulling != 0)
     {
-        float4 p = planes[i];
-        float len = length(p.xyz);
-        p /= len;
-
-        float dist = dot(p.xyz, sphere.center) + p.w;
-        if (dist < -r)
+        for (int i = 0; i < 6; ++i)
         {
-            visible = false;
-            break;
+            float4 p = planes[i];
+            float len = length(p.xyz);
+            p /= len;
+
+            float dist = dot(p.xyz, sphere.center) + p.w;
+            if (dist < -r)
+            {
+                visible = false;
+                break;
+            }
         }
     }
 
