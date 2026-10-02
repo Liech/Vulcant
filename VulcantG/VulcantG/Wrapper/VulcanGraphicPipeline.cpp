@@ -143,6 +143,7 @@ namespace Vulcant::VulcantG::Wrapper
                 godot::Ref<godot::RDVertexAttribute> rd_attr;
                 rd_attr.instantiate();
                 rd_attr->set_location(attr.location);
+                rd_attr->set_binding(attr.location);
                 rd_attr->set_offset(currentOffset);
                 rd_attr->set_stride(stride);
 
