@@ -88,7 +88,8 @@ namespace Vulcant::Wrapper
 
         if (!foundLayer)
         {
-            throw std::runtime_error("Layer VK_LAYER_KHRONOS_validation not supported\n");
+            debug = false;
+            return;
         }
         enabledLayers.push_back("VK_LAYER_KHRONOS_validation");
 
@@ -110,7 +111,9 @@ namespace Vulcant::Wrapper
 
         if (!foundExtension)
         {
-            throw std::runtime_error("Extension VK_EXT_DEBUG_REPORT_EXTENSION_NAME not supported\n");
+            debug = false;
+            enabledLayers.clear();
+            return;
         }
         enabledExtensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
     }
@@ -132,6 +135,8 @@ namespace Vulcant::Wrapper
 
     void VulcanInstance::initDebugMessages()
     {
+        if (!debug) return;
+
         VkDebugUtilsMessengerCreateInfoEXT createInfo = {};
         createInfo.sType                              = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
 
