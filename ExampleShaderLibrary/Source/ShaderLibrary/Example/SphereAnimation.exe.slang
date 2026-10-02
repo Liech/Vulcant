@@ -20,7 +20,6 @@ struct SphereAnimUniforms
     float time;
     float animSpeed;
     float baseRadius;
-    float radiusSign; // 1.0f or -1.0f
     uint activeSphereCount;
     uint pad0;
     uint pad1;
@@ -50,7 +49,7 @@ void main(uint3 dispatchThreadID : SV_DispatchThreadID)
     float z = dist * sin(currentTheta);
     float y = initData.basePosition.y + 0.15f * sin(uniforms.time * 2.0f + dist * 2.0f);
 
-    float sphereRad = uniforms.radiusSign * uniforms.baseRadius * initData.radiusScale;
+    float sphereRad = uniforms.baseRadius * initData.radiusScale;
 
     SphereData outData;
     outData.center = float3(x, y, z);
