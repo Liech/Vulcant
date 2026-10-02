@@ -3,6 +3,7 @@
 #include "Rendering/DeferredShading.h"
 #include "Rendering/Freecam.h"
 #include "ShaderLibrary/Example/SphereFrustumCull_comp.h"
+#include "ShaderLibrary/Example/SphereAnimation.h"
 #include "ShaderLibrary/Example/SphereRasterizer_frag.h"
 #include "ShaderLibrary/Example/SphereRasterizer_vert.h"
 #include "Vulcant/Interface/VulcantBuffer.h"
@@ -56,10 +57,12 @@ Vulcant::VulcantWindow& SphereRasterizer::getWindow()
 void SphereRasterizer::regenerateSpheres(size_t count)
 {
     spheres.clear();
+    sphereInitData.clear();
     basePositions.clear();
     velocities.clear();
 
     spheres.reserve(count);
+    sphereInitData.reserve(count);
     basePositions.reserve(count);
     velocities.reserve(count);
 
@@ -96,7 +99,8 @@ void SphereRasterizer::regenerateSpheres(size_t count)
         uint32_t ca          = 255;
         uint32_t packedColor = cr | (cg << 8) | (cb << 16) | (ca << 24);
 
-        float sphereRad = baseRadius * (0.5f + 0.8f * ((float)rand() / RAND_MAX));
+        float radiusScale = 0.5f + 0.8f * ((float)rand() / RAND_MAX);
+        float sphereRad   = baseRadius * radiusScale;
         if (gaussianMode)
             sphereRad = -sphereRad;
 
@@ -105,28 +109,26 @@ void SphereRasterizer::regenerateSpheres(size_t count)
         sd.radius      = sphereRad;
         sd.colorPacked = packedColor;
         spheres.push_back(sd);
+
+        SphereInitData init;
+        init.basePosition = pos;
+        init.orbitSpeed   = speed;
+        init.orbitRadius  = dist;
+        init.baseTheta    = theta;
+        init.radiusScale  = radiusScale;
+        init.packedColor  = packedColor;
+        sphereInitData.push_back(init);
+    }
+
+    if (sphereInitBuffer)
+    {
+        sphereInitBuffer->uploadToGPU(sphereInitData.data(), count);
     }
 }
 
 void SphereRasterizer::updateSpheres(float time, float dt)
 {
-    if (!animate)
-        return;
-
-    size_t count = spheres.size();
-    for (size_t i = 0; i < count; i++)
-    {
-        float speed     = velocities[i].x * animSpeed;
-        float baseTheta = velocities[i].y;
-        float dist      = velocities[i].z;
-
-        float currentTheta = baseTheta + speed * time * 0.3f;
-        float x            = dist * std::cos(currentTheta);
-        float z            = dist * std::sin(currentTheta);
-        float y            = basePositions[i].y + 0.15f * std::sin(time * 2.0f + dist * 2.0f);
-
-        spheres[i].center = glm::vec3(x, y, z);
-    }
+    // Math loop offloaded to GPU compute shader (SphereAnimation.exe.slang)
 }
 
 void SphereRasterizer::createWindow(Vulcant::VulcantDevice& deviceInput, const glm::ivec2& res)
@@ -146,6 +148,8 @@ void SphereRasterizer::createWindow(Vulcant::VulcantDevice& deviceInput, const g
         for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
         {
             auto& frame = frameResources[i];
+            if (frame.animCmd)
+                frame.animCmd->wait();
             if (frame.cullcmd)
                 frame.cullcmd->wait();
             if (frame.cmdG)
@@ -156,14 +160,24 @@ void SphereRasterizer::createWindow(Vulcant::VulcantDevice& deviceInput, const g
                 frame.uiCmdG->wait();
         }
 
+
         for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
         {
             auto& frame = frameResources[i];
 
+            // 2. Graphic Pass für Frame i
+            frame.animCmd = device->createComputeCommand();
             frame.cmdG    = device->createGraphicCommand();
             frame.uiCmdG  = device->createGraphicCommand();
             frame.defcmd  = device->createComputeCommand();
             frame.cullcmd = device->createComputeCommand();
+
+            // 1. Sphere Animation Compute Pass
+            frame.animCmd->startRecord();
+            uint32_t groupCountX = (uint32_t)std::ceil((float)activeSphereCount / 256.0f);
+            frame.animCmd->add(glm::ivec3(groupCountX, 1, 1), *frame.animSet, *animShader);
+            frame.animCmd->addBarrier(*frame.spheresBuffer);
+            frame.animCmd->endRecord();
 
             // 1. Frustum Culling Pass
             frame.cullcmd->startRecord();
@@ -184,6 +198,7 @@ void SphereRasterizer::createWindow(Vulcant::VulcantDevice& deviceInput, const g
             frame.cmdG->endRecord();
 
             // 3. Deferred Lighting Pass
+            // 3. Deferred Shading Pass für Frame i
             frame.defcmd->startRecord();
             frame.defcmd->addBarrier(deferred->getTexture(), Vulcant::VulcantResourceLayout::General);
             deferred->record(*frame.defcmd);
@@ -226,13 +241,7 @@ void SphereRasterizer::createWindow(Vulcant::VulcantDevice& deviceInput, const g
           }
           ImGui::NewLine();
 
-          if (ImGui::Checkbox("Gaussian Splatting Falloff", &gaussianMode))
-          {
-              for (auto& s : spheres)
-              {
-                  s.radius = gaussianMode ? -std::abs(s.radius) : std::abs(s.radius);
-              }
-          }
+          ImGui::Checkbox("Gaussian Splatting Falloff", &gaussianMode);
 
           ImGui::Checkbox("Animate Dynamic Spheres", &animate);
           if (animate)
@@ -240,14 +249,7 @@ void SphereRasterizer::createWindow(Vulcant::VulcantDevice& deviceInput, const g
               ImGui::SliderFloat("Animation Speed", &animSpeed, 0.0f, 5.0f);
           }
 
-          if (ImGui::SliderFloat("Base Radius", &baseRadius, 0.01f, 0.25f))
-          {
-              for (auto& s : spheres)
-              {
-                  float sign = s.radius < 0.0f ? -1.0f : 1.0f;
-                  s.radius   = sign * baseRadius;
-              }
-          }
+          ImGui::SliderFloat("Base Radius", &baseRadius, 0.01f, 0.25f);
 
           ImGui::Separator();
           // ImGui::Text("Camera Pos: (%.1f, %.1f, %.1f)", cam->getPosition().x, cam->getPosition().y, cam->getPosition().z);
@@ -258,15 +260,20 @@ void SphereRasterizer::createWindow(Vulcant::VulcantDevice& deviceInput, const g
           auto& frame = frameResources[currentFrame];
 
           // 1. Warten, bis genau DIESER Frame-Slot auf der GPU fertig abgearbeitet wurde
+          frame.animCmd->wait();
           frame.cullcmd->wait();
           frame.cmdG->wait();
           frame.defcmd->wait();
           frame.uiCmdG->wait();
 
-          // 2. Jetzt gefahrlos Daten für diesen Frame hochladen
+          // 2. Jetzt gefahrlos Uniform-Daten für diesen Frame hochladen
           prepareRun();
 
           // 3. Render-Commands starten
+          if (animate)
+          {
+              frame.animCmd->runAsync();
+          }
           frame.cullcmd->runAsync();
           frame.cmdG->runAsync();
           frame.defcmd->runAsync();
@@ -300,10 +307,16 @@ void SphereRasterizer::prepare(Vulcant::VulcantDevice& deviceInput, const glm::i
     device     = &deviceInput;
     resolution = res;
 
+    sphereInitBuffer = device->createBuffer(MAX_SPHERES, sizeof(SphereInitData));
+    sphereInitBuffer->uploadToGPU(sphereInitData.data(), activeSphereCount);
+
     frameResources.resize(MAX_FRAMES_IN_FLIGHT);
 
     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
     {
+        frameResources[i].sceneDataUbo  = device->createUniform(1, sizeof(Vulcant::Rendering::SceneData));
+        frameResources[i].spheresBuffer = device->createBuffer(MAX_SPHERES, sizeof(SphereData));
+        frameResources[i].animUbo       = device->createUniform(1, sizeof(SphereAnimUniforms));
         frameResources[i].sceneDataUbo        = device->createUniform(1, sizeof(Vulcant::Rendering::SceneData));
         frameResources[i].spheresBuffer       = device->createBuffer(MAX_SPHERES, sizeof(SphereData));
         frameResources[i].culledSpheresBuffer = device->createBuffer(MAX_SPHERES, sizeof(SphereData));
@@ -326,8 +339,13 @@ void SphereRasterizer::prepare(Vulcant::VulcantDevice& deviceInput, const glm::i
     auto        frag_size  = SphereRasterizer_frag_spirv_sizeInBytes;
     auto        frag_spirv = std::vector<uint32_t>(frag_slang, frag_slang + frag_size / sizeof(uint32_t));
 
+    const auto* anim_slang = SphereAnimation_spirv;
+    auto        anim_size  = SphereAnimation_spirv_sizeInBytes;
+    auto        anim_spirv = std::vector<uint32_t>(anim_slang, anim_slang + anim_size / sizeof(uint32_t));
+
     vertShader = device->createShader(vert_spirv);
     fragShader = device->createShader(frag_spirv);
+    animShader = device->createShader(anim_spirv);
 
     deferred = std::make_unique<Vulcant::Rendering::DeferredShading>();
     deferred->prepare(*device);
@@ -356,6 +374,10 @@ void SphereRasterizer::changeResolution(const glm::ivec2& newResolution)
     {
         auto& frame = frameResources[i];
 
+        frame.animSet = device->createSet({ { frame.animUbo->asResource(), sphereInitBuffer->asResource(), frame.spheresBuffer->asResource() } }, *animShader);
+
+        // Sets verlinken auf die Frame-spezifischen Buffer
+        frame.graphicSet = device->createSet({ { frame.sceneDataUbo->asResource() }, { frame.spheresBuffer->asResource() } }, *vertShader);
         // Graphic set points to sceneDataUbo and culledSpheresBuffer
         frame.graphicSet = device->createSet({ { frame.sceneDataUbo->asResource() }, { frame.culledSpheresBuffer->asResource() } }, *vertShader);
 
@@ -377,7 +399,16 @@ void SphereRasterizer::prepareRun()
     auto  s     = cam->getScene();
 
     frame.sceneDataUbo->uploadToGPU(&s, 1);
-    frame.spheresBuffer->uploadToGPU(spheres.data(), activeSphereCount);
+
+    SphereAnimUniforms animUnif;
+    animUnif.time              = elapsedTime;
+    animUnif.animSpeed         = animSpeed;
+    animUnif.baseRadius        = baseRadius;
+    animUnif.radiusSign        = gaussianMode ? -1.0f : 1.0f;
+    animUnif.activeSphereCount = (uint32_t)activeSphereCount;
+    animUnif.pad0 = animUnif.pad1 = animUnif.pad2 = 0;
+
+    frame.animUbo->uploadToGPU(&animUnif, 1);
 
     CullParams cp{ (uint32_t)activeSphereCount, 0, 0, 0 };
     frame.cullParamsUbo->uploadToGPU(&cp, 1);

@@ -36,6 +36,28 @@ struct SphereData
     unsigned int colorPacked; // RGBA8 packed
 };
 
+struct SphereInitData
+{
+    alignas(16) glm::vec3 basePosition;
+    float                orbitSpeed;
+    float                orbitRadius;
+    float                baseTheta;
+    float                radiusScale;
+    uint32_t             packedColor;
+};
+
+struct SphereAnimUniforms
+{
+    float    time;
+    float    animSpeed;
+    float    baseRadius;
+    float    radiusSign;
+    uint32_t activeSphereCount;
+    uint32_t pad0;
+    uint32_t pad1;
+    uint32_t pad2;
+};
+
 struct VkDrawIndirectCommandCPU
 {
     uint32_t vertexCount;
@@ -58,11 +80,13 @@ struct FrameResources
     std::unique_ptr<Vulcant::VulcantGraphicCommand> cmdG;
     std::unique_ptr<Vulcant::VulcantGraphicCommand> uiCmdG;
     std::unique_ptr<Vulcant::VulcantComputeCommand> defcmd;
+    std::unique_ptr<Vulcant::VulcantComputeCommand> animCmd;
     std::unique_ptr<Vulcant::VulcantComputeCommand> cullcmd;
 
     // Buffers
     std::unique_ptr<Vulcant::VulcantBuffer> sceneDataUbo;
     std::unique_ptr<Vulcant::VulcantBuffer> spheresBuffer;
+    std::unique_ptr<Vulcant::VulcantBuffer> animUbo;
     std::unique_ptr<Vulcant::VulcantBuffer> culledSpheresBuffer;
     std::unique_ptr<Vulcant::VulcantBuffer> indirectDrawBuffer;
     std::unique_ptr<Vulcant::VulcantBuffer> cullParamsUbo;
@@ -70,6 +94,7 @@ struct FrameResources
     // Sets
     std::unique_ptr<Vulcant::VulcantSet> graphicSet;
     std::unique_ptr<Vulcant::VulcantSet> cullSet;
+    std::unique_ptr<Vulcant::VulcantSet> animSet;
 };
 
 class SphereRasterizer : public Vulcant::Examples::Example
@@ -114,9 +139,10 @@ class SphereRasterizer : public Vulcant::Examples::Example
 
     Vulcant::VulcantDevice* device = nullptr;
 
-    std::vector<SphereData> spheres;
-    std::vector<glm::vec3>  basePositions;
-    std::vector<glm::vec3>  velocities;
+    std::vector<SphereData>     spheres;
+    std::vector<SphereInitData> sphereInitData;
+    std::vector<glm::vec3>      basePositions;
+    std::vector<glm::vec3>      velocities;
 
     // Simulation / Rendering parameters
     static constexpr size_t MAX_SPHERES = 50000000;
@@ -132,7 +158,9 @@ class SphereRasterizer : public Vulcant::Examples::Example
 
     std::unique_ptr<Vulcant::Rendering::DeferredShading> deferred;
     std::unique_ptr<Vulcant::VulcantBuffer>              spheresBuffer;
+    std::unique_ptr<Vulcant::VulcantBuffer>              sphereInitBuffer;
 
+    std::unique_ptr<Vulcant::VulcantShader>              animShader;
     std::unique_ptr<Vulcant::VulcantShader>              cullShader;
     std::unique_ptr<Vulcant::VulcantShader>              vertShader;
     std::unique_ptr<Vulcant::VulcantShader>              fragShader;
