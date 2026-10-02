@@ -1,6 +1,7 @@
 #include "Examples/SphereRasterizerScenes/FloatingSpheresScene.h"
 #include "Examples/SphereRasterizerScenes/ConcentricRingsScene.h"
 #include "Examples/SphereRasterizerScenes/CubeGridScene.h"
+#include "Examples/SphereRasterizerScenes/HillLandscapeScene.h"
 #include <algorithm>
 #include <cmath>
 #include <cstdlib>
@@ -78,10 +79,12 @@ TEST_CASE("SphereRasterizerScenes Generation", "[SphereRasterizerScenes]")
     Vulcant::Examples::FloatingSpheresScene floatingScene;
     Vulcant::Examples::CubeGridScene        gridScene;
     Vulcant::Examples::ConcentricRingsScene ringScene;
+    Vulcant::Examples::HillLandscapeScene   hillScene;
 
     REQUIRE(floatingScene.getName() == "Floating Spheres");
     REQUIRE(gridScene.getName() == "3D Cube Grid");
     REQUIRE(ringScene.getName() == "Concentric Rings");
+    REQUIRE(hillScene.getName() == "Hill Landscape");
 
     std::vector<SphereData>     spheres;
     std::vector<SphereInitData> initData;
@@ -97,5 +100,25 @@ TEST_CASE("SphereRasterizerScenes Generation", "[SphereRasterizerScenes]")
     ringScene.generate(100, 0.05f, spheres, initData);
     REQUIRE(spheres.size() == 100);
     REQUIRE(initData.size() == 100);
+
+    hillScene.generate(500, 0.05f, spheres, initData);
+    REQUIRE(spheres.size() == 500);
+    REQUIRE(initData.size() == 500);
+
+    // Verify non-flat landscape elevation
+    float minY = spheres[0].center.y;
+    float maxY = spheres[0].center.y;
+    float maxDist = 0.0f;
+
+    for (const auto& s : spheres)
+    {
+        minY = std::min(minY, s.center.y);
+        maxY = std::max(maxY, s.center.y);
+        float dist = glm::length(glm::vec2(s.center.x, s.center.z));
+        maxDist = std::max(maxDist, dist);
+    }
+
+    REQUIRE(maxY - minY > 2.0f); // Non-flat hills check
+    REQUIRE(maxDist > 100.0f);  // Huge distance extent check
 }
 #endif

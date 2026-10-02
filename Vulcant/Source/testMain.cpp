@@ -14,6 +14,7 @@ void enforceWorkingDir(std::string exeDir) {
 void setupVirtualGraphics() {
   if (getenv("VK_DRIVER_FILES") == nullptr && getenv("VK_ICD_FILENAMES") == nullptr) {
     const char* candidates[] = {
+      "/usr/share/vulkan/icd.d/lvp_icd.json",
       "/opt/google/chrome/vk_swiftshader_icd.json",
       "/usr/share/vulkan/icd.d/lvp_icd.x86_64.json",
       "/usr/share/vulkan/icd.d/lvp_icd.i686.json",

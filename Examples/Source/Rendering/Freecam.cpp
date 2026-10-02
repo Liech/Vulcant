@@ -24,11 +24,6 @@ namespace Vulcant::Rendering
         scene.viewMatrix    = glm::lookAt(eye, target, up);
         scene.invViewMatrix = glm::inverse(scene.viewMatrix);
 
-        float fovY   = glm::radians(75.0f);
-        float aspect = 16.0f / 9.0f;
-        float zNear  = 0.05f;
-        float zFar   = 100.0f;
-
         scene.projectionMatrix    = glm::perspective(fovY, aspect, zNear, zFar);
         scene.invProjectionMatrix = glm::inverse(scene.projectionMatrix);
         scene.cameraPos           = glm::vec4(eye, 1.0f);

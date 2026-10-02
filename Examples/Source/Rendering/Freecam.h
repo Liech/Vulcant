@@ -47,7 +47,7 @@ namespace Vulcant::Rendering
         float      fovY   = glm::radians(75.0f);
         float      aspect = 16.0f / 9.0f;
         float      zNear  = 0.05f;
-        float      zFar   = 100.0f;
+        float      zFar   = 2000.0f;
 
         Vulcant::VulcantWindow& window;
     };
