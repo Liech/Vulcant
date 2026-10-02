@@ -26,6 +26,7 @@ namespace Vulcant
         virtual void setViewportAndScissor(glm::uvec2 extent) = 0;
 
         virtual void draw(uint32_t vertexCount, VulcantSet* set = nullptr, VulcantBuffer* vertexBuffer = nullptr, uint32_t instanceCount = 1) = 0;
+        virtual void drawIndirect(VulcantBuffer& indirectBuffer, VulcantSet* set = nullptr, VulcantBuffer* vertexBuffer = nullptr, uint32_t offset = 0, uint32_t drawCount = 1, uint32_t stride = 16) = 0;
 
         virtual void addBarrier(VulcantImage& inputImg, const VulcantResourceLayout& dest) = 0;
         virtual void addBarrier(VulcantBuffer& buffer)                                     = 0;

@@ -11,7 +11,7 @@ namespace Vulcant::Wrapper
     class VulcanPool
     {
       public:
-        VulcanPool(VulcanDevice& device, uint32_t space = 10);
+        VulcanPool(VulcanDevice& device, uint32_t space = 64);
         virtual ~VulcanPool();
 
         void reset();

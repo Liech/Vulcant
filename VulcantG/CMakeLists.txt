@@ -21,7 +21,7 @@ set(VulcantG_Wrapper_Files
     "VulcantG/Wrapper/VulcanCompositor.cpp"
     "VulcantG/Wrapper/VulcanNode.h"
     "VulcantG/Wrapper/VulcanNode.cpp"
-    "VulcantG/Wrapper/BufferTransfer.glsl"
+    "VulcantG/Wrapper/bufferTransfer.glsl"
     "VulcantG/Wrapper/godot2VulcantInputValue.h"
     "VulcantG/Wrapper/godot2VulcantInputValue.cpp"    
     "VulcantG/Wrapper/VulcanGraphicCommand.cpp"    

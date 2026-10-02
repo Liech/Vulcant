@@ -58,6 +58,22 @@ struct SphereAnimUniforms
     uint32_t pad2;
 };
 
+struct VkDrawIndirectCommandCPU
+{
+    uint32_t vertexCount;
+    uint32_t instanceCount;
+    uint32_t firstVertex;
+    uint32_t firstInstance;
+};
+
+struct CullParams
+{
+    uint32_t activeSphereCount;
+    uint32_t pad0;
+    uint32_t pad1;
+    uint32_t pad2;
+};
+
 struct FrameResources
 {
     // Commands
@@ -65,14 +81,19 @@ struct FrameResources
     std::unique_ptr<Vulcant::VulcantGraphicCommand> uiCmdG;
     std::unique_ptr<Vulcant::VulcantComputeCommand> defcmd;
     std::unique_ptr<Vulcant::VulcantComputeCommand> animCmd;
+    std::unique_ptr<Vulcant::VulcantComputeCommand> cullcmd;
 
     // Buffers
     std::unique_ptr<Vulcant::VulcantBuffer> sceneDataUbo;
     std::unique_ptr<Vulcant::VulcantBuffer> spheresBuffer;
     std::unique_ptr<Vulcant::VulcantBuffer> animUbo;
+    std::unique_ptr<Vulcant::VulcantBuffer> culledSpheresBuffer;
+    std::unique_ptr<Vulcant::VulcantBuffer> indirectDrawBuffer;
+    std::unique_ptr<Vulcant::VulcantBuffer> cullParamsUbo;
 
-    // Sets (da sie auf die eigenen Buffers verweisen)
+    // Sets
     std::unique_ptr<Vulcant::VulcantSet> graphicSet;
+    std::unique_ptr<Vulcant::VulcantSet> cullSet;
     std::unique_ptr<Vulcant::VulcantSet> animSet;
 };
 
@@ -140,6 +161,7 @@ class SphereRasterizer : public Vulcant::Examples::Example
     std::unique_ptr<Vulcant::VulcantBuffer>              sphereInitBuffer;
 
     std::unique_ptr<Vulcant::VulcantShader>              animShader;
+    std::unique_ptr<Vulcant::VulcantShader>              cullShader;
     std::unique_ptr<Vulcant::VulcantShader>              vertShader;
     std::unique_ptr<Vulcant::VulcantShader>              fragShader;
     std::unique_ptr<Vulcant::VulcantGraphicPipeline>     pipeline;

@@ -2,6 +2,7 @@
 
 #include "Vulcant/Wrapper/VulcanDevice.h"
 #include "Vulcant/Wrapper/Window.h"
+#include "Vulcant/Interface/VulcantComputeCommand.h"
 #include "Vulcant/VulcantV/VulcantVDevice.h"
 #include "Vulcant/VulcantV/VulcantVImage.h"
 #include "Vulcant/VulcantV/VulcantVInput.h"

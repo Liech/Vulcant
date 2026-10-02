@@ -49,6 +49,7 @@ set(Example_Files
     "Source/ShaderLibrary/Example/SphereRasterizer_vert.exe.slang"
     "Source/ShaderLibrary/Example/SphereRasterizer_frag.exe.slang"
     "Source/ShaderLibrary/Example/SphereAnimation.exe.slang"
+    "Source/ShaderLibrary/Example/SphereFrustumCull_comp.exe.slang"
 )
 source_group("Source/Example" FILES ${Example_Files})
 
@@ -101,6 +102,8 @@ foreach(SHADER_FILE ${ALL_SLANG_FILES})
             set(STAGE_FLAG "-stage" "vertex")
         elseif(SHADER_FILE MATCHES "_frag\\.exe\\.slang$")
             set(STAGE_FLAG "-stage" "fragment")
+        elseif(SHADER_FILE MATCHES "_comp\\.exe\\.slang$")
+            set(STAGE_FLAG "-stage" "compute")
         endif()
 
         add_custom_command(

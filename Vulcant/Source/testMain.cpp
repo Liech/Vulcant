@@ -11,8 +11,32 @@ void enforceWorkingDir(std::string exeDir) {
   std::filesystem::current_path(exeDir);
 }
 
+void setupVirtualGraphics() {
+  if (getenv("VK_DRIVER_FILES") == nullptr && getenv("VK_ICD_FILENAMES") == nullptr) {
+    const char* candidates[] = {
+      "/opt/google/chrome/vk_swiftshader_icd.json",
+      "/usr/share/vulkan/icd.d/lvp_icd.x86_64.json",
+      "/usr/share/vulkan/icd.d/lvp_icd.i686.json",
+      "/etc/vulkan/icd.d/lvp_icd.x86_64.json"
+    };
+    for (const char* path : candidates) {
+      if (std::filesystem::exists(path)) {
+#if defined(_WIN32)
+        _putenv_s("VK_DRIVER_FILES", path);
+        _putenv_s("VK_ICD_FILENAMES", path);
+#else
+        setenv("VK_DRIVER_FILES", path, 1);
+        setenv("VK_ICD_FILENAMES", path, 1);
+#endif
+        break;
+      }
+    }
+  }
+}
+
 int main(int argc, char* argv[]) {
   enforceWorkingDir(std::string(argv[0]));
+  setupVirtualGraphics();
   int result = Catch::Session().run(argc, argv);
   return result;
 }

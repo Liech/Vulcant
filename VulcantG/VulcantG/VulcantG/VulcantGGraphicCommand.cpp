@@ -47,6 +47,8 @@ namespace Vulcant::VulcantG
         cmd->draw(vertexCount, gSet, gBuf, instanceCount);
     }
 
+    void VulcantGGraphicCommand::drawIndirect(VulcantBuffer& indirectBuffer, VulcantSet* set, VulcantBuffer* vertexBuffer, uint32_t offset, uint32_t drawCount, uint32_t stride) {}
+
     void VulcantGGraphicCommand::addBarrier(VulcantImage& inputImg, const VulcantResourceLayout& dest) {
         cmd->addBarrier(*static_cast<VulcantGImage&>(inputImg).img, dest);
     }
