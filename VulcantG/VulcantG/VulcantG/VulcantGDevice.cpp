@@ -42,7 +42,7 @@ namespace Vulcant::VulcantG
 
     std::unique_ptr<VulcantBuffer> VulcantGDevice::createIndirectBuffer(size_t numberOfElements, size_t elementSize, bool gpuOnly)
     {
-        return nullptr;
+        return std::make_unique<VulcantGBuffer>(numberOfElements, elementSize, *device, VulcantBufferType::Indirect, gpuOnly);
     }
 
     std::unique_ptr<VulcantBuffer> VulcantGDevice::createUniform(size_t numberOfElements, size_t elementSize)

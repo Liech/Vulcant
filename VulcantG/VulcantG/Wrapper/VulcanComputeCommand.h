@@ -23,6 +23,7 @@ namespace Vulcant::VulcantG::Wrapper
 
         void startRecord();
         void add(const godot::Vector3i& groupCount, const VulcanSet& set, VulcanShader& shader);
+        void addBarrier();
         void addCopyBuffer(VulcanBuffer& source, VulcanBuffer& dest, size_t elementCount, size_t sourceOffset = 0, size_t destOffset = 0);
         void uploadImageToGPU(VulcanImage& destImage, const void* cpuData, glm::uvec3 extent, glm::uvec3 offset = glm::uvec3(0, 0, 0));
         void downloadImageFromGPU(VulcanImage& srcImage, void* outData, glm::uvec3 extent, glm::uvec3 offset);

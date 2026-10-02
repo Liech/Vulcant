@@ -50,6 +50,15 @@ namespace Vulcant::VulcantG::Wrapper
           });
     }
 
+    void VulcanComputeCommand::addBarrier()
+    {
+        computeListQueue.push_back(
+          [this]()
+          {
+              device.getDevice().compute_list_add_barrier(computeList);
+          });
+    }
+
     void VulcanComputeCommand::endRecord()
     {
         assert(computeListQueue.size() > 0);

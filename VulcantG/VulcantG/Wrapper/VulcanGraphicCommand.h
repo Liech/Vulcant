@@ -27,6 +27,7 @@ namespace Vulcant::VulcantG::Wrapper
         void startRecord();
         void setViewportAndScissor(glm::uvec2 extent);
         void draw(uint32_t vertexCount, VulcanSet* set = nullptr, VulcanBuffer* vertexBuffer = nullptr, uint32_t instanceCount = 1);
+        void drawIndirect(VulcanBuffer& indirectBuffer, VulcanSet* set = nullptr, VulcanBuffer* vertexBuffer = nullptr, uint32_t offset = 0, uint32_t drawCount = 1, uint32_t stride = 16);
         void add(uint32_t vertexCount, const VulcanSet& set, VulcanShader& shader, VulcanBuffer* vertexBuffer);
         void addBarrier(VulcanImage& inputImg, const VulcantResourceLayout& dest);
         void addBarrier(VulcanBuffer& buffer);
