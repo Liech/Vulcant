@@ -150,3 +150,13 @@ namespace Vulcant::VulcantV
         return *pool;
     }
 }
+
+#ifdef ISTESTPROJECT
+#include <catch2/catch_test_macros.hpp>
+
+TEST_CASE("VulcantVDevice CPU Virtual Graphics Initialization", "[VulcantVDevice]")
+{
+    Vulcant::VulcantV::VulcantVDevice device({}, false);
+    REQUIRE(&device.__getDevice() != nullptr);
+}
+#endif
