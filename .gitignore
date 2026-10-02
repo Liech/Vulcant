@@ -1,4 +1,5 @@
 out
+build/
 godotProject/bin/VulcantG.dll
 godotProject/bin/VulcantG.exp
 godotProject/bin/VulcantG.lib
