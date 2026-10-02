@@ -75,8 +75,6 @@ namespace Vulcant::VulcantV
 #ifdef ISTESTPROJECT
 #include <catch2/catch_test_macros.hpp>
 #include "VulcantVDevice.h"
-#include "VulcantVShader.h"
-#include "VulcantVResource.h"
 
 TEST_CASE("VulcantVComputeCommand Execution and Compute Pipeline Dispatch", "[VulcantVComputeCommand]")
 {
@@ -106,7 +104,7 @@ TEST_CASE("VulcantVComputeCommand Execution and Compute Pipeline Dispatch", "[Vu
     }
     buffer->uploadToGPU(initialVals.data(), count, 0);
 
-    std::shared_ptr<Vulcant::VulcantResource> res = buffer->asResource();
+    auto res = std::shared_ptr<Vulcant::VulcantResource>(buffer->asResource());
     auto set = device.createSet({{ res }}, *shader);
 
     auto cmd = device.createComputeCommand();
