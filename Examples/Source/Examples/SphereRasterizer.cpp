@@ -129,6 +129,36 @@ void SphereRasterizer::updateSpheres(float time, float dt)
     // Math loop offloaded to GPU compute shader (SphereAnimation.exe.slang)
 }
 
+void SphereRasterizer::syncAnimationBuffers()
+{
+    // Wait for all frame commands to complete
+    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
+    {
+        auto& frame = frameResources[i];
+        if (frame.animCmd) frame.animCmd->wait();
+        if (frame.cullcmd) frame.cullcmd->wait();
+        if (frame.cmdG) frame.cmdG->wait();
+        if (frame.defcmd) frame.defcmd->wait();
+        if (frame.uiCmdG) frame.uiCmdG->wait();
+    }
+
+    // Run animCmd for all frames using the exact same static elapsedTime
+    SphereAnimUniforms animUnif;
+    animUnif.time              = elapsedTime;
+    animUnif.animSpeed         = animSpeed;
+    animUnif.baseRadius        = baseRadius;
+    animUnif.activeSphereCount = (uint32_t)activeSphereCount;
+    animUnif.pad0 = animUnif.pad1 = animUnif.pad2 = 0;
+
+    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
+    {
+        auto& frame = frameResources[i];
+        frame.animUbo->uploadToGPU(&animUnif, 1);
+        frame.animCmd->runAsync();
+        frame.animCmd->wait();
+    }
+}
+
 void SphereRasterizer::createWindow(Vulcant::VulcantDevice& deviceInput, const glm::ivec2& res)
 {
     resolution = res;
@@ -244,7 +274,13 @@ void SphereRasterizer::createWindow(Vulcant::VulcantDevice& deviceInput, const g
           }
           ImGui::NewLine();
 
-          ImGui::Checkbox("Animate Dynamic Spheres", &animate);
+          if (ImGui::Checkbox("Animate Dynamic Spheres", &animate))
+          {
+              if (!animate)
+              {
+                  syncAnimationBuffers();
+              }
+          }
           if (animate)
           {
               ImGui::SliderFloat("Animation Speed", &animSpeed, 0.0f, 5.0f);
@@ -273,7 +309,10 @@ void SphereRasterizer::createWindow(Vulcant::VulcantDevice& deviceInput, const g
           prepareRun();
 
           // 3. Render-Commands starten
-          frame.animCmd->runAsync();
+          if (animate)
+          {
+              frame.animCmd->runAsync();
+          }
           frame.cullcmd->runAsync();
           frame.cmdG->runAsync();
           frame.defcmd->runAsync();

@@ -149,8 +149,11 @@ class SphereRasterizer : public Vulcant::Examples::Example
     float baseRadius        = 0.05f;
     float animSpeed         = 1.0f;
     bool  animate           = true;
+    bool  prevAnimate       = true;
     bool  enableCulling     = true;
     float elapsedTime       = 0.0f;
+
+    void syncAnimationBuffers();
 
     std::vector<FrameResources> frameResources;
     uint32_t                    currentFrame = 0;
