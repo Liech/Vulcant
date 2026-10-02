@@ -150,13 +150,6 @@ void SphereRasterizer::createWindow(Vulcant::VulcantDevice& deviceInput, const g
             auto& frame = frameResources[i];
             if (frame.animCmd)
                 frame.animCmd->wait();
-            if (frame.cmdG)
-                frame.cmdG->wait();
-            if (frame.defcmd)
-                frame.defcmd->wait();
-            if (frame.uiCmdG)
-                frame.uiCmdG->wait();
-        }
             if (frame.cullcmd)
                 frame.cullcmd->wait();
             if (frame.cmdG)
@@ -167,14 +160,17 @@ void SphereRasterizer::createWindow(Vulcant::VulcantDevice& deviceInput, const g
                 frame.uiCmdG->wait();
         }
 
+
         for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
         {
             auto& frame = frameResources[i];
 
+            // 2. Graphic Pass für Frame i
             frame.animCmd = device->createComputeCommand();
             frame.cmdG    = device->createGraphicCommand();
             frame.uiCmdG  = device->createGraphicCommand();
             frame.defcmd  = device->createComputeCommand();
+            frame.cullcmd = device->createComputeCommand();
 
             // 1. Sphere Animation Compute Pass
             frame.animCmd->startRecord();
@@ -182,15 +178,6 @@ void SphereRasterizer::createWindow(Vulcant::VulcantDevice& deviceInput, const g
             frame.animCmd->add(glm::ivec3(groupCountX, 1, 1), *frame.animSet, *animShader);
             frame.animCmd->addBarrier(*frame.spheresBuffer);
             frame.animCmd->endRecord();
-        for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
-        {
-            auto& frame = frameResources[i];
-
-            // 2. Graphic Pass für Frame i
-            frame.cmdG    = device->createGraphicCommand();
-            frame.uiCmdG  = device->createGraphicCommand();
-            frame.defcmd  = device->createComputeCommand();
-            frame.cullcmd = device->createComputeCommand();
 
             // 1. Frustum Culling Pass
             frame.cullcmd->startRecord();
