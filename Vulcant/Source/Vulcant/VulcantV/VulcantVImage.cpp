@@ -56,3 +56,42 @@ namespace Vulcant::VulcantV
         img->setUsage(usage);
     }
 }
+
+#ifdef ISTESTPROJECT
+#include <catch2/catch_test_macros.hpp>
+#include "VulcantVDevice.h"
+
+TEST_CASE("VulcantVImage Creation and Usage Modification", "[VulcantVImage]")
+{
+    Vulcant::VulcantV::VulcantVDevice device({}, false);
+
+    auto img = device.createImage(256, 128, 1, VulcantImageFormat::R8G8B8A8_UNORM);
+    REQUIRE(img != nullptr);
+    REQUIRE(img->getResolution() == glm::ivec2(256, 128));
+
+    Vulcant::VulcantImageUsage usage;
+    usage.storage = true;
+    usage.sampled = true;
+    img->setUsage(usage);
+
+    auto resource = img->asResource();
+    REQUIRE(resource != nullptr);
+}
+
+TEST_CASE("VulcantVImage Various Formats Creation", "[VulcantVImage]")
+{
+    Vulcant::VulcantV::VulcantVDevice device({}, false);
+
+    auto img32f = device.createImage(64, 64, 1, VulcantImageFormat::R32_SFLOAT);
+    REQUIRE(img32f != nullptr);
+
+    auto imgDepth = device.createImage(64, 64, 1, VulcantImageFormat::D32_SFLOAT);
+    REQUIRE(imgDepth != nullptr);
+
+    auto img16f = device.createImage(64, 64, 1, VulcantImageFormat::R16G16B16A16_SFLOAT);
+    REQUIRE(img16f != nullptr);
+
+    auto img32uint = device.createImage(64, 64, 1, VulcantImageFormat::R32_UINT);
+    REQUIRE(img32uint != nullptr);
+}
+#endif
