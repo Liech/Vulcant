@@ -75,6 +75,8 @@ namespace Vulcant::VulcantV
 #ifdef ISTESTPROJECT
 #include <catch2/catch_test_macros.hpp>
 #include "VulcantVDevice.h"
+#include "VulcantVShader.h"
+#include "VulcantVResource.h"
 
 TEST_CASE("VulcantVComputeCommand Execution and Compute Pipeline Dispatch", "[VulcantVComputeCommand]")
 {
