@@ -25,6 +25,8 @@ set(SphereScene_Files
     "Source/Examples/SphereRasterizerScenes/CubeGridScene.cpp"
     "Source/Examples/SphereRasterizerScenes/ConcentricRingsScene.h"
     "Source/Examples/SphereRasterizerScenes/ConcentricRingsScene.cpp"
+    "Source/Examples/SphereRasterizerScenes/HillLandscapeScene.h"
+    "Source/Examples/SphereRasterizerScenes/HillLandscapeScene.cpp"
 )
 source_group("Source/Examples/SphereRasterizerScenes" FILES ${SphereScene_Files})
 

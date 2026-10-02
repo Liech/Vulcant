@@ -3,6 +3,7 @@
 #include "Examples/SphereRasterizerScenes/ConcentricRingsScene.h"
 #include "Examples/SphereRasterizerScenes/CubeGridScene.h"
 #include "Examples/SphereRasterizerScenes/FloatingSpheresScene.h"
+#include "Examples/SphereRasterizerScenes/HillLandscapeScene.h"
 #include "Rendering/DeferredShading.h"
 #include "Rendering/Freecam.h"
 #include "ShaderLibrary/Example/SphereFrustumCull_comp.h"
@@ -46,6 +47,7 @@ void SphereRasterizer::demo()
 
 SphereRasterizer::SphereRasterizer()
 {
+    scenes.push_back(std::make_unique<Vulcant::Examples::HillLandscapeScene>());
     scenes.push_back(std::make_unique<Vulcant::Examples::FloatingSpheresScene>());
     scenes.push_back(std::make_unique<Vulcant::Examples::CubeGridScene>());
     scenes.push_back(std::make_unique<Vulcant::Examples::ConcentricRingsScene>());
@@ -468,13 +470,13 @@ Vulcant::Rendering::Light SphereRasterizer::getExampleLight()
     Vulcant::Rendering::Light light = {};
     light.type                      = 1.0f; // Point light
     light.position[0]               = 0.0f;
-    light.position[1]               = 8.0f;
+    light.position[1]               = 80.0f;
     light.position[2]               = 0.0f;
     light.color[0]                  = 1.0f;
     light.color[1]                  = 0.95f;
     light.color[2]                  = 0.85f;
     light.energy                    = 2.5f;
-    light.range                     = 35.0f;
+    light.range                     = 2500.0f;
     light.attenuation               = 1.0f;
     return light;
 }

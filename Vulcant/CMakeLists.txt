@@ -133,7 +133,13 @@ set(ALL_FILES
 ############################################################################
 ############################################################################
 
-add_executable(VulcantTest ${ALL_FILES})
+add_executable(VulcantTest
+    ${ALL_FILES}
+    "../Examples/Source/Examples/SphereRasterizerScenes/FloatingSpheresScene.cpp"
+    "../Examples/Source/Examples/SphereRasterizerScenes/CubeGridScene.cpp"
+    "../Examples/Source/Examples/SphereRasterizerScenes/ConcentricRingsScene.cpp"
+    "../Examples/Source/Examples/SphereRasterizerScenes/HillLandscapeScene.cpp"
+)
 add_library(Vulcant ${ALL_FILES})
 set_property(TARGET VulcantTest PROPERTY CXX_STANDARD 23)
 set_property(TARGET Vulcant PROPERTY CXX_STANDARD 23)
@@ -169,6 +175,7 @@ target_include_directories(Vulcant PUBLIC
 )
 target_include_directories(VulcantTest PUBLIC 
 ./Source/
+../Examples/Source/
 )
 
 set_property( TARGET VulcantTest PROPERTY COMPILE_DEFINITIONS ISTESTPROJECT=1 )
