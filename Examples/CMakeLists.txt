@@ -17,6 +17,17 @@ set(Rendering_Files
 source_group("Source/Rendering" FILES ${Rendering_Files})
 
 
+set(SphereScene_Files
+    "Source/Examples/SphereRasterizerScenes/SphereScene.h"
+    "Source/Examples/SphereRasterizerScenes/FloatingSpheresScene.h"
+    "Source/Examples/SphereRasterizerScenes/FloatingSpheresScene.cpp"
+    "Source/Examples/SphereRasterizerScenes/CubeGridScene.h"
+    "Source/Examples/SphereRasterizerScenes/CubeGridScene.cpp"
+    "Source/Examples/SphereRasterizerScenes/ConcentricRingsScene.h"
+    "Source/Examples/SphereRasterizerScenes/ConcentricRingsScene.cpp"
+)
+source_group("Source/Examples/SphereRasterizerScenes" FILES ${SphereScene_Files})
+
 set(Example_Files
     "Source/Examples/MandelbrotImage.cpp"
     "Source/Examples/MandelbrotImage.h"
@@ -42,6 +53,7 @@ source_group("Source/Examples" FILES ${Example_Files})
 
 set(ALL_FILES
     ${Example_Files}
+    ${SphereScene_Files}
     ${Rendering_Files}
 )
 
