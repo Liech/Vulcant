@@ -48,6 +48,9 @@ namespace Vulcant::VulcantG::Wrapper
                 bufferRid = device.getDevice().index_buffer_create(static_cast<uint32_t>(numberOfElements),
                                                                     elementSize == 2 ? godot::RenderingDevice::INDEX_BUFFER_FORMAT_UINT16 : godot::RenderingDevice::INDEX_BUFFER_FORMAT_UINT32);
                 break;
+            case VulcantBufferType::Indirect:
+                bufferRid = device.getDevice().storage_buffer_create(total_size);
+                break;
         }
     }
 
@@ -78,7 +81,7 @@ namespace Vulcant::VulcantG::Wrapper
 
     VulcanResource VulcanBuffer::asResource() const
     {
-        godot::RenderingDevice::UniformType type = (bufferType == VulcantBufferType::Storage) ?
+        godot::RenderingDevice::UniformType type = (bufferType == VulcantBufferType::Storage || bufferType == VulcantBufferType::Indirect) ?
             godot::RenderingDevice::UNIFORM_TYPE_STORAGE_BUFFER :
             godot::RenderingDevice::UNIFORM_TYPE_UNIFORM_BUFFER;
         return { type, getRid() };
