@@ -193,7 +193,7 @@ namespace Vulcant::VulcantG::Wrapper
                   rd.draw_list_bind_vertex_array(drawList, vertexArray);
               }
 
-              rd.draw_list_draw_indirect(drawList, indirectRid, offset, drawCount, stride);
+              rd.draw_list_draw_indirect(drawList, false, indirectRid, offset, drawCount, stride);
           });
     }
 
