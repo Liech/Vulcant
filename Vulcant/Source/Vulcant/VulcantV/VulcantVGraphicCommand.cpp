@@ -97,3 +97,10 @@ namespace Vulcant::VulcantV
         cmd->addBarrier(*static_cast<VulcantVBuffer&>(buffer).buffer);
     }
 }
+
+#ifdef ISTESTPROJECT
+#include <catch2/catch_test_macros.hpp>
+#include "VulcantVDevice.h"
+
+// Note: Graphic pipeline shader tests with source strings are omitted as ShaderCompiler currently defaults to compute shader stage.
+#endif

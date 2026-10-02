@@ -159,4 +159,9 @@ namespace Vulcant::Wrapper
     {
         return enabledLayers;
     }
+
+    void VulcanInstance::setValidationCallback(ValidationCallback cb)
+    {
+        customValidationCallback = cb;
+    }
 }

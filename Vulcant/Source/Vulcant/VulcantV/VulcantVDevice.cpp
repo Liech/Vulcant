@@ -159,4 +159,56 @@ TEST_CASE("VulcantVDevice CPU Virtual Graphics Initialization", "[VulcantVDevice
     Vulcant::VulcantV::VulcantVDevice device({}, false);
     REQUIRE(&device.__getDevice() != nullptr);
 }
+
+TEST_CASE("VulcantV Validation Layer Error Catching (Expected To Fail Action)", "[VulcantVValidationLayer]")
+{
+    std::string capturedValidationMsg = "";
+    bool validationErrorCaught = false;
+
+    Vulcant::Wrapper::VulcanInstance::setValidationCallback(
+        [&capturedValidationMsg, &validationErrorCaught](
+            VkDebugUtilsMessageSeverityFlagBitsEXT severity,
+            VkDebugUtilsMessageTypeFlagsEXT type,
+            const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData)
+        {
+            if (pCallbackData && pCallbackData->pMessage) {
+                capturedValidationMsg += pCallbackData->pMessage;
+                capturedValidationMsg += "\n";
+                validationErrorCaught = true;
+            }
+        }
+    );
+
+    bool initializedWithDebug = false;
+    try {
+        Vulcant::VulcantV::VulcantVDevice debugDevice({}, true);
+        initializedWithDebug = true;
+
+        // Perform an illegal operation that triggers a validation layer error.
+        // Copying from a 10-element buffer to a 2-element buffer with elementCount = 10
+        // violates buffer bounds / access ranges.
+        auto srcBuf = debugDevice.createBuffer(10, sizeof(uint32_t), false);
+        auto dstBuf = debugDevice.createBuffer(2, sizeof(uint32_t), false);
+
+        auto cmd = debugDevice.createComputeCommand();
+        cmd->startRecord();
+        cmd->addCopyBuffer(*srcBuf, *dstBuf, 10, 0, 0);
+        cmd->endRecord();
+
+        cmd->runSync();
+    } catch (const std::exception& e) {
+        // In case validation layer or device throws on error
+        capturedValidationMsg += e.what();
+    }
+
+    // Reset validation callback
+    Vulcant::Wrapper::VulcanInstance::setValidationCallback(nullptr);
+
+    if (initializedWithDebug) {
+        INFO("Validation output: " << capturedValidationMsg);
+        REQUIRE(validationErrorCaught == true);
+    } else {
+        WARN("Validation layer (VK_LAYER_KHRONOS_validation) not installed or supported on this environment, skipping validation assert.");
+    }
+}
 #endif

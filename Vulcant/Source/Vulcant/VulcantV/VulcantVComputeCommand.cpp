@@ -71,3 +71,84 @@ namespace Vulcant::VulcantV
         cmd->uploadImageToGPU(*((VulcantVImage&)srcImage).img, outData, extent, offset);
     }
 }
+
+#ifdef ISTESTPROJECT
+#include <catch2/catch_test_macros.hpp>
+#include "VulcantVDevice.h"
+#include "VulcantVShader.h"
+#include "VulcantVResource.h"
+
+TEST_CASE("VulcantVComputeCommand Execution and Compute Pipeline Dispatch", "[VulcantVComputeCommand]")
+{
+    Vulcant::VulcantV::VulcantVDevice device({}, false);
+
+    std::string glslShader = R"(
+        #version 450
+        layout(local_size_x = 64, local_size_y = 1, local_size_z = 1) in;
+        layout(std430, set = 0, binding = 0) buffer PosBuffer {
+            uint vals[];
+        };
+        void main() {
+            uint idx = gl_GlobalInvocationID.x;
+            vals[idx] = vals[idx] * 5 + 1;
+        }
+    )";
+
+    auto shader = device.createShader(glslShader);
+    REQUIRE(shader != nullptr);
+
+    const size_t count = 64;
+    auto buffer = device.createBuffer(count, sizeof(uint32_t), false);
+
+    std::vector<uint32_t> initialVals(count);
+    for (size_t i = 0; i < count; ++i) {
+        initialVals[i] = static_cast<uint32_t>(i);
+    }
+    buffer->uploadToGPU(initialVals.data(), count, 0);
+
+    auto res = std::shared_ptr<Vulcant::VulcantResource>(buffer->asResource());
+    auto set = device.createSet({{ res }}, *shader);
+
+    auto cmd = device.createComputeCommand();
+    cmd->startRecord();
+    cmd->add(glm::ivec3(1, 1, 1), *set, *shader);
+    cmd->addBarrier(*buffer);
+    cmd->endRecord();
+
+    cmd->runSync();
+
+    std::vector<uint32_t> resultVals(count, 0);
+    buffer->downloadFromGPU(resultVals.data(), count, 0);
+
+    for (size_t i = 0; i < count; ++i) {
+        REQUIRE(resultVals[i] == initialVals[i] * 5 + 1);
+    }
+}
+
+TEST_CASE("VulcantVComputeCommand Buffer Copy", "[VulcantVComputeCommand]")
+{
+    Vulcant::VulcantV::VulcantVDevice device({}, false);
+
+    const size_t count = 32;
+    auto srcBuffer = device.createBuffer(count, sizeof(uint32_t), false);
+    auto dstBuffer = device.createBuffer(count, sizeof(uint32_t), false);
+
+    std::vector<uint32_t> srcData(count);
+    for (size_t i = 0; i < count; ++i) {
+        srcData[i] = static_cast<uint32_t>(100 + i);
+    }
+    srcBuffer->uploadToGPU(srcData.data(), count, 0);
+
+    auto cmd = device.createComputeCommand();
+    cmd->startRecord();
+    cmd->addCopyBuffer(*srcBuffer, *dstBuffer, count, 0, 0);
+    cmd->endRecord();
+
+    cmd->runSync();
+
+    std::vector<uint32_t> dstData(count, 0);
+    dstBuffer->downloadFromGPU(dstData.data(), count, 0);
+
+    REQUIRE(srcData == dstData);
+}
+#endif

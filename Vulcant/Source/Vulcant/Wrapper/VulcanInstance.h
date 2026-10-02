@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cassert>
+#include <functional>
 #include <vector>
 #include <vulkan/vulkan.h>
 #include <string>
@@ -28,6 +29,9 @@ namespace Vulcant::Wrapper
         VkInstance                getInstance();
         std::vector<const char*>& getEnabledLayers();
 
+        using ValidationCallback = std::function<void(VkDebugUtilsMessageSeverityFlagBitsEXT, VkDebugUtilsMessageTypeFlagsEXT, const VkDebugUtilsMessengerCallbackDataEXT*)>;
+        static void setValidationCallback(ValidationCallback cb);
+
       private:
         void initValidationLayer();
         void initInstance();
@@ -40,12 +44,22 @@ namespace Vulcant::Wrapper
         std::vector<const char*> enabledLayers;
         VkDebugUtilsMessengerEXT debugMessenger = VK_NULL_HANDLE;
 
+        static inline ValidationCallback customValidationCallback = nullptr;
+
         static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT      messageSeverity,
                                                             VkDebugUtilsMessageTypeFlagsEXT             messageType,
                                                             const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
                                                             void*                                       pUserData)
         {
-            fprintf(stderr, "Validation Layer: %s\n", pCallbackData->pMessage);
+            if (customValidationCallback)
+            {
+                customValidationCallback(messageSeverity, messageType, pCallbackData);
+            }
+            if (messageSeverity >= VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT)
+            {
+                fprintf(stderr, "VULKAN VALIDATION: %s\n\n", pCallbackData->pMessage);
+                fflush(stderr);
+            }
             return VK_FALSE;
         }
     };
