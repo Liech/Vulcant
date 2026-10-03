@@ -3,8 +3,7 @@ import Render.Scene;
 struct SphereData
 {
     float3 center;
-    float radius;
-    uint colorPacked; // RGBA8 packed
+    uint radiusHalfAndColor; // bits 0..15 = FP16 radius, bits 16..31 = RGBA4444 color
 };
 
 struct DrawIndirectCommand
@@ -47,7 +46,8 @@ void main(uint3 dispatchThreadID : SV_DispatchThreadID)
         return;
 
     SphereData sphere = gSpheres[sphereID];
-    float r = abs(sphere.radius);
+    float radius = f16tof32(sphere.radiusHalfAndColor & 0xFFFF);
+    float r = abs(radius);
 
     // View-projection matrix
     float4x4 vp = mul(scene.projectionMatrix, scene.viewMatrix);

@@ -3,8 +3,7 @@ import Render.Scene;
 struct SphereData
 {
     float3 center;
-    float radius;
-    uint colorPacked; // RGBA8 packed
+    uint radiusHalfAndColor; // bits 0..15 = FP16 radius, bits 16..31 = RGBA4444 color
 };
 
 struct SphereVertexOutput
@@ -42,7 +41,8 @@ SphereVertexOutput main(uint vertexID : SV_VertexID, uint instanceID : SV_Instan
     float2 quadPos = quadOffsets[cornerID];
 
     SphereData sphere = gSpheres[sphereID];
-    float r = abs(sphere.radius);
+    float radius = f16tof32(sphere.radiusHalfAndColor & 0xFFFF);
+    float r = abs(radius);
 
     // Center in view space
     float4 centerView = mul(scene.viewMatrix, float4(sphere.center, 1.0));
@@ -53,17 +53,18 @@ SphereVertexOutput main(uint vertexID : SV_VertexID, uint instanceID : SV_Instan
     output.position = mul(scene.projectionMatrix, float4(cornerView, 1.0));
     output.uv = quadPos;
     output.sphereCenterView = centerView.xyz;
-    output.sphereRadius = sphere.radius;
+    output.sphereRadius = radius;
 
     // Pass projection parameters for exact depth calculation in fragment shader without needing descriptor sets
     output.projParams = float4(scene.projectionMatrix[2][2], scene.projectionMatrix[2][3], scene.projectionMatrix[3][2], scene.projectionMatrix[3][3]);
 
-    // Unpack RGBA8 color
+    // Unpack RGBA4444 color
+    uint color16 = sphere.radiusHalfAndColor >> 16;
     output.color = float4(
-        float(sphere.colorPacked & 0xFF) / 255.0,
-        float((sphere.colorPacked >> 8) & 0xFF) / 255.0,
-        float((sphere.colorPacked >> 16) & 0xFF) / 255.0,
-        float((sphere.colorPacked >> 24) & 0xFF) / 255.0
+        float(color16 & 0x0F) / 15.0,
+        float((color16 >> 4) & 0x0F) / 15.0,
+        float((color16 >> 8) & 0x0F) / 15.0,
+        float((color16 >> 12) & 0x0F) / 15.0
     );
 
     return output;

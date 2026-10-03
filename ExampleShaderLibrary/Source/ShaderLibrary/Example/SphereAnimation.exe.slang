@@ -11,8 +11,7 @@ struct SphereInitData
 struct SphereData
 {
     float3 center;
-    float radius;
-    uint colorPacked;
+    uint radiusHalfAndColor; // bits 0..15 = FP16 radius, bits 16..31 = RGBA4444 color
 };
 
 struct SphereAnimUniforms
@@ -51,10 +50,18 @@ void main(uint3 dispatchThreadID : SV_DispatchThreadID)
 
     float sphereRad = uniforms.baseRadius * initData.radiusScale;
 
+    uint rHalf = f32tof16(sphereRad);
+
+    uint c8 = initData.packedColor;
+    uint cr = (c8 & 0xFF) >> 4;
+    uint cg = ((c8 >> 8) & 0xFF) >> 4;
+    uint cb = ((c8 >> 16) & 0xFF) >> 4;
+    uint ca = ((c8 >> 24) & 0xFF) >> 4;
+    uint c16 = cr | (cg << 4) | (cb << 8) | (ca << 12);
+
     SphereData outData;
     outData.center = float3(x, y, z);
-    outData.radius = sphereRad;
-    outData.colorPacked = initData.packedColor;
+    outData.radiusHalfAndColor = rHalf | (c16 << 16);
 
     gOutputSpheres[sphereID] = outData;
 }

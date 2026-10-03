@@ -57,9 +57,8 @@ namespace Vulcant
                         float sphereRad   = baseRadius * radiusScale;
 
                         SphereData sd;
-                        sd.center      = pos;
-                        sd.radius      = sphereRad;
-                        sd.colorPacked = packedColor;
+                        sd.center = pos;
+                        sd.setRadiusAndColor(sphereRad, packedColor);
                         outSpheres.push_back(sd);
 
                         SphereInitData init;
