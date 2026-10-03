@@ -31,6 +31,39 @@ static const float2 quadOffsets[6] = {
     float2(-1.0,  1.0)
 };
 
+float unpackHalf(uint val16)
+{
+    uint sign = (val16 & 0x8000u) << 16u;
+    uint exp  = (val16 & 0x7C00u) >> 10u;
+    uint mant = (val16 & 0x03FFu);
+
+    if (exp == 0u)
+    {
+        if (mant == 0u)
+        {
+            return asfloat(sign);
+        }
+        while ((mant & 0x0400u) == 0u)
+        {
+            mant <<= 1u;
+            exp--;
+        }
+        exp++;
+        mant &= ~0x0400u;
+    }
+    else if (exp == 31u)
+    {
+        exp = 255u;
+    }
+    else
+    {
+        exp = exp + (127u - 15u);
+    }
+
+    uint res = sign | (exp << 23u) | (mant << 13u);
+    return asfloat(res);
+}
+
 [shader("vertex")]
 SphereVertexOutput main(uint vertexID : SV_VertexID, uint instanceID : SV_InstanceID)
 {
@@ -41,7 +74,7 @@ SphereVertexOutput main(uint vertexID : SV_VertexID, uint instanceID : SV_Instan
     float2 quadPos = quadOffsets[cornerID];
 
     SphereData sphere = gSpheres[sphereID];
-    float radius = unpackHalf2x16(sphere.radiusHalfAndColor & 0xFFFFu).x;
+    float radius = unpackHalf(sphere.radiusHalfAndColor & 0xFFFFu);
     float r = abs(radius);
 
     // Center in view space

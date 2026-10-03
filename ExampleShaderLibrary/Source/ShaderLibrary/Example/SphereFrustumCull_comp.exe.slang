@@ -37,6 +37,39 @@ struct CullParams
 // Set 0, Binding 4: Output Indirect Draw Command
 [[vk::binding(4, 0)]] RWStructuredBuffer<DrawIndirectCommand> gIndirectCommand;
 
+float unpackHalf(uint val16)
+{
+    uint sign = (val16 & 0x8000u) << 16u;
+    uint exp  = (val16 & 0x7C00u) >> 10u;
+    uint mant = (val16 & 0x03FFu);
+
+    if (exp == 0u)
+    {
+        if (mant == 0u)
+        {
+            return asfloat(sign);
+        }
+        while ((mant & 0x0400u) == 0u)
+        {
+            mant <<= 1u;
+            exp--;
+        }
+        exp++;
+        mant &= ~0x0400u;
+    }
+    else if (exp == 31u)
+    {
+        exp = 255u;
+    }
+    else
+    {
+        exp = exp + (127u - 15u);
+    }
+
+    uint res = sign | (exp << 23u) | (mant << 13u);
+    return asfloat(res);
+}
+
 [shader("compute")]
 [numthreads(256, 1, 1)]
 void main(uint3 dispatchThreadID : SV_DispatchThreadID)
@@ -46,7 +79,7 @@ void main(uint3 dispatchThreadID : SV_DispatchThreadID)
         return;
 
     SphereData sphere = gSpheres[sphereID];
-    float radius = unpackHalf2x16(sphere.radiusHalfAndColor & 0xFFFFu).x;
+    float radius = unpackHalf(sphere.radiusHalfAndColor & 0xFFFFu);
     float r = abs(radius);
 
     // View-projection matrix

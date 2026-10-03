@@ -29,6 +29,34 @@ struct SphereAnimUniforms
 [[vk::binding(1, 0)]] StructuredBuffer<SphereInitData> gInitSpheres;
 [[vk::binding(2, 0)]] RWStructuredBuffer<SphereData> gOutputSpheres;
 
+uint packHalf(float val)
+{
+    uint f = asuint(val);
+    uint sign = (f >> 16u) & 0x8000u;
+    int exp  = int((f >> 23u) & 0xFFu) - 127;
+    uint mant = f & 0x007FFFFFu;
+
+    if (exp < -24)
+    {
+        return sign;
+    }
+    if (exp < -14)
+    {
+        mant |= 0x00800000u;
+        uint shift = uint(-14 - exp);
+        mant >>= shift;
+        return sign | (mant >> 13u);
+    }
+    if (exp > 15)
+    {
+        return sign | 0x7C00u;
+    }
+
+    uint hexp = uint(exp + 15) << 10u;
+    uint hmant = mant >> 13u;
+    return sign | hexp | hmant;
+}
+
 [shader("compute")]
 [numthreads(256, 1, 1)]
 void main(uint3 dispatchThreadID : SV_DispatchThreadID)
@@ -50,7 +78,7 @@ void main(uint3 dispatchThreadID : SV_DispatchThreadID)
 
     float sphereRad = uniforms.baseRadius * initData.radiusScale;
 
-    uint rHalf = packHalf2x16(float2(sphereRad, 0.0)) & 0xFFFFu;
+    uint rHalf = packHalf(sphereRad) & 0xFFFFu;
 
     uint c8 = initData.packedColor;
     uint cr = (c8 & 0xFFu) >> 4u;
