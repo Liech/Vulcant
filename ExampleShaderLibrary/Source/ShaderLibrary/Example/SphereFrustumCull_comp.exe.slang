@@ -38,19 +38,21 @@ struct CullParams
 // Set 0, Binding 4: Output Indirect Draw Command
 [[vk::binding(4, 0)]] RWStructuredBuffer<DrawIndirectCommand> gIndirectCommand;
 
-groupshared SphereData s_spheres[256];
-groupshared float      s_depths[256];
-groupshared uint       s_baseIdx;
+groupshared uint       s_binCounts[16];
+groupshared uint       s_binOffsets[16];
+groupshared SphereData s_outSpheres[256];
+groupshared uint       s_globalBaseIdx;
+groupshared uint       s_totalGroupVisible;
 
 [shader("compute")]
 [numthreads(256, 1, 1)]
 void main(uint3 dispatchThreadID : SV_DispatchThreadID, uint groupIndex : SV_GroupIndex)
 {
     uint sphereID = dispatchThreadID.x;
-
     bool isThreadValid = (sphereID < cullParams.activeSphereCount);
+
     SphereData sphere = {};
-    float depth = 1e9f;
+    float viewDepth = 1e9f;
     bool visible = false;
 
     if (isThreadValid)
@@ -67,17 +69,16 @@ void main(uint3 dispatchThreadID : SV_DispatchThreadID, uint groupIndex : SV_Gro
             planes[1] = vp[3] - vp[0]; // Right
             planes[2] = vp[3] + vp[1]; // Bottom
             planes[3] = vp[3] - vp[1]; // Top
-            planes[4] = vp[2];         // Near (Vulkan [0, 1] depth range)
+            planes[4] = vp[2];         // Near
             planes[5] = vp[3] - vp[2]; // Far
 
             for (int i = 0; i < 6; ++i)
             {
                 float4 p = planes[i];
                 float len = length(p.xyz);
-                p /= len;
+                if (len > 1e-6) p /= len;
 
-                float dist = dot(p.xyz, sphere.center) + p.w;
-                if (dist < -r)
+                if (dot(p.xyz, sphere.center) + p.w < -r)
                 {
                     visible = false;
                     break;
@@ -88,7 +89,7 @@ void main(uint3 dispatchThreadID : SV_DispatchThreadID, uint groupIndex : SV_Gro
         if (visible)
         {
             float4 centerView = mul(scene.viewMatrix, float4(sphere.center, 1.0));
-            depth = -centerView.z; // Distance from camera
+            viewDepth = -centerView.z;
         }
     }
 
@@ -103,60 +104,63 @@ void main(uint3 dispatchThreadID : SV_DispatchThreadID, uint groupIndex : SV_Gro
         return;
     }
 
-    // Threadgroup Bitonic Sort in Shared Memory
-    s_spheres[groupIndex] = sphere;
-    s_depths[groupIndex]  = visible ? depth : 1e9f;
+    // Fast 16-Bucket Front-to-Back Depth Binning
+    uint bin = 15u;
+    if (visible && viewDepth < 1e8f)
+    {
+        float normD = saturate((viewDepth - 0.1f) / 150.0f);
+        bin = clamp(uint(normD * 16.0f), 0u, 15u);
+    }
+
+    if (groupIndex < 16)
+    {
+        s_binCounts[groupIndex] = 0;
+    }
 
     GroupMemoryBarrierWithGroupSync();
 
-    [unroll]
-    for (uint k = 2; k <= 256; k <<= 1)
+    if (visible)
     {
-        [unroll]
-        for (uint j = k >> 1; j > 0; j >>= 1)
-        {
-            uint ixj = groupIndex ^ j;
-            if (ixj > groupIndex)
-            {
-                bool ascending = ((groupIndex & k) == 0);
-                float d1 = s_depths[groupIndex];
-                float d2 = s_depths[ixj];
-
-                if ((ascending && d1 > d2) || (!ascending && d1 < d2))
-                {
-                    s_depths[groupIndex] = d2;
-                    s_depths[ixj]        = d1;
-
-                    SphereData temp       = s_spheres[groupIndex];
-                    s_spheres[groupIndex] = s_spheres[ixj];
-                    s_spheres[ixj]        = temp;
-                }
-            }
-            GroupMemoryBarrierWithGroupSync();
-        }
+        InterlockedAdd(s_binCounts[bin], 1u);
     }
+
+    GroupMemoryBarrierWithGroupSync();
 
     if (groupIndex == 0)
     {
-        uint count = 0;
-        for (uint i = 0; i < 256; ++i)
+        uint sum = 0;
+        for (uint b = 0; b < 16; ++b)
         {
-            if (s_depths[i] < 1e8f) count++;
-            else break;
+            s_binOffsets[b] = sum;
+            sum += s_binCounts[b];
+            s_binCounts[b] = 0; // reset to 0 for atomic local scatter
         }
+
+        s_totalGroupVisible = sum;
+
         uint baseIdx = 0;
-        if (count > 0)
+        if (sum > 0)
         {
-            InterlockedAdd(gIndirectCommand[0].instanceCount, count, baseIdx);
+            InterlockedAdd(gIndirectCommand[0].instanceCount, sum, baseIdx);
         }
-        s_baseIdx = baseIdx;
+        s_globalBaseIdx = baseIdx;
     }
 
     GroupMemoryBarrierWithGroupSync();
 
-    float sortedDepth = s_depths[groupIndex];
-    if (sortedDepth < 1e8f)
+    if (visible)
     {
-        gCulledSpheres[s_baseIdx + groupIndex] = s_spheres[groupIndex];
+        uint localOffset;
+        InterlockedAdd(s_binCounts[bin], 1u, localOffset);
+        uint destSlot = s_binOffsets[bin] + localOffset;
+        s_outSpheres[destSlot] = sphere;
+    }
+
+    GroupMemoryBarrierWithGroupSync();
+
+    // Parallel write from shared memory to global culled buffer
+    if (groupIndex < s_totalGroupVisible)
+    {
+        gCulledSpheres[s_globalBaseIdx + groupIndex] = s_outSpheres[groupIndex];
     }
 }
