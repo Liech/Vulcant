@@ -15,8 +15,8 @@
 #include "Vulcant/VulcantV/VulcantVGraphicPipeline.h"
 #include "Vulcant/VulcantV/VulcantVImage.h"
 #include "Vulcant/Wrapper/Window.h"
-#include "ShaderLibrary/Example/Cube_frag.h"
-#include "ShaderLibrary/Example/Cube_vert.h"
+#include "ShaderLibrary/Example/Cube/Cube_frag.h"
+#include "ShaderLibrary/Example/Cube/Cube_vert.h"
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <utility>

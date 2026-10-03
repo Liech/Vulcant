@@ -6,10 +6,12 @@
 #include "Examples/SphereRasterizerScenes/HillLandscapeScene.h"
 #include "Rendering/DeferredShading.h"
 #include "Rendering/Freecam.h"
-#include "ShaderLibrary/Example/SphereFrustumCull_comp.h"
-#include "ShaderLibrary/Example/SphereAnimation.h"
-#include "ShaderLibrary/Example/SphereRasterizer_frag.h"
-#include "ShaderLibrary/Example/SphereRasterizer_vert.h"
+#include "ShaderLibrary/Example/Sphere/SphereFrustumCull_comp.h"
+#include "ShaderLibrary/Example/Sphere/SphereBinning_comp.h"
+#include "ShaderLibrary/Example/Sphere/SphereCullClear_comp.h"
+#include "ShaderLibrary/Example/Sphere/SphereAnimation.h"
+#include "ShaderLibrary/Example/Sphere/SphereRasterizer_frag.h"
+#include "ShaderLibrary/Example/Sphere/SphereRasterizer_vert.h"
 #include "Vulcant/Interface/VulcantBuffer.h"
 #include "Vulcant/Interface/VulcantComputeCommand.h"
 #include "Vulcant/Interface/VulcantGraphicCommand.h"
@@ -92,6 +94,7 @@ void SphereRasterizer::syncAnimationBuffers()
         auto& frame = frameResources[i];
         if (frame.animCmd) frame.animCmd->wait();
         if (frame.cullcmd) frame.cullcmd->wait();
+        if (frame.binningCmd) frame.binningCmd->wait();
         if (frame.cmdG) frame.cmdG->wait();
         if (frame.defcmd) frame.defcmd->wait();
         if (frame.uiCmdG) frame.uiCmdG->wait();
@@ -135,6 +138,8 @@ void SphereRasterizer::createWindow(Vulcant::VulcantDevice& deviceInput, const g
                 frame.animCmd->wait();
             if (frame.cullcmd)
                 frame.cullcmd->wait();
+            if (frame.binningCmd)
+                frame.binningCmd->wait();
             if (frame.cmdG)
                 frame.cmdG->wait();
             if (frame.defcmd)
@@ -148,12 +153,13 @@ void SphereRasterizer::createWindow(Vulcant::VulcantDevice& deviceInput, const g
         {
             auto& frame = frameResources[i];
 
-            // 2. Graphic Pass für Frame i
-            frame.animCmd = device->createComputeCommand();
-            frame.cmdG    = device->createGraphicCommand();
-            frame.uiCmdG  = device->createGraphicCommand();
-            frame.defcmd  = device->createComputeCommand();
-            frame.cullcmd = device->createComputeCommand();
+            // Commands
+            frame.animCmd    = device->createComputeCommand();
+            frame.cullcmd    = device->createComputeCommand();
+            frame.binningCmd = device->createComputeCommand();
+            frame.cmdG       = device->createGraphicCommand();
+            frame.uiCmdG     = device->createGraphicCommand();
+            frame.defcmd     = device->createComputeCommand();
 
             // 1. Sphere Animation Compute Pass
             frame.animCmd->startRecord();
@@ -162,26 +168,36 @@ void SphereRasterizer::createWindow(Vulcant::VulcantDevice& deviceInput, const g
             frame.animCmd->addBarrier(*frame.spheresBuffer);
             frame.animCmd->endRecord();
 
-            // 1. Frustum Culling Pass
+            // 2. Pass 1: GPU Clear Pass -> Frustum Culling & Histogram Pass
             frame.cullcmd->startRecord();
+            frame.cullcmd->add(glm::ivec3(1, 1, 1), *frame.cullClearSet, *cullClearShader);
+            frame.cullcmd->addBarrier(*frame.indirectDrawBuffer);
+            frame.cullcmd->addBarrier(*frame.binCountsBuffer);
             frame.cullcmd->add(glm::ivec3((activeSphereCount + 255) / 256, 1, 1), *frame.cullSet, *cullShader);
             frame.cullcmd->addBarrier(*frame.culledSpheresBuffer);
             frame.cullcmd->addBarrier(*frame.indirectDrawBuffer);
+            frame.cullcmd->addBarrier(*frame.binCountsBuffer);
             frame.cullcmd->endRecord();
 
-            // 2. Graphic Pass für Frame i
+            // 3. Pass 2: Global Front-to-Back Z-Binning Pass (1 workgroup processes all culled spheres)
+            frame.binningCmd->startRecord();
+            frame.binningCmd->add(glm::ivec3(1, 1, 1), *frame.binningSet, *binningShader);
+            frame.binningCmd->addBarrier(*frame.sortedCulledSpheresBuffer);
+            frame.binningCmd->endRecord();
+
+            // 4. Graphic Pass
             frame.cmdG->startRecord();
             frame.cmdG->beginRendering(*pipeline);
             frame.cmdG->setViewportAndScissor(glm::uvec2(resolution.x, resolution.y));
-            frame.cmdG->drawIndirect(*frame.indirectDrawBuffer, frame.graphicSet.get(), nullptr);
+            Vulcant::VulcantSet* activeGraphicSet = enableZSorting ? frame.graphicSetSorted.get() : frame.graphicSet.get();
+            frame.cmdG->drawIndirect(*frame.indirectDrawBuffer, activeGraphicSet, nullptr);
             frame.cmdG->endRendering();
             frame.cmdG->addBarrier(getColor(), Vulcant::VulcantResourceLayout::ShaderReadOnly);
             frame.cmdG->addBarrier(getDepth(), Vulcant::VulcantResourceLayout::ShaderReadOnly);
             frame.cmdG->addBarrier(getNormal(), Vulcant::VulcantResourceLayout::ShaderReadOnly);
             frame.cmdG->endRecord();
 
-            // 3. Deferred Lighting Pass
-            // 3. Deferred Shading Pass für Frame i
+            // 5. Deferred Shading Pass
             frame.defcmd->startRecord();
             frame.defcmd->addBarrier(deferred->getTexture(), Vulcant::VulcantResourceLayout::General);
             deferred->record(*frame.defcmd);
@@ -291,6 +307,7 @@ void SphereRasterizer::createWindow(Vulcant::VulcantDevice& deviceInput, const g
           // 1. Warten, bis genau DIESER Frame-Slot auf der GPU fertig abgearbeitet wurde
           frame.animCmd->wait();
           frame.cullcmd->wait();
+          if (enableZSorting && frame.binningCmd) frame.binningCmd->wait();
           frame.cmdG->wait();
           frame.defcmd->wait();
           frame.uiCmdG->wait();
@@ -304,6 +321,10 @@ void SphereRasterizer::createWindow(Vulcant::VulcantDevice& deviceInput, const g
               frame.animCmd->runAsync();
           }
           frame.cullcmd->runAsync();
+          if (enableZSorting)
+          {
+              frame.binningCmd->runAsync();
+          }
           frame.cmdG->runAsync();
           frame.defcmd->runAsync();
 
@@ -343,22 +364,34 @@ void SphereRasterizer::prepare(Vulcant::VulcantDevice& deviceInput, const glm::i
 
     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
     {
-        frameResources[i].sceneDataUbo  = device->createUniform(1, sizeof(Vulcant::Rendering::SceneData));
-        frameResources[i].spheresBuffer = device->createBuffer(MAX_SPHERES, sizeof(SphereData));
-        frameResources[i].animUbo       = device->createUniform(1, sizeof(SphereAnimUniforms));
-        frameResources[i].sceneDataUbo        = device->createUniform(1, sizeof(Vulcant::Rendering::SceneData));
-        frameResources[i].spheresBuffer       = device->createBuffer(MAX_SPHERES, sizeof(SphereData));
-        frameResources[i].culledSpheresBuffer = device->createBuffer(MAX_SPHERES, sizeof(SphereData));
-        frameResources[i].indirectDrawBuffer = device->createIndirectBuffer(1, sizeof(VkDrawIndirectCommandCPU));
-        frameResources[i].cullParamsUbo       = device->createUniform(1, sizeof(CullParams));
+        frameResources[i].sceneDataUbo              = device->createUniform(1, sizeof(Vulcant::Rendering::SceneData));
+        frameResources[i].spheresBuffer             = device->createBuffer(MAX_SPHERES, sizeof(SphereData));
+        frameResources[i].animUbo                   = device->createUniform(1, sizeof(SphereAnimUniforms));
+        frameResources[i].culledSpheresBuffer       = device->createBuffer(MAX_SPHERES, sizeof(SphereData));
+        frameResources[i].sortedCulledSpheresBuffer = device->createBuffer(MAX_SPHERES, sizeof(SphereData));
+        frameResources[i].binCountsBuffer           = device->createBuffer(16, sizeof(uint32_t));
+        frameResources[i].indirectDrawBuffer        = device->createIndirectBuffer(1, sizeof(VkDrawIndirectCommandCPU));
+        frameResources[i].cullParamsUbo             = device->createUniform(1, sizeof(CullParams));
     }
 
     // Shaders
+    const auto* cull_clear_slang = SphereCullClear_comp_spirv;
+    auto        cull_clear_size  = SphereCullClear_comp_spirv_sizeInBytes;
+    auto        cull_clear_spirv = std::vector<uint32_t>(cull_clear_slang, cull_clear_slang + cull_clear_size / sizeof(uint32_t));
+
+    cullClearShader = device->createShader(cull_clear_spirv);
+
     const auto* cull_slang = SphereFrustumCull_comp_spirv;
     auto        cull_size  = SphereFrustumCull_comp_spirv_sizeInBytes;
     auto        cull_spirv = std::vector<uint32_t>(cull_slang, cull_slang + cull_size / sizeof(uint32_t));
 
     cullShader = device->createShader(cull_spirv);
+
+    const auto* binning_slang = SphereBinning_comp_spirv;
+    auto        binning_size  = SphereBinning_comp_spirv_sizeInBytes;
+    auto        binning_spirv = std::vector<uint32_t>(binning_slang, binning_slang + binning_size / sizeof(uint32_t));
+
+    binningShader = device->createShader(binning_spirv);
 
     const auto* vert_slang = SphereRasterizer_vert_spirv;
     auto        vert_size  = SphereRasterizer_vert_spirv_sizeInBytes;
@@ -405,18 +438,30 @@ void SphereRasterizer::changeResolution(const glm::ivec2& newResolution)
 
         frame.animSet = device->createSet({ { frame.animUbo->asResource(), sphereInitBuffer->asResource(), frame.spheresBuffer->asResource() } }, *animShader);
 
-        // Sets verlinken auf die Frame-spezifischen Buffer
-        frame.graphicSet = device->createSet({ { frame.sceneDataUbo->asResource() }, { frame.spheresBuffer->asResource() } }, *vertShader);
-        // Graphic set points to sceneDataUbo and culledSpheresBuffer
+        // Graphic set (unsorted)
         frame.graphicSet = device->createSet({ { frame.sceneDataUbo->asResource() }, { frame.culledSpheresBuffer->asResource() } }, *vertShader);
+        // Graphic set (sorted)
+        frame.graphicSetSorted = device->createSet({ { frame.sceneDataUbo->asResource() }, { frame.sortedCulledSpheresBuffer->asResource() } }, *vertShader);
 
-        // Cull set points to sceneDataUbo, spheresBuffer, cullParamsUbo, culledSpheresBuffer, indirectDrawBuffer all in set 0
+        // Pass 0: Clear set points to indirectDrawBuffer, binCountsBuffer
+        frame.cullClearSet = device->createSet({ { frame.indirectDrawBuffer->asResource(), frame.binCountsBuffer->asResource() } }, *cullClearShader);
+
+        // Pass 1: Cull set points to sceneDataUbo, spheresBuffer, cullParamsUbo, culledSpheresBuffer, indirectDrawBuffer, binCountsBuffer
         frame.cullSet = device->createSet({ { frame.sceneDataUbo->asResource(),
                                               frame.spheresBuffer->asResource(),
                                               frame.cullParamsUbo->asResource(),
                                               frame.culledSpheresBuffer->asResource(),
-                                              frame.indirectDrawBuffer->asResource() } },
+                                              frame.indirectDrawBuffer->asResource(),
+                                              frame.binCountsBuffer->asResource() } },
                                           *cullShader);
+
+        // Pass 2: Binning set points to sceneDataUbo, culledSpheresBuffer, indirectDrawBuffer, binCountsBuffer, sortedCulledSpheresBuffer
+        frame.binningSet = device->createSet({ { frame.sceneDataUbo->asResource(),
+                                                 frame.culledSpheresBuffer->asResource(),
+                                                 frame.indirectDrawBuffer->asResource(),
+                                                 frame.binCountsBuffer->asResource(),
+                                                 frame.sortedCulledSpheresBuffer->asResource() } },
+                                             *binningShader);
     }
 
     deferred->setInputTextures(getColor(), getDepth(), getNormal());
@@ -438,11 +483,8 @@ void SphereRasterizer::prepareRun()
 
     frame.animUbo->uploadToGPU(&animUnif, 1);
 
-    CullParams cp{ (uint32_t)activeSphereCount, enableCulling ? 1u : 0u, enableZSorting ? 1u : 0u, 0 };
+    CullParams cp{ (uint32_t)activeSphereCount, enableCulling ? 1u : 0u, 0, 0 };
     frame.cullParamsUbo->uploadToGPU(&cp, 1);
-
-    VkDrawIndirectCommandCPU drawCmd{ 6, 0, 0, 0 };
-    frame.indirectDrawBuffer->uploadToGPU(&drawCmd, 1);
 
     deferred->setSceneData(s);
     deferred->setLight(lightData);
@@ -496,12 +538,9 @@ TEST_CASE("SphereRasterizer CullParams and Depth Bin Sorting Setup", "[SphereRas
     CullParams cp{};
     cp.activeSphereCount = 10000;
     cp.enableCulling     = 1;
-    cp.enableZSorting   = 1;
-    cp.pad0             = 0;
 
     REQUIRE(cp.activeSphereCount == 10000);
     REQUIRE(cp.enableCulling == 1);
-    REQUIRE(cp.enableZSorting == 1);
 
     SphereRasterizer app;
     REQUIRE(app.getName() == "SphereRasterizer");

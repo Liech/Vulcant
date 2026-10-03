@@ -53,8 +53,8 @@ struct CullParams
 {
     uint32_t activeSphereCount;
     uint32_t enableCulling;
-    uint32_t enableZSorting;
     uint32_t pad0;
+    uint32_t pad1;
 };
 
 struct FrameResources
@@ -65,18 +65,24 @@ struct FrameResources
     std::unique_ptr<Vulcant::VulcantComputeCommand> defcmd;
     std::unique_ptr<Vulcant::VulcantComputeCommand> animCmd;
     std::unique_ptr<Vulcant::VulcantComputeCommand> cullcmd;
+    std::unique_ptr<Vulcant::VulcantComputeCommand> binningCmd;
 
     // Buffers
     std::unique_ptr<Vulcant::VulcantBuffer> sceneDataUbo;
     std::unique_ptr<Vulcant::VulcantBuffer> spheresBuffer;
     std::unique_ptr<Vulcant::VulcantBuffer> animUbo;
     std::unique_ptr<Vulcant::VulcantBuffer> culledSpheresBuffer;
+    std::unique_ptr<Vulcant::VulcantBuffer> sortedCulledSpheresBuffer;
+    std::unique_ptr<Vulcant::VulcantBuffer> binCountsBuffer;
     std::unique_ptr<Vulcant::VulcantBuffer> indirectDrawBuffer;
     std::unique_ptr<Vulcant::VulcantBuffer> cullParamsUbo;
 
     // Sets
     std::unique_ptr<Vulcant::VulcantSet> graphicSet;
+    std::unique_ptr<Vulcant::VulcantSet> graphicSetSorted;
+    std::unique_ptr<Vulcant::VulcantSet> cullClearSet;
     std::unique_ptr<Vulcant::VulcantSet> cullSet;
+    std::unique_ptr<Vulcant::VulcantSet> binningSet;
     std::unique_ptr<Vulcant::VulcantSet> animSet;
 };
 
@@ -149,7 +155,9 @@ class SphereRasterizer : public Vulcant::Examples::Example
     std::unique_ptr<Vulcant::VulcantBuffer>              sphereInitBuffer;
 
     std::unique_ptr<Vulcant::VulcantShader>              animShader;
+    std::unique_ptr<Vulcant::VulcantShader>              cullClearShader;
     std::unique_ptr<Vulcant::VulcantShader>              cullShader;
+    std::unique_ptr<Vulcant::VulcantShader>              binningShader;
     std::unique_ptr<Vulcant::VulcantShader>              vertShader;
     std::unique_ptr<Vulcant::VulcantShader>              fragShader;
     std::unique_ptr<Vulcant::VulcantGraphicPipeline>     pipeline;

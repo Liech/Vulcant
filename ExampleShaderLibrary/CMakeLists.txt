@@ -38,18 +38,20 @@ set(Render_Files
 source_group("Source/Render" FILES ${Render_Files})
 
 set(Example_Files
-    "Source/ShaderLibrary/Example/Spherecast.exe.slang"
-    "Source/ShaderLibrary/Example/Mandelbrot.exe.slang"
-    "Source/ShaderLibrary/Example/CubeCaster.exe.slang"
+    "Source/ShaderLibrary/Example/Sphere/Spherecast.exe.slang"
+    "Source/ShaderLibrary/Example/Sphere/SphereRasterizer_vert.exe.slang"
+    "Source/ShaderLibrary/Example/Sphere/SphereRasterizer_frag.exe.slang"
+    "Source/ShaderLibrary/Example/Sphere/SphereAnimation.exe.slang"
+    "Source/ShaderLibrary/Example/Sphere/SphereFrustumCull_comp.exe.slang"
+    "Source/ShaderLibrary/Example/Sphere/SphereBinning_comp.exe.slang"
+    "Source/ShaderLibrary/Example/Sphere/SphereCullClear_comp.exe.slang"
+    "Source/ShaderLibrary/Example/Cube/CubeCaster.exe.slang"
+    "Source/ShaderLibrary/Example/Cube/Cube_vert.exe.slang"
+    "Source/ShaderLibrary/Example/Cube/Cube_frag.exe.slang"
+    "Source/ShaderLibrary/Example/Triangle/Triangle_vert.exe.slang"
+    "Source/ShaderLibrary/Example/Triangle/Triangle_frag.exe.slang"
     "Source/ShaderLibrary/Example/SVOCaster.exe.slang"
-    "Source/ShaderLibrary/Example/Triangle_vert.exe.slang"
-    "Source/ShaderLibrary/Example/Triangle_frag.exe.slang"
-    "Source/ShaderLibrary/Example/Cube_vert.exe.slang"
-    "Source/ShaderLibrary/Example/Cube_frag.exe.slang"
-    "Source/ShaderLibrary/Example/SphereRasterizer_vert.exe.slang"
-    "Source/ShaderLibrary/Example/SphereRasterizer_frag.exe.slang"
-    "Source/ShaderLibrary/Example/SphereAnimation.exe.slang"
-    "Source/ShaderLibrary/Example/SphereFrustumCull_comp.exe.slang"
+    "Source/ShaderLibrary/Example/Mandelbrot.exe.slang"
 )
 source_group("Source/Example" FILES ${Example_Files})
 
@@ -65,6 +67,7 @@ source_group("Source/SVO" FILES ${SVO_Files})
 
 set(Utility_Files
     "Source/ShaderLibrary/Utility/Convert.slang"
+    "Source/ShaderLibrary/Utility/HalfPacking.slang"
 )
 source_group("Source/Utility" FILES ${Utility_Files})
 

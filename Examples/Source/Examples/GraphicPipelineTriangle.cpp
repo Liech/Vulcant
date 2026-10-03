@@ -12,8 +12,8 @@
 #include "Vulcant/Interface/VulcantShader.h"
 #include "Vulcant/VulcantV/VulcantVGraphicPipeline.h"
 #include "Vulcant/Wrapper/Window.h"
-#include "ShaderLibrary/Example/Triangle_vert.h"
-#include "ShaderLibrary/Example/Triangle_frag.h"
+#include "ShaderLibrary/Example/Triangle/Triangle_vert.h"
+#include "ShaderLibrary/Example/Triangle/Triangle_frag.h"
 
 namespace Vulcant::Examples
 {

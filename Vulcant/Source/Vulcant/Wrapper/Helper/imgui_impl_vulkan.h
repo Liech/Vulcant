@@ -151,7 +151,7 @@ IMGUI_IMPL_API void             ImGui_ImplVulkan_SetMinImageCount(uint32_t min_i
 IMGUI_IMPL_API void             ImGui_ImplVulkan_CreateMainPipeline(const ImGui_ImplVulkan_PipelineInfo* info);
 
 // (Advanced) Use e.g. if you need to precisely control the timing of texture updates (e.g. for staged rendering), by setting ImDrawData::Textures = nullptr to handle this manually.
-IMGUI_IMPL_API void             ImGui_ImplVulkan_UpdateTexture(ImTextureData* tex);
+// IMGUI_IMPL_API void             ImGui_ImplVulkan_UpdateTexture(ImTextureData* tex);
 
 // Register a texture (VkDescriptorSet for a VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE == ImTextureID)
 IMGUI_IMPL_API VkDescriptorSet  ImGui_ImplVulkan_AddTexture(VkImageView image_view, VkImageLayout image_layout);

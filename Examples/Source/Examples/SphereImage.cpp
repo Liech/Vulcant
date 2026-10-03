@@ -9,7 +9,7 @@
 #include "Vulcant/Interface/VulcantWindow.h"
 #include "Vulcant/Wrapper/Window.h"
 #include "Vulcant/VulcantV/VulcantVDevice.h"
-#include "ShaderLibrary/Example/Spherecast.h"
+#include "ShaderLibrary/Example/Sphere/Spherecast.h"
 #include <glm/gtc/matrix_transform.hpp>
 
 namespace Vulcant::Examples

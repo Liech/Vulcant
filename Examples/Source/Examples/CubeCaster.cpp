@@ -15,7 +15,7 @@
 #include "Rendering/DeferredShading.h"
 #include "Vulcant/Wrapper/Window.h"
 #include "Vulcant/VulcantV/VulcantVDevice.h"
-#include "ShaderLibrary/Example/CubeCaster.h"
+#include "ShaderLibrary/Example/Cube/CubeCaster.h"
 
 namespace Vulcant::Examples
 {
