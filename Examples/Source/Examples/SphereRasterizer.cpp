@@ -29,253 +29,6 @@
 #include <glm/ext/matrix_transform.hpp>
 #include <imgui.h>
 
-static const std::string cullClearGlsl = R"(
-#version 450
-layout(local_size_x = 256, local_size_y = 1, local_size_z = 1) in;
-
-struct DrawIndirectCommand {
-    uint vertexCount;
-    uint instanceCount;
-    uint firstVertex;
-    uint firstInstance;
-};
-
-layout(std430, binding = 4) buffer IndirectCommand {
-    DrawIndirectCommand gIndirectCommand[];
-};
-
-layout(std430, binding = 5) buffer SortBuffer {
-    uint binCounts[256];
-    uint binOffsets[256];
-};
-
-void main() {
-    uint tid = gl_GlobalInvocationID.x;
-    if (tid < 256) {
-        binCounts[tid] = 0;
-        binOffsets[tid] = 0;
-    }
-    if (tid == 0) {
-        gIndirectCommand[0].vertexCount = 6;
-        gIndirectCommand[0].instanceCount = 0;
-        gIndirectCommand[0].firstVertex = 0;
-        gIndirectCommand[0].firstInstance = 0;
-    }
-}
-)";
-
-static const std::string cullCountGlsl = R"(
-#version 450
-layout(local_size_x = 256, local_size_y = 1, local_size_z = 1) in;
-
-struct SphereData {
-    vec3 center;
-    float radius;
-    uint colorPacked;
-    uint pad0;
-};
-
-struct DrawIndirectCommand {
-    uint vertexCount;
-    uint instanceCount;
-    uint firstVertex;
-    uint firstInstance;
-};
-
-struct CullParams {
-    uint activeSphereCount;
-    uint enableCulling;
-    uint enableZSorting;
-    uint pad0;
-};
-
-layout(std140, binding = 0) uniform SceneDataUbo {
-    mat4 viewMatrix;
-    mat4 projectionMatrix;
-    mat4 invProjectionMatrix;
-    mat4 invViewMatrix;
-    vec4 cameraPos;
-    vec2 resolution;
-    float nearPlane;
-    float farPlane;
-} scene;
-
-layout(std430, binding = 1) readonly buffer Spheres {
-    SphereData gSpheres[];
-};
-
-layout(std140, binding = 2) uniform CullParamsUbo {
-    CullParams cullParams;
-};
-
-layout(std430, binding = 3) writeonly buffer CulledSpheres {
-    SphereData gCulledSpheres[];
-};
-
-layout(std430, binding = 4) buffer IndirectCommand {
-    DrawIndirectCommand gIndirectCommand[];
-};
-
-layout(std430, binding = 5) buffer SortBuffer {
-    uint binCounts[256];
-    uint binOffsets[256];
-};
-
-bool isSphereVisible(SphereData sphere) {
-    if (cullParams.enableCulling == 0) return true;
-    float r = abs(sphere.radius);
-    mat4 vp = scene.projectionMatrix * scene.viewMatrix;
-    vec4 planes[6];
-    planes[0] = vp[3] + vp[0];
-    planes[1] = vp[3] - vp[0];
-    planes[2] = vp[3] + vp[1];
-    planes[3] = vp[3] - vp[1];
-    planes[4] = vp[2];
-    planes[5] = vp[3] - vp[2];
-
-    for (int i = 0; i < 6; ++i) {
-        vec4 p = planes[i];
-        float len = length(p.xyz);
-        p /= len;
-        float dist = dot(p.xyz, sphere.center) + p.w;
-        if (dist < -r) return false;
-    }
-    return true;
-}
-
-void main() {
-    uint sphereID = gl_GlobalInvocationID.x;
-    if (sphereID >= cullParams.activeSphereCount) return;
-
-    SphereData sphere = gSpheres[sphereID];
-    if (!isSphereVisible(sphere)) return;
-
-    if (cullParams.enableZSorting == 0) {
-        uint appendIndex = atomicAdd(gIndirectCommand[0].instanceCount, 1);
-        gCulledSpheres[appendIndex] = sphere;
-    } else {
-        atomicAdd(gIndirectCommand[0].instanceCount, 1);
-        vec3 centerView = (scene.viewMatrix * vec4(sphere.center, 1.0)).xyz;
-        float dist = -centerView.z;
-        float minDepth = scene.nearPlane > 0.0 ? scene.nearPlane : 0.1;
-        float maxDepth = scene.farPlane > minDepth ? scene.farPlane : 1000.0;
-        float normDepth = clamp((dist - minDepth) / (maxDepth - minDepth), 0.0, 0.9999);
-        uint binIndex = uint(normDepth * 256.0);
-        atomicAdd(binCounts[binIndex], 1);
-    }
-}
-)";
-
-static const std::string cullPrefixGlsl = R"(
-#version 450
-layout(local_size_x = 256, local_size_y = 1, local_size_z = 1) in;
-
-layout(std430, binding = 5) buffer SortBuffer {
-    uint binCounts[256];
-    uint binOffsets[256];
-};
-
-shared uint sharedCounts[256];
-
-void main() {
-    uint tid = gl_LocalInvocationID.x;
-    sharedCounts[tid] = binCounts[tid];
-    barrier();
-
-    uint sum = 0;
-    for (uint i = 0; i < tid; ++i) {
-        sum += sharedCounts[i];
-    }
-    binOffsets[tid] = sum;
-}
-)";
-
-static const std::string cullScatterGlsl = R"(
-#version 450
-layout(local_size_x = 256, local_size_y = 1, local_size_z = 1) in;
-
-struct SphereData {
-    vec3 center;
-    float radius;
-    uint colorPacked;
-    uint pad0;
-};
-
-struct CullParams {
-    uint activeSphereCount;
-    uint enableCulling;
-    uint enableZSorting;
-    uint pad0;
-};
-
-layout(std140, binding = 0) uniform SceneDataUbo {
-    mat4 viewMatrix;
-    mat4 projectionMatrix;
-    mat4 invProjectionMatrix;
-    mat4 invViewMatrix;
-    vec4 cameraPos;
-    vec2 resolution;
-    float nearPlane;
-    float farPlane;
-} scene;
-
-layout(std430, binding = 1) readonly buffer Spheres {
-    SphereData gSpheres[];
-};
-
-layout(std140, binding = 2) uniform CullParamsUbo {
-    CullParams cullParams;
-};
-
-layout(std430, binding = 3) writeonly buffer CulledSpheres {
-    SphereData gCulledSpheres[];
-};
-
-layout(std430, binding = 5) buffer SortBuffer {
-    uint binCounts[256];
-    uint binOffsets[256];
-};
-
-bool isSphereVisible(SphereData sphere) {
-    if (cullParams.enableCulling == 0) return true;
-    float r = abs(sphere.radius);
-    mat4 vp = scene.projectionMatrix * scene.viewMatrix;
-    vec4 planes[6];
-    planes[0] = vp[3] + vp[0];
-    planes[1] = vp[3] - vp[0];
-    planes[2] = vp[3] + vp[1];
-    planes[3] = vp[3] - vp[1];
-    planes[4] = vp[2];
-    planes[5] = vp[3] - vp[2];
-
-    for (int i = 0; i < 6; ++i) {
-        vec4 p = planes[i];
-        float len = length(p.xyz);
-        p /= len;
-        float dist = dot(p.xyz, sphere.center) + p.w;
-        if (dist < -r) return false;
-    }
-    return true;
-}
-
-void main() {
-    uint sphereID = gl_GlobalInvocationID.x;
-    if (sphereID >= cullParams.activeSphereCount) return;
-
-    SphereData sphere = gSpheres[sphereID];
-    if (!isSphereVisible(sphere)) return;
-
-    vec3 centerView = (scene.viewMatrix * vec4(sphere.center, 1.0)).xyz;
-    float dist = -centerView.z;
-    float minDepth = scene.nearPlane > 0.0 ? scene.nearPlane : 0.1;
-    float maxDepth = scene.farPlane > minDepth ? scene.farPlane : 1000.0;
-    float normDepth = clamp((dist - minDepth) / (maxDepth - minDepth), 0.0, 0.9999);
-    uint binIndex = uint(normDepth * 256.0);
-    uint destIndex = atomicAdd(binOffsets[binIndex], 1);
-    gCulledSpheres[destIndex] = sphere;
-}
-)";
-
 void SphereRasterizer::demo()
 {
     auto                              windowExtensions = Vulcant::Wrapper::Window::getVulkanExtensions();
@@ -411,28 +164,9 @@ void SphereRasterizer::createWindow(Vulcant::VulcantDevice& deviceInput, const g
 
             // 1. Frustum Culling & Depth Bin Sorting Pass
             frame.cullcmd->startRecord();
-            if (enableZSorting)
-            {
-                frame.cullcmd->add(glm::ivec3(1, 1, 1), *frame.cullSet, *cullClearShader);
-                frame.cullcmd->addBarrier(*frame.sortBuffer);
-                frame.cullcmd->addBarrier(*frame.indirectDrawBuffer);
-
-                frame.cullcmd->add(glm::ivec3((activeSphereCount + 255) / 256, 1, 1), *frame.cullSet, *cullCountShader);
-                frame.cullcmd->addBarrier(*frame.sortBuffer);
-                frame.cullcmd->addBarrier(*frame.indirectDrawBuffer);
-
-                frame.cullcmd->add(glm::ivec3(1, 1, 1), *frame.cullSet, *cullPrefixShader);
-                frame.cullcmd->addBarrier(*frame.sortBuffer);
-
-                frame.cullcmd->add(glm::ivec3((activeSphereCount + 255) / 256, 1, 1), *frame.cullSet, *cullScatterShader);
-                frame.cullcmd->addBarrier(*frame.culledSpheresBuffer);
-            }
-            else
-            {
-                frame.cullcmd->add(glm::ivec3((activeSphereCount + 255) / 256, 1, 1), *frame.cullSet, *cullShader);
-                frame.cullcmd->addBarrier(*frame.culledSpheresBuffer);
-                frame.cullcmd->addBarrier(*frame.indirectDrawBuffer);
-            }
+            frame.cullcmd->add(glm::ivec3((activeSphereCount + 255) / 256, 1, 1), *frame.cullSet, *cullShader);
+            frame.cullcmd->addBarrier(*frame.culledSpheresBuffer);
+            frame.cullcmd->addBarrier(*frame.indirectDrawBuffer);
             frame.cullcmd->endRecord();
 
             // 2. Graphic Pass für Frame i
@@ -615,7 +349,6 @@ void SphereRasterizer::prepare(Vulcant::VulcantDevice& deviceInput, const glm::i
         frameResources[i].culledSpheresBuffer = device->createBuffer(MAX_SPHERES, sizeof(SphereData));
         frameResources[i].indirectDrawBuffer  = device->createIndirectBuffer(1, sizeof(VkDrawIndirectCommandCPU));
         frameResources[i].cullParamsUbo       = device->createUniform(1, sizeof(CullParams));
-        frameResources[i].sortBuffer          = device->createBuffer(512, sizeof(uint32_t));
     }
 
     // Shaders
@@ -623,11 +356,7 @@ void SphereRasterizer::prepare(Vulcant::VulcantDevice& deviceInput, const glm::i
     auto        cull_size  = SphereFrustumCull_comp_spirv_sizeInBytes;
     auto        cull_spirv = std::vector<uint32_t>(cull_slang, cull_slang + cull_size / sizeof(uint32_t));
 
-    cullShader        = device->createShader(cull_spirv);
-    cullClearShader   = device->createShader(cullClearGlsl);
-    cullCountShader   = device->createShader(cullCountGlsl);
-    cullPrefixShader  = device->createShader(cullPrefixGlsl);
-    cullScatterShader = device->createShader(cullScatterGlsl);
+    cullShader = device->createShader(cull_spirv);
 
     const auto* vert_slang = SphereRasterizer_vert_spirv;
     auto        vert_size  = SphereRasterizer_vert_spirv_sizeInBytes;
@@ -679,14 +408,13 @@ void SphereRasterizer::changeResolution(const glm::ivec2& newResolution)
         // Graphic set points to sceneDataUbo and culledSpheresBuffer
         frame.graphicSet = device->createSet({ { frame.sceneDataUbo->asResource() }, { frame.culledSpheresBuffer->asResource() } }, *vertShader);
 
-        // Cull set points to sceneDataUbo, spheresBuffer, cullParamsUbo, culledSpheresBuffer, indirectDrawBuffer, sortBuffer all in set 0
+        // Cull set points to sceneDataUbo, spheresBuffer, cullParamsUbo, culledSpheresBuffer, indirectDrawBuffer all in set 0
         frame.cullSet = device->createSet({ { frame.sceneDataUbo->asResource(),
                                               frame.spheresBuffer->asResource(),
                                               frame.cullParamsUbo->asResource(),
                                               frame.culledSpheresBuffer->asResource(),
-                                              frame.indirectDrawBuffer->asResource(),
-                                              frame.sortBuffer->asResource() } },
-                                          *cullCountShader);
+                                              frame.indirectDrawBuffer->asResource() } },
+                                          *cullShader);
     }
 
     deferred->setInputTextures(getColor(), getDepth(), getNormal());

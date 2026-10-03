@@ -73,7 +73,6 @@ struct FrameResources
     std::unique_ptr<Vulcant::VulcantBuffer> culledSpheresBuffer;
     std::unique_ptr<Vulcant::VulcantBuffer> indirectDrawBuffer;
     std::unique_ptr<Vulcant::VulcantBuffer> cullParamsUbo;
-    std::unique_ptr<Vulcant::VulcantBuffer> sortBuffer;
 
     // Sets
     std::unique_ptr<Vulcant::VulcantSet> graphicSet;
@@ -151,10 +150,6 @@ class SphereRasterizer : public Vulcant::Examples::Example
 
     std::unique_ptr<Vulcant::VulcantShader>              animShader;
     std::unique_ptr<Vulcant::VulcantShader>              cullShader;
-    std::unique_ptr<Vulcant::VulcantShader>              cullClearShader;
-    std::unique_ptr<Vulcant::VulcantShader>              cullCountShader;
-    std::unique_ptr<Vulcant::VulcantShader>              cullPrefixShader;
-    std::unique_ptr<Vulcant::VulcantShader>              cullScatterShader;
     std::unique_ptr<Vulcant::VulcantShader>              vertShader;
     std::unique_ptr<Vulcant::VulcantShader>              fragShader;
     std::unique_ptr<Vulcant::VulcantGraphicPipeline>     pipeline;
