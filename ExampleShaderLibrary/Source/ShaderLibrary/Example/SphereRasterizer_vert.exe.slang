@@ -48,8 +48,7 @@ SphereVertexOutput main(uint vertexID : SV_VertexID, uint instanceID : SV_Instan
     float4 centerView = mul(scene.viewMatrix, float4(sphere.center, 1.0));
 
     // Billboard quad expansion in view space (camera-facing)
-    // Offset Z towards camera (+r in view space) so the quad depth is at the front-most depth of the sphere for conservative early Z testing
-    float3 cornerView = centerView.xyz + float3(quadPos * r, r);
+    float3 cornerView = centerView.xyz + float3(quadPos * r, 0.0);
 
     output.position = mul(scene.projectionMatrix, float4(cornerView, 1.0));
     output.uv = quadPos;

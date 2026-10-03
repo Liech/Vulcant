@@ -15,7 +15,6 @@ struct FragmentOutput
     float depth : SV_Depth;
 };
 
-[earlydepthstencil]
 [shader("fragment")]
 FragmentOutput main(FragmentInput input)
 {

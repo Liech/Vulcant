@@ -162,7 +162,7 @@ void SphereRasterizer::createWindow(Vulcant::VulcantDevice& deviceInput, const g
             frame.animCmd->addBarrier(*frame.spheresBuffer);
             frame.animCmd->endRecord();
 
-            // 1. Frustum Culling & Depth Bin Sorting Pass
+            // 1. Frustum Culling Pass
             frame.cullcmd->startRecord();
             frame.cullcmd->add(glm::ivec3((activeSphereCount + 255) / 256, 1, 1), *frame.cullSet, *cullShader);
             frame.cullcmd->addBarrier(*frame.culledSpheresBuffer);
@@ -343,11 +343,13 @@ void SphereRasterizer::prepare(Vulcant::VulcantDevice& deviceInput, const glm::i
 
     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
     {
+        frameResources[i].sceneDataUbo  = device->createUniform(1, sizeof(Vulcant::Rendering::SceneData));
+        frameResources[i].spheresBuffer = device->createBuffer(MAX_SPHERES, sizeof(SphereData));
+        frameResources[i].animUbo       = device->createUniform(1, sizeof(SphereAnimUniforms));
         frameResources[i].sceneDataUbo        = device->createUniform(1, sizeof(Vulcant::Rendering::SceneData));
         frameResources[i].spheresBuffer       = device->createBuffer(MAX_SPHERES, sizeof(SphereData));
-        frameResources[i].animUbo             = device->createUniform(1, sizeof(SphereAnimUniforms));
         frameResources[i].culledSpheresBuffer = device->createBuffer(MAX_SPHERES, sizeof(SphereData));
-        frameResources[i].indirectDrawBuffer  = device->createIndirectBuffer(1, sizeof(VkDrawIndirectCommandCPU));
+        frameResources[i].indirectDrawBuffer = device->createIndirectBuffer(1, sizeof(VkDrawIndirectCommandCPU));
         frameResources[i].cullParamsUbo       = device->createUniform(1, sizeof(CullParams));
     }
 

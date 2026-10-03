@@ -47,9 +47,9 @@ groupshared uint       s_baseIdx;
 void main(uint3 dispatchThreadID : SV_DispatchThreadID, uint groupIndex : SV_GroupIndex)
 {
     uint sphereID = dispatchThreadID.x;
-    bool isThreadValid = (sphereID < cullParams.activeSphereCount);
 
-    SphereData sphere;
+    bool isThreadValid = (sphereID < cullParams.activeSphereCount);
+    SphereData sphere = {};
     float depth = 1e9f;
     bool visible = false;
 
