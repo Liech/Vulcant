@@ -46,7 +46,7 @@ void main(uint3 dispatchThreadID : SV_DispatchThreadID)
         return;
 
     SphereData sphere = gSpheres[sphereID];
-    float radius = f16tof32(sphere.radiusHalfAndColor & 0xFFFF);
+    float radius = unpackHalf2x16(sphere.radiusHalfAndColor & 0xFFFFu).x;
     float r = abs(radius);
 
     // View-projection matrix
@@ -62,7 +62,7 @@ void main(uint3 dispatchThreadID : SV_DispatchThreadID)
     planes[5] = vp[3] - vp[2]; // Far
 
     bool visible = true;
-    if (cullParams.enableCulling != 0)
+    if (cullParams.enableCulling != 0u)
     {
         for (int i = 0; i < 6; ++i)
         {
@@ -82,7 +82,7 @@ void main(uint3 dispatchThreadID : SV_DispatchThreadID)
     if (visible)
     {
         uint appendIndex;
-        InterlockedAdd(gIndirectCommand[0].instanceCount, 1, appendIndex);
+        InterlockedAdd(gIndirectCommand[0].instanceCount, 1u, appendIndex);
         gCulledSpheres[appendIndex] = sphere;
     }
 }

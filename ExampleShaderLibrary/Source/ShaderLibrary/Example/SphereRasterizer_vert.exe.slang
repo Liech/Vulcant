@@ -37,11 +37,11 @@ SphereVertexOutput main(uint vertexID : SV_VertexID, uint instanceID : SV_Instan
     SphereVertexOutput output;
 
     uint sphereID = instanceID;
-    uint cornerID = vertexID % 6;
+    uint cornerID = vertexID % 6u;
     float2 quadPos = quadOffsets[cornerID];
 
     SphereData sphere = gSpheres[sphereID];
-    float radius = f16tof32(sphere.radiusHalfAndColor & 0xFFFF);
+    float radius = unpackHalf2x16(sphere.radiusHalfAndColor & 0xFFFFu).x;
     float r = abs(radius);
 
     // Center in view space
@@ -59,12 +59,12 @@ SphereVertexOutput main(uint vertexID : SV_VertexID, uint instanceID : SV_Instan
     output.projParams = float4(scene.projectionMatrix[2][2], scene.projectionMatrix[2][3], scene.projectionMatrix[3][2], scene.projectionMatrix[3][3]);
 
     // Unpack RGBA4444 color
-    uint color16 = sphere.radiusHalfAndColor >> 16;
+    uint color16 = sphere.radiusHalfAndColor >> 16u;
     output.color = float4(
-        float(color16 & 0x0F) / 15.0,
-        float((color16 >> 4) & 0x0F) / 15.0,
-        float((color16 >> 8) & 0x0F) / 15.0,
-        float((color16 >> 12) & 0x0F) / 15.0
+        float(color16 & 0x0Fu) / 15.0,
+        float((color16 >> 4u) & 0x0Fu) / 15.0,
+        float((color16 >> 8u) & 0x0Fu) / 15.0,
+        float((color16 >> 12u) & 0x0Fu) / 15.0
     );
 
     return output;

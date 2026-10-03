@@ -50,18 +50,18 @@ void main(uint3 dispatchThreadID : SV_DispatchThreadID)
 
     float sphereRad = uniforms.baseRadius * initData.radiusScale;
 
-    uint rHalf = f32tof16(sphereRad);
+    uint rHalf = packHalf2x16(float2(sphereRad, 0.0)) & 0xFFFFu;
 
     uint c8 = initData.packedColor;
-    uint cr = (c8 & 0xFF) >> 4;
-    uint cg = ((c8 >> 8) & 0xFF) >> 4;
-    uint cb = ((c8 >> 16) & 0xFF) >> 4;
-    uint ca = ((c8 >> 24) & 0xFF) >> 4;
-    uint c16 = cr | (cg << 4) | (cb << 8) | (ca << 12);
+    uint cr = (c8 & 0xFFu) >> 4u;
+    uint cg = ((c8 >> 8u) & 0xFFu) >> 4u;
+    uint cb = ((c8 >> 16u) & 0xFFu) >> 4u;
+    uint ca = ((c8 >> 24u) & 0xFFu) >> 4u;
+    uint c16 = cr | (cg << 4u) | (cb << 8u) | (ca << 12u);
 
     SphereData outData;
     outData.center = float3(x, y, z);
-    outData.radiusHalfAndColor = rHalf | (c16 << 16);
+    outData.radiusHalfAndColor = rHalf | (c16 << 16u);
 
     gOutputSpheres[sphereID] = outData;
 }
