@@ -53,8 +53,8 @@ struct CullParams
 {
     uint32_t activeSphereCount;
     uint32_t enableCulling;
+    uint32_t enableZSorting;
     uint32_t pad0;
-    uint32_t pad1;
 };
 
 struct FrameResources
@@ -73,6 +73,7 @@ struct FrameResources
     std::unique_ptr<Vulcant::VulcantBuffer> culledSpheresBuffer;
     std::unique_ptr<Vulcant::VulcantBuffer> indirectDrawBuffer;
     std::unique_ptr<Vulcant::VulcantBuffer> cullParamsUbo;
+    std::unique_ptr<Vulcant::VulcantBuffer> sortBuffer;
 
     // Sets
     std::unique_ptr<Vulcant::VulcantSet> graphicSet;
@@ -136,6 +137,7 @@ class SphereRasterizer : public Vulcant::Examples::Example
     bool  animate           = true;
     bool  prevAnimate       = true;
     bool  enableCulling     = true;
+    bool  enableZSorting   = true;
     float elapsedTime       = 0.0f;
 
     void syncAnimationBuffers();
@@ -149,6 +151,10 @@ class SphereRasterizer : public Vulcant::Examples::Example
 
     std::unique_ptr<Vulcant::VulcantShader>              animShader;
     std::unique_ptr<Vulcant::VulcantShader>              cullShader;
+    std::unique_ptr<Vulcant::VulcantShader>              cullClearShader;
+    std::unique_ptr<Vulcant::VulcantShader>              cullCountShader;
+    std::unique_ptr<Vulcant::VulcantShader>              cullPrefixShader;
+    std::unique_ptr<Vulcant::VulcantShader>              cullScatterShader;
     std::unique_ptr<Vulcant::VulcantShader>              vertShader;
     std::unique_ptr<Vulcant::VulcantShader>              fragShader;
     std::unique_ptr<Vulcant::VulcantGraphicPipeline>     pipeline;

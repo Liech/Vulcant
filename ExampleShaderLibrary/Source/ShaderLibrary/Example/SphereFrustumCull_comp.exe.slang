@@ -19,8 +19,8 @@ struct CullParams
 {
     uint activeSphereCount;
     uint enableCulling;
+    uint enableZSorting;
     uint pad0;
-    uint pad1;
 };
 
 // Set 0, Binding 0: Scene Data
