@@ -1,10 +1,10 @@
 import Render.Scene;
+import Utility.HalfPacking;
 
 struct SphereData
 {
     float3 center;
-    float radius;
-    uint colorPacked; // RGBA8 packed
+    uint radiusHalfAndColor; // bits 0..15 = FP16 radius, bits 16..31 = RGBA4444 color
 };
 
 struct DrawIndirectCommand
@@ -47,7 +47,8 @@ void main(uint3 dispatchThreadID : SV_DispatchThreadID)
         return;
 
     SphereData sphere = gSpheres[sphereID];
-    float r = abs(sphere.radius);
+    float radius = unpackHalf(sphere.radiusHalfAndColor & 0xFFFFu);
+    float r = abs(radius);
 
     // View-projection matrix
     float4x4 vp = mul(scene.projectionMatrix, scene.viewMatrix);
@@ -62,7 +63,7 @@ void main(uint3 dispatchThreadID : SV_DispatchThreadID)
     planes[5] = vp[3] - vp[2]; // Far
 
     bool visible = true;
-    if (cullParams.enableCulling != 0)
+    if (cullParams.enableCulling != 0u)
     {
         for (int i = 0; i < 6; ++i)
         {
@@ -82,7 +83,7 @@ void main(uint3 dispatchThreadID : SV_DispatchThreadID)
     if (visible)
     {
         uint appendIndex;
-        InterlockedAdd(gIndirectCommand[0].instanceCount, 1, appendIndex);
+        InterlockedAdd(gIndirectCommand[0].instanceCount, 1u, appendIndex);
         gCulledSpheres[appendIndex] = sphere;
     }
 }

@@ -65,6 +65,7 @@ source_group("Source/SVO" FILES ${SVO_Files})
 
 set(Utility_Files
     "Source/ShaderLibrary/Utility/Convert.slang"
+    "Source/ShaderLibrary/Utility/HalfPacking.slang"
 )
 source_group("Source/Utility" FILES ${Utility_Files})
 

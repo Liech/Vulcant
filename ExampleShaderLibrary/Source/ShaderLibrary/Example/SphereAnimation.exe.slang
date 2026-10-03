@@ -1,3 +1,5 @@
+import Utility.HalfPacking;
+
 struct SphereInitData
 {
     float3 basePosition;
@@ -11,8 +13,7 @@ struct SphereInitData
 struct SphereData
 {
     float3 center;
-    float radius;
-    uint colorPacked;
+    uint radiusHalfAndColor; // bits 0..15 = FP16 radius, bits 16..31 = RGBA4444 color
 };
 
 struct SphereAnimUniforms
@@ -51,10 +52,18 @@ void main(uint3 dispatchThreadID : SV_DispatchThreadID)
 
     float sphereRad = uniforms.baseRadius * initData.radiusScale;
 
+    uint rHalf = packHalf(sphereRad) & 0xFFFFu;
+
+    uint c8 = initData.packedColor;
+    uint cr = (c8 & 0xFFu) >> 4u;
+    uint cg = ((c8 >> 8u) & 0xFFu) >> 4u;
+    uint cb = ((c8 >> 16u) & 0xFFu) >> 4u;
+    uint ca = ((c8 >> 24u) & 0xFFu) >> 4u;
+    uint c16 = cr | (cg << 4u) | (cb << 8u) | (ca << 12u);
+
     SphereData outData;
     outData.center = float3(x, y, z);
-    outData.radius = sphereRad;
-    outData.colorPacked = initData.packedColor;
+    outData.radiusHalfAndColor = rHalf | (c16 << 16u);
 
     gOutputSpheres[sphereID] = outData;
 }

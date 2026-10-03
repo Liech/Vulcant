@@ -75,8 +75,7 @@ namespace Vulcant
 
                 SphereData sd;
                 sd.center = pos;
-                sd.radius = sphereRad;
-                sd.colorPacked = packedColor;
+                sd.setRadiusAndColor(sphereRad, packedColor);
                 outSpheres.push_back(sd);
 
                 SphereInitData init;
@@ -127,8 +126,7 @@ namespace Vulcant
 
                         SphereData sd;
                         sd.center = pos;
-                        sd.radius = baseRadius * rScale;
-                        sd.colorPacked = trunkColor;
+                        sd.setRadiusAndColor(baseRadius * rScale, trunkColor);
                         outSpheres.push_back(sd);
 
                         SphereInitData init;
@@ -166,8 +164,7 @@ namespace Vulcant
 
                         SphereData sd;
                         sd.center = pos;
-                        sd.radius = baseRadius * rScale;
-                        sd.colorPacked = foliageColor;
+                        sd.setRadiusAndColor(baseRadius * rScale, foliageColor);
                         outSpheres.push_back(sd);
 
                         SphereInitData init;
@@ -201,7 +198,9 @@ namespace Vulcant
                 glm::vec3 pos(x, y, z);
                 float theta = std::atan2(z, x);
 
-                SphereData sd{ pos, baseRadius * rScale, color };
+                SphereData sd;
+                sd.center = pos;
+                sd.setRadiusAndColor(baseRadius * rScale, color);
                 outSpheres.push_back(sd);
 
                 SphereInitData init{ pos, 0.0f, r, theta, rScale, color };
