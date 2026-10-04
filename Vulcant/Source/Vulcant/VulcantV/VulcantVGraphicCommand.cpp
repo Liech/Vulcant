@@ -71,7 +71,7 @@ namespace Vulcant::VulcantV
         cmd->draw(vertexCount, s, vb, instanceCount);
     }
 
-    void VulcantVGraphicCommand::drawIndirect(VulcantBuffer& indirectBuffer, VulcantSet* set, VulcantBuffer* vertexBuffer, uint32_t offset, uint32_t drawCount, uint32_t stride)
+    void VulcantVGraphicCommand::drawIndirect(VulcantBuffer& indirectBuffer, VulcantSet* set, VulcantBuffer* vertexBuffer, uint32_t offset, uint32_t drawCount, uint32_t stride, VulcantGraphicPipeline* pipeline)
     {
         Wrapper::VulcanSet* s = nullptr;
         if (set)
@@ -83,8 +83,14 @@ namespace Vulcant::VulcantV
             vb = static_cast<VulcantVBuffer*>(vertexBuffer)->buffer.get();
         }
 
+        Wrapper::VulcanGraphicPipeline* p = nullptr;
+        if (pipeline)
+        {
+            p = static_cast<VulcantVGraphicPipeline*>(pipeline)->pipe.get();
+        }
+
         auto& ib = static_cast<VulcantVBuffer&>(indirectBuffer);
-        cmd->drawIndirect(*ib.buffer, s, vb, offset, drawCount, stride);
+        cmd->drawIndirect(*ib.buffer, s, vb, offset, drawCount, stride, p);
     }
 
     void VulcantVGraphicCommand::addBarrier(VulcantImage& inputImg, const VulcantResourceLayout& dest)

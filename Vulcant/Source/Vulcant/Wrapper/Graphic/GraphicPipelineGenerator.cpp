@@ -51,7 +51,7 @@ namespace Vulcant::Wrapper::Graphic
         rasterizer.depthBiasEnable         = VK_FALSE;
     }
 
-    void GraphicPipelineGenerator::fillMisc()
+    void GraphicPipelineGenerator::fillMisc(VkPrimitiveTopology topology)
     {
         dynamicStates = { VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR };
 
@@ -67,7 +67,7 @@ namespace Vulcant::Wrapper::Graphic
 
         inputAssembly                        = {};
         inputAssembly.sType                  = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
-        inputAssembly.topology               = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+        inputAssembly.topology               = topology;
         inputAssembly.primitiveRestartEnable = VK_FALSE;
     }
 
@@ -103,12 +103,12 @@ namespace Vulcant::Wrapper::Graphic
         pipeInfo.subpass    = subpass;
     }
 
-    void GraphicPipelineGenerator::setBoiler()
+    void GraphicPipelineGenerator::setBoiler(VkPrimitiveTopology topology)
     {
         fillMultisample();
         fillDepth();
         fillRasterizer();
-        fillMisc();
+        fillMisc(topology);
 
         pipeInfo.pMultisampleState   = &multisampling;
         pipeInfo.pDepthStencilState  = &depthStencil;

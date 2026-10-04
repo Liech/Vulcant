@@ -19,8 +19,8 @@ struct CullParams
 {
     uint activeSphereCount;
     uint enableCulling;
-    uint pad0;
-    uint pad1;
+    uint enableSubPixelFallback;
+    float viewportHeight;
 };
 
 // Set 0, Binding 0: Scene Data
@@ -37,6 +37,12 @@ struct CullParams
 
 // Set 0, Binding 4: Output Indirect Draw Command
 [[vk::binding(4, 0)]] RWStructuredBuffer<DrawIndirectCommand> gIndirectCommand;
+
+// Set 0, Binding 5: Output Point Spheres
+[[vk::binding(5, 0)]] RWStructuredBuffer<SphereData> gPointSpheres;
+
+// Set 0, Binding 6: Output Point Indirect Draw Command
+[[vk::binding(6, 0)]] RWStructuredBuffer<DrawIndirectCommand> gPointIndirectCommand;
 
 [shader("compute")]
 [numthreads(256, 1, 1)]
@@ -82,8 +88,21 @@ void main(uint3 dispatchThreadID : SV_DispatchThreadID)
 
     if (visible)
     {
-        uint appendIndex;
-        InterlockedAdd(gIndirectCommand[0].instanceCount, 1u, appendIndex);
-        gCulledSpheres[appendIndex] = sphere;
+        float4 centerView = mul(scene.viewMatrix, float4(sphere.center, 1.0));
+        float zDepth = abs(centerView.z);
+        float pixelDiameter = (r * scene.projectionMatrix[1][1] * cullParams.viewportHeight) / max(zDepth, 0.0001);
+
+        if (cullParams.enableSubPixelFallback != 0u && pixelDiameter < 1.0)
+        {
+            uint appendIndex;
+            InterlockedAdd(gPointIndirectCommand[0].instanceCount, 1u, appendIndex);
+            gPointSpheres[appendIndex] = sphere;
+        }
+        else
+        {
+            uint appendIndex;
+            InterlockedAdd(gIndirectCommand[0].instanceCount, 1u, appendIndex);
+            gCulledSpheres[appendIndex] = sphere;
+        }
     }
 }

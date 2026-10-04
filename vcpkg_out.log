@@ -1,0 +1,206 @@
+Detecting compiler hash for triplet x64-linux...
+Compiler found: /usr/bin/c++
+The following packages are already installed:
+    catch2:x64-linux@3.14.0
+    glfw3:x64-linux@3.4#1
+    glm:x64-linux@1.0.3
+    imgui[core,vulkan-binding,glfw-binding]:x64-linux@1.92.7
+    lodepng:x64-linux@2021-12-04#1
+    nlohmann-json:x64-linux@3.12.0#2
+    shader-slang:x64-linux@2026.7.1
+  * spirv-headers:x64-linux@1.4.341.0
+  * vcpkg-cmake:x64-linux@2024-04-23
+  * vcpkg-cmake-config:x64-linux@2024-05-23
+    vulkan:x64-linux@2023-12-17
+  * vulkan-headers:x64-linux@1.4.341.0
+  * vulkan-loader:x64-linux@1.4.341.0
+The following packages will be built and installed:
+  * glslang:x64-linux@16.2.0
+  * mimalloc:x64-linux@3.3.1
+  * parallel-hashmap:x64-linux@2.0.0
+    shaderc:x64-linux@2026.2
+  * spirv-cross:x64-linux@1.4.341.0
+    spirv-reflect:x64-linux@1.4.341.0
+  * spirv-tools:x64-linux@1.4.341.0
+  * vulkan-utility-libraries:x64-linux@1.4.341.0
+    vulkan-validationlayers:x64-linux@1.4.341.0
+Additional packages (*) will be modified to complete this operation.
+Restored 0 package(s) from /home/jules/.cache/vcpkg/archives in 69.2 us. Use --debug to see more details.
+Installing 1/9 spirv-tools:x64-linux@1.4.341.0...
+spirv-tools:x64-linux@1.4.341.0 package ABI: f52de13958e30d9a4cae7049c691d5e1e7b78abe2eb62882b975921dc919c9bf
+Building spirv-tools:x64-linux@1.4.341.0...
+-- Using cached KhronosGroup-SPIRV-Tools-vulkan-sdk-1.4.341.0.tar.gz
+-- Cleaning sources at /opt/vcpkg/buildtrees/spirv-tools/src/-1.4.341.0-04f45e237b.clean. Use --editable to skip cleaning for the packages you specify.
+-- Extracting source /opt/vcpkg/downloads/KhronosGroup-SPIRV-Tools-vulkan-sdk-1.4.341.0.tar.gz
+-- Applying patch cmake-config-dir.diff
+-- Applying patch spirv-tools-shared.diff
+-- Applying patch fix-tool-deps.diff
+-- Using source at /opt/vcpkg/buildtrees/spirv-tools/src/-1.4.341.0-04f45e237b.clean
+-- Configuring x64-linux
+-- Building x64-linux-dbg
+-- Building x64-linux-rel
+-- Fixing pkgconfig file: /opt/vcpkg/packages/spirv-tools_x64-linux/lib/pkgconfig/SPIRV-Tools.pc
+-- Fixing pkgconfig file: /opt/vcpkg/packages/spirv-tools_x64-linux/debug/lib/pkgconfig/SPIRV-Tools.pc
+-- Installing: /opt/vcpkg/packages/spirv-tools_x64-linux/share/spirv-tools/usage
+-- Installing: /opt/vcpkg/packages/spirv-tools_x64-linux/share/spirv-tools/copyright
+-- Performing post-build validation
+Starting submission of spirv-tools:x64-linux@1.4.341.0 to 1 binary cache(s) in the background
+Elapsed time to handle spirv-tools:x64-linux: 10 min
+Installing 2/9 glslang:x64-linux@16.2.0...
+glslang:x64-linux@16.2.0 package ABI: 3cfb893a67944abfe967b04ce61650c20a9e155b5c1a38f8c3945785732c40e5
+Building glslang:x64-linux@16.2.0...
+Downloading https://github.com/KhronosGroup/glslang/archive/16.2.0.tar.gz -> KhronosGroup-glslang-16.2.0.tar.gz
+Successfully downloaded KhronosGroup-glslang-16.2.0.tar.gz
+-- Extracting source /opt/vcpkg/downloads/KhronosGroup-glslang-16.2.0.tar.gz
+-- Using source at /opt/vcpkg/buildtrees/glslang/src/16.2.0-5f6c0a9fff.clean
+-- Configuring x64-linux
+-- Building x64-linux-dbg
+-- Building x64-linux-rel
+-- Installing: /opt/vcpkg/packages/glslang_x64-linux/share/glslang/usage
+-- Installing: /opt/vcpkg/packages/glslang_x64-linux/share/glslang/copyright
+-- Performing post-build validation
+Starting submission of glslang:x64-linux@16.2.0 to 1 binary cache(s) in the background
+Elapsed time to handle glslang:x64-linux: 2 min
+Completed submission of spirv-tools:x64-linux@1.4.341.0 to 1 binary cache(s) in 1.1 min
+Installing 3/9 shaderc:x64-linux@2026.2...
+shaderc:x64-linux@2026.2 package ABI: 9a15e201d70d1ad63f497a66e48bf17697e3ee50e449f9d6e4a0a8c5b4f970e1
+Building shaderc:x64-linux@2026.2...
+Downloading https://github.com/google/shaderc/archive/v2026.2.tar.gz -> google-shaderc-v2026.2.tar.gz
+Successfully downloaded google-shaderc-v2026.2.tar.gz
+-- Extracting source /opt/vcpkg/downloads/google-shaderc-v2026.2.tar.gz
+-- Applying patch disable-update-version.patch
+-- Applying patch fix-build-type.patch
+-- Applying patch cmake-config-export.patch
+-- Using source at /opt/vcpkg/buildtrees/shaderc/src/v2026.2-c0a4f684f3.clean
+-- Configuring x64-linux
+-- Building x64-linux-dbg
+-- Building x64-linux-rel
+-- Fixing pkgconfig file: /opt/vcpkg/packages/shaderc_x64-linux/lib/pkgconfig/shaderc.pc
+-- Fixing pkgconfig file: /opt/vcpkg/packages/shaderc_x64-linux/debug/lib/pkgconfig/shaderc.pc
+-- Installing: /opt/vcpkg/packages/shaderc_x64-linux/share/shaderc/usage
+-- Installing: /opt/vcpkg/packages/shaderc_x64-linux/share/shaderc/copyright
+-- Adjusted RPATH of '/opt/vcpkg/packages/shaderc_x64-linux/tools/shaderc/glslc' (From '' -> To '$ORIGIN:$ORIGIN/../../lib')
+-- Performing post-build validation
+Starting submission of shaderc:x64-linux@2026.2 to 1 binary cache(s) in the background
+Elapsed time to handle shaderc:x64-linux: 28 s
+Completed submission of glslang:x64-linux@16.2.0 to 1 binary cache(s) in 6 s
+Installing 4/9 spirv-reflect:x64-linux@1.4.341.0...
+spirv-reflect:x64-linux@1.4.341.0 package ABI: 85509095b2ac4294a260c64f422a1b84ebce19cfc2cc32b58af75163ab85d75f
+Building spirv-reflect:x64-linux@1.4.341.0...
+Downloading https://github.com/KhronosGroup/SPIRV-Reflect/archive/vulkan-sdk-1.4.341.0.tar.gz -> KhronosGroup-SPIRV-Reflect-vulkan-sdk-1.4.341.0.tar.gz
+Successfully downloaded KhronosGroup-SPIRV-Reflect-vulkan-sdk-1.4.341.0.tar.gz
+-- Extracting source /opt/vcpkg/downloads/KhronosGroup-SPIRV-Reflect-vulkan-sdk-1.4.341.0.tar.gz
+-- Applying patch export-targets.patch
+-- Using source at /opt/vcpkg/buildtrees/spirv-reflect/src/-1.4.341.0-a01d0b4482.clean
+-- Configuring x64-linux
+-- Building x64-linux-dbg
+-- Building x64-linux-rel
+-- Installing: /opt/vcpkg/packages/spirv-reflect_x64-linux/share/spirv-reflect/copyright
+-- Adjusted RPATH of '/opt/vcpkg/packages/spirv-reflect_x64-linux/tools/spirv-reflect/spirv-reflect' (From '' -> To '$ORIGIN:$ORIGIN/../../lib')
+-- Adjusted RPATH of '/opt/vcpkg/packages/spirv-reflect_x64-linux/tools/spirv-reflect/spirv-reflect-pp' (From '' -> To '$ORIGIN:$ORIGIN/../../lib')
+-- Performing post-build validation
+Starting submission of spirv-reflect:x64-linux@1.4.341.0 to 1 binary cache(s) in the background
+Elapsed time to handle spirv-reflect:x64-linux: 13 s
+Completed submission of shaderc:x64-linux@2026.2 to 1 binary cache(s) in 924 ms
+Installing 5/9 vulkan-utility-libraries:x64-linux@1.4.341.0...
+vulkan-utility-libraries:x64-linux@1.4.341.0 package ABI: 8984e057d9c72b6768ef8464281c743a2ab762d4bb7755d33b30174d66be5e68
+Building vulkan-utility-libraries:x64-linux@1.4.341.0...
+Downloading https://github.com/KhronosGroup/Vulkan-Utility-Libraries/archive/vulkan-sdk-1.4.341.0.tar.gz -> KhronosGroup-Vulkan-Utility-Libraries-vulkan-sdk-1.4.341.0.tar.gz
+Successfully downloaded KhronosGroup-Vulkan-Utility-Libraries-vulkan-sdk-1.4.341.0.tar.gz
+-- Extracting source /opt/vcpkg/downloads/KhronosGroup-Vulkan-Utility-Libraries-vulkan-sdk-1.4.341.0.tar.gz
+-- Using source at /opt/vcpkg/buildtrees/vulkan-utility-libraries/src/-1.4.341.0-cfe3b2099a.clean
+-- Configuring x64-linux
+-- Building x64-linux-dbg
+-- Building x64-linux-rel
+-- Installing: /opt/vcpkg/packages/vulkan-utility-libraries_x64-linux/share/vulkan-utility-libraries/copyright
+-- Performing post-build validation
+Starting submission of vulkan-utility-libraries:x64-linux@1.4.341.0 to 1 binary cache(s) in the background
+Elapsed time to handle vulkan-utility-libraries:x64-linux: 29 s
+Completed submission of spirv-reflect:x64-linux@1.4.341.0 to 1 binary cache(s) in 82.6 ms
+Installing 6/9 spirv-cross:x64-linux@1.4.341.0...
+spirv-cross:x64-linux@1.4.341.0 package ABI: 87f84697ef7e6321e2cd40ce7487876942bdb8e6e9b305017f224291cc404843
+Building spirv-cross:x64-linux@1.4.341.0...
+Downloading https://github.com/KhronosGroup/SPIRV-Cross/archive/vulkan-sdk-1.4.341.0.tar.gz -> KhronosGroup-SPIRV-Cross-vulkan-sdk-1.4.341.0.tar.gz
+Successfully downloaded KhronosGroup-SPIRV-Cross-vulkan-sdk-1.4.341.0.tar.gz
+-- Extracting source /opt/vcpkg/downloads/KhronosGroup-SPIRV-Cross-vulkan-sdk-1.4.341.0.tar.gz
+-- Using source at /opt/vcpkg/buildtrees/spirv-cross/src/-1.4.341.0-7c75c19129.clean
+-- Configuring x64-linux
+-- Building x64-linux-dbg
+-- Building x64-linux-rel
+-- Fixing pkgconfig file: /opt/vcpkg/packages/spirv-cross_x64-linux/lib/pkgconfig/spirv-cross-c.pc
+-- Fixing pkgconfig file: /opt/vcpkg/packages/spirv-cross_x64-linux/debug/lib/pkgconfig/spirv-cross-c.pc
+-- Installing: /opt/vcpkg/packages/spirv-cross_x64-linux/share/spirv-cross/copyright
+-- Adjusted RPATH of '/opt/vcpkg/packages/spirv-cross_x64-linux/tools/spirv-cross/spirv-cross' (From '' -> To '$ORIGIN:$ORIGIN/../../lib')
+-- Performing post-build validation
+Starting submission of spirv-cross:x64-linux@1.4.341.0 to 1 binary cache(s) in the background
+Elapsed time to handle spirv-cross:x64-linux: 1.6 min
+Completed submission of vulkan-utility-libraries:x64-linux@1.4.341.0 to 1 binary cache(s) in 1.2 s
+Installing 7/9 parallel-hashmap:x64-linux@2.0.0...
+parallel-hashmap:x64-linux@2.0.0 package ABI: 9a42e59ca3a6dd66cf0ad9fcbeb12840a6febea180bcb8cede216bf02131ecfb
+Building parallel-hashmap:x64-linux@2.0.0...
+Downloading https://github.com/greg7mdp/parallel-hashmap/archive/v2.0.0.tar.gz -> greg7mdp-parallel-hashmap-v2.0.0.tar.gz
+Successfully downloaded greg7mdp-parallel-hashmap-v2.0.0.tar.gz
+-- Extracting source /opt/vcpkg/downloads/greg7mdp-parallel-hashmap-v2.0.0.tar.gz
+-- Using source at /opt/vcpkg/buildtrees/parallel-hashmap/src/v2.0.0-7f56771825.clean
+-- Configuring x64-linux
+-- Building x64-linux-dbg
+-- Building x64-linux-rel
+-- Installing: /opt/vcpkg/packages/parallel-hashmap_x64-linux/share/parallel-hashmap/copyright
+-- Performing post-build validation
+Starting submission of parallel-hashmap:x64-linux@2.0.0 to 1 binary cache(s) in the background
+Elapsed time to handle parallel-hashmap:x64-linux: 1.3 s
+Installing 8/9 mimalloc:x64-linux@3.3.1...
+mimalloc:x64-linux@3.3.1 package ABI: 640c5a8bda564a1ece706eabc732768bdc7030d9e46226b824ee5dbfb580ca5d
+Building mimalloc:x64-linux@3.3.1...
+Downloading https://github.com/microsoft/mimalloc/archive/v3.3.1.tar.gz -> microsoft-mimalloc-v3.3.1.tar.gz
+Successfully downloaded microsoft-mimalloc-v3.3.1.tar.gz
+-- Extracting source /opt/vcpkg/downloads/microsoft-mimalloc-v3.3.1.tar.gz
+-- Applying patch pkgconfig-cxx.diff
+-- Using source at /opt/vcpkg/buildtrees/mimalloc/src/v3.3.1-c528aac713.clean
+-- Configuring x64-linux
+-- Building x64-linux-dbg
+-- Building x64-linux-rel
+-- Fixing pkgconfig file: /opt/vcpkg/packages/mimalloc_x64-linux/lib/pkgconfig/mimalloc.pc
+-- Fixing pkgconfig file: /opt/vcpkg/packages/mimalloc_x64-linux/debug/lib/pkgconfig/mimalloc.pc
+-- Installing: /opt/vcpkg/packages/mimalloc_x64-linux/share/mimalloc/copyright
+-- Performing post-build validation
+Starting submission of mimalloc:x64-linux@3.3.1 to 1 binary cache(s) in the background
+Elapsed time to handle mimalloc:x64-linux: 7.3 s
+Completed submission of spirv-cross:x64-linux@1.4.341.0 to 1 binary cache(s) in 3.2 s
+Completed submission of parallel-hashmap:x64-linux@2.0.0 to 1 binary cache(s) in 59 ms
+Installing 9/9 vulkan-validationlayers:x64-linux@1.4.341.0...
+vulkan-validationlayers:x64-linux@1.4.341.0 package ABI: 9b61c4e3e08bbeb46e50bccb9a05c7cabc855c1eda4b581408d729b62d1e6321
+Building vulkan-validationlayers:x64-linux@1.4.341.0...
+Downloading https://github.com/KhronosGroup/Vulkan-ValidationLayers/archive/vulkan-sdk-1.4.341.0.tar.gz -> KhronosGroup-Vulkan-ValidationLayers-vulkan-sdk-1.4.341.0.tar.gz
+Successfully downloaded KhronosGroup-Vulkan-ValidationLayers-vulkan-sdk-1.4.341.0.tar.gz
+-- Extracting source /opt/vcpkg/downloads/KhronosGroup-Vulkan-ValidationLayers-vulkan-sdk-1.4.341.0.tar.gz
+-- Applying patch disable_vendored_phmap.diff
+-- Using source at /opt/vcpkg/buildtrees/vulkan-validationlayers/src/-1.4.341.0-24828909cc.clean
+-- Configuring x64-linux
+CMake Error at scripts/cmake/vcpkg_execute_required_process.cmake:127 (message):
+    Command failed: /opt/vcpkg/downloads/tools/ninja-1.13.2-linux/ninja -v
+    Working Directory: /opt/vcpkg/buildtrees/vulkan-validationlayers/x64-linux-rel/vcpkg-parallel-configure
+    Error code: 1
+    See logs for more information:
+      /opt/vcpkg/buildtrees/vulkan-validationlayers/config-x64-linux-dbg-CMakeCache.txt.log
+      /opt/vcpkg/buildtrees/vulkan-validationlayers/config-x64-linux-rel-CMakeCache.txt.log
+      /opt/vcpkg/buildtrees/vulkan-validationlayers/config-x64-linux-dbg-CMakeConfigureLog.yaml.log
+      /opt/vcpkg/buildtrees/vulkan-validationlayers/config-x64-linux-rel-CMakeConfigureLog.yaml.log
+      /opt/vcpkg/buildtrees/vulkan-validationlayers/config-x64-linux-out.log
+
+Call Stack (most recent call first):
+  /app/vcpkg_installed/x64-linux/share/vcpkg-cmake/vcpkg_cmake_configure.cmake:269 (vcpkg_execute_required_process)
+  buildtrees/versioning_/versions/vulkan-validationlayers/ea63dc17d734820a93233d0f6e9f7e33b2f3af1b/portfile.cmake:19 (vcpkg_cmake_configure)
+  scripts/ports.cmake:209 (include)
+
+
+error: building vulkan-validationlayers:x64-linux failed with: BUILD_FAILED
+See https://learn.microsoft.com/vcpkg/troubleshoot/build-failures?WT.mc_id=vcpkg_inproduct_cli for more information.
+Elapsed time to handle vulkan-validationlayers:x64-linux: 2.3 s
+Please ensure you're using the latest port files with `git pull` and `vcpkg update`.
+Then check for known issues at:
+  https://github.com/microsoft/vcpkg/issues?q=is%3Aissue+is%3Aopen+in%3Atitle+vulkan-validationlayers
+You can submit a new issue at:
+  https://github.com/microsoft/vcpkg/issues/new?title=%5Bvulkan-validationlayers%5D%20build%20error%20on%20x64-linux&body=Copy%20issue%20body%20from%20%2Fapp%2Fvcpkg_installed%2Fvcpkg%2Fissue_body.md
+
+Completed submission of mimalloc:x64-linux@3.3.1 to 1 binary cache(s) in 194 ms

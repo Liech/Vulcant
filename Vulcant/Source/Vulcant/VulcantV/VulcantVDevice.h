@@ -35,8 +35,9 @@ namespace Vulcant::VulcantV
         virtual std::unique_ptr<VulcantGraphicCommand>  createGraphicCommand() override;
         virtual std::unique_ptr<VulcantGraphicPipeline> createVulcanGraphicPipeline(const std::vector<VulcantShader*>& shader,
                                                                                     const std::vector<VulcantImage*>&  color,
-                                                                                    VulcantImage*                      depth   = nullptr,
-                                                                                    VulcantImage*                      stencil = nullptr) override;
+                                                                                    VulcantImage*                      depth    = nullptr,
+                                                                                    VulcantImage*                      stencil  = nullptr,
+                                                                                    VkPrimitiveTopology                topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST) override;
         virtual std::unique_ptr<VulcantSet>             createSet(const std::vector<std::vector<std::shared_ptr<VulcantResource>>>& buffer, VulcantShader& shader) override;
         virtual std::unique_ptr<VulcantWindow>          createWindow(const glm::ivec2& resolution, const std::string& title) override;
         virtual std::unique_ptr<VulcantUi>              createUi(VulcantWindow& window, VulcantImageFormat format = VulcantImageFormat::R32G32B32A32_SFLOAT, bool clear = true) override;
