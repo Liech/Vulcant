@@ -23,7 +23,7 @@ namespace Vulcant::Wrapper::Graphic
         GraphicPipelineGenerator();
         virtual ~GraphicPipelineGenerator();
 
-        void setBoiler();
+        void setBoiler(VkPrimitiveTopology topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
         void setColor(const std::vector<VulcanImage*>& color);
         void setDepthStencil(VulcanImage* depth = nullptr, VulcanImage* stencil = nullptr);
         void setShader(const std::vector<VulcanShader*>& shader);
@@ -35,7 +35,7 @@ namespace Vulcant::Wrapper::Graphic
         void fillMultisample();
         void fillDepth();
         void fillRasterizer();
-        void fillMisc();
+        void fillMisc(VkPrimitiveTopology topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
         void fillVertex(VulcanShader&);
 
 

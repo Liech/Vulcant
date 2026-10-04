@@ -5,6 +5,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <vulkan/vulkan.h>
 
 namespace Vulcant
 {
@@ -33,8 +34,9 @@ namespace Vulcant
         virtual std::unique_ptr<VulcantGraphicCommand>  createGraphicCommand()                                                                                                         = 0;
         virtual std::unique_ptr<VulcantGraphicPipeline> createVulcanGraphicPipeline(const std::vector<VulcantShader*>& shader,
                                                                                     const std::vector<VulcantImage*>&  color,
-                                                                                    VulcantImage*                      depth   = nullptr,
-                                                                                    VulcantImage*                      stencil = nullptr)                                              = 0;
+                                                                                    VulcantImage*                      depth    = nullptr,
+                                                                                    VulcantImage*                      stencil  = nullptr,
+                                                                                    VkPrimitiveTopology                topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST)                  = 0;
         virtual std::unique_ptr<VulcantSet>             createSet(const std::vector<std::vector<std::shared_ptr<VulcantResource>>>& buffer, VulcantShader& shader)                     = 0;
         virtual std::unique_ptr<VulcantWindow>          createWindow(const glm::ivec2& resolution, const std::string& title)                                                           = 0;
         virtual std::unique_ptr<VulcantUi>              createUi(VulcantWindow& window, VulcantImageFormat format = VulcantImageFormat::R32G32B32A32_SFLOAT, bool clear = true)        = 0;

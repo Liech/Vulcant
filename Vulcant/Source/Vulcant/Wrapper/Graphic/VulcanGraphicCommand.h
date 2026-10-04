@@ -42,7 +42,8 @@ namespace Vulcant::Wrapper
                           VulcanBuffer* vertexBuffer = nullptr,
                           uint32_t offset = 0,
                           uint32_t drawCount = 1,
-                          uint32_t stride = 16);
+                          uint32_t stride = 16,
+                          VulcanGraphicPipeline* overridePipeline = nullptr);
 
         void addBarrier(VulcanImage& inputImg, const VulcantResourceLayout& dest);
         void addBarrier(VulcanBuffer& buffer);

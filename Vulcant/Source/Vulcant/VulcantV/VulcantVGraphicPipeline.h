@@ -21,7 +21,8 @@ namespace Vulcant::VulcantV
                                 const std::vector<Vulcant::Wrapper::VulcanShader*>& shader,
                                 const std::vector<Vulcant::Wrapper::VulcanImage*>&  color,
                                 Vulcant::Wrapper::VulcanImage*                      depth   = nullptr,
-                                Vulcant::Wrapper::VulcanImage*                      stencil = nullptr);
+                                Vulcant::Wrapper::VulcanImage*                      stencil = nullptr,
+                                VkPrimitiveTopology                                 topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
 
         virtual ~VulcantVGraphicPipeline();
 

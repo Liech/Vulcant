@@ -14,7 +14,7 @@ namespace Vulcant::Wrapper
     class VulcanGraphicPipeline
     {
       public:
-        VulcanGraphicPipeline(VulcanDevice&, const std::vector<VulcanShader*>& shader, const std::vector<VulcanImage*>& color, VulcanImage* depth = nullptr, VulcanImage* stencil = nullptr);
+        VulcanGraphicPipeline(VulcanDevice&, const std::vector<VulcanShader*>& shader, const std::vector<VulcanImage*>& color, VulcanImage* depth = nullptr, VulcanImage* stencil = nullptr, VkPrimitiveTopology topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
         virtual ~VulcanGraphicPipeline();
 
         VkPipeline       getPipeline();
@@ -28,7 +28,7 @@ namespace Vulcant::Wrapper
       private:
         void createRenderPass(const std::vector<VulcanImage*>& color, VulcanImage* depth, VulcanImage* stencil);
         void createFramebuffer(const std::vector<VulcanImage*>& color, VulcanImage* depth, VulcanImage* stencil);
-        void createPipeline(const std::vector<VulcanShader*>& shader, const std::vector<VulcanImage*>& color, VulcanImage* depth, VulcanImage* stencil);
+        void createPipeline(const std::vector<VulcanShader*>& shader, const std::vector<VulcanImage*>& color, VulcanImage* depth, VulcanImage* stencil, VkPrimitiveTopology topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
         void createClearValues(const std::vector<VulcanImage*>& color, VulcanImage* depth = nullptr, VulcanImage* stencil = nullptr);
 
         VulcanDevice& device;

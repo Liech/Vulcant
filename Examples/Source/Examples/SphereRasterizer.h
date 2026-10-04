@@ -53,8 +53,8 @@ struct CullParams
 {
     uint32_t activeSphereCount;
     uint32_t enableCulling;
-    uint32_t pad0;
-    uint32_t pad1;
+    uint32_t enableSubPixelFallback;
+    float    viewportHeight;
 };
 
 struct FrameResources
@@ -72,10 +72,13 @@ struct FrameResources
     std::unique_ptr<Vulcant::VulcantBuffer> animUbo;
     std::unique_ptr<Vulcant::VulcantBuffer> culledSpheresBuffer;
     std::unique_ptr<Vulcant::VulcantBuffer> indirectDrawBuffer;
+    std::unique_ptr<Vulcant::VulcantBuffer> pointSpheresBuffer;
+    std::unique_ptr<Vulcant::VulcantBuffer> pointIndirectDrawBuffer;
     std::unique_ptr<Vulcant::VulcantBuffer> cullParamsUbo;
 
     // Sets
     std::unique_ptr<Vulcant::VulcantSet> graphicSet;
+    std::unique_ptr<Vulcant::VulcantSet> pointGraphicSet;
     std::unique_ptr<Vulcant::VulcantSet> cullSet;
     std::unique_ptr<Vulcant::VulcantSet> animSet;
 };
@@ -133,10 +136,11 @@ class SphereRasterizer : public Vulcant::Examples::Example
     int   activeSphereCount = 50000;
     float baseRadius        = 0.05f;
     float animSpeed         = 1.0f;
-    bool  animate           = true;
-    bool  prevAnimate       = true;
-    bool  enableCulling     = true;
-    float elapsedTime       = 0.0f;
+    bool  animate                 = true;
+    bool  prevAnimate             = true;
+    bool  enableCulling           = true;
+    bool  enableSubPixelFallback  = true;
+    float elapsedTime             = 0.0f;
 
     void syncAnimationBuffers();
 
@@ -152,6 +156,10 @@ class SphereRasterizer : public Vulcant::Examples::Example
     std::unique_ptr<Vulcant::VulcantShader>              vertShader;
     std::unique_ptr<Vulcant::VulcantShader>              fragShader;
     std::unique_ptr<Vulcant::VulcantGraphicPipeline>     pipeline;
+
+    std::unique_ptr<Vulcant::VulcantShader>              pointVertShader;
+    std::unique_ptr<Vulcant::VulcantShader>              pointFragShader;
+    std::unique_ptr<Vulcant::VulcantGraphicPipeline>     pointPipeline;
 
     std::unique_ptr<Vulcant::VulcantImage>               color;
     std::unique_ptr<Vulcant::VulcantImage>               depth;

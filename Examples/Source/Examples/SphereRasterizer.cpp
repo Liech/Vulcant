@@ -10,6 +10,8 @@
 #include "ShaderLibrary/Example/SphereAnimation.h"
 #include "ShaderLibrary/Example/SphereRasterizer_frag.h"
 #include "ShaderLibrary/Example/SphereRasterizer_vert.h"
+#include "ShaderLibrary/Example/SpherePointRasterizer_frag.h"
+#include "ShaderLibrary/Example/SpherePointRasterizer_vert.h"
 #include "Vulcant/Interface/VulcantBuffer.h"
 #include "Vulcant/Interface/VulcantComputeCommand.h"
 #include "Vulcant/Interface/VulcantGraphicCommand.h"
@@ -167,6 +169,8 @@ void SphereRasterizer::createWindow(Vulcant::VulcantDevice& deviceInput, const g
             frame.cullcmd->add(glm::ivec3((activeSphereCount + 255) / 256, 1, 1), *frame.cullSet, *cullShader);
             frame.cullcmd->addBarrier(*frame.culledSpheresBuffer);
             frame.cullcmd->addBarrier(*frame.indirectDrawBuffer);
+            frame.cullcmd->addBarrier(*frame.pointSpheresBuffer);
+            frame.cullcmd->addBarrier(*frame.pointIndirectDrawBuffer);
             frame.cullcmd->endRecord();
 
             // 2. Graphic Pass für Frame i
@@ -174,6 +178,10 @@ void SphereRasterizer::createWindow(Vulcant::VulcantDevice& deviceInput, const g
             frame.cmdG->beginRendering(*pipeline);
             frame.cmdG->setViewportAndScissor(glm::uvec2(resolution.x, resolution.y));
             frame.cmdG->drawIndirect(*frame.indirectDrawBuffer, frame.graphicSet.get(), nullptr);
+            if (enableSubPixelFallback)
+            {
+                frame.cmdG->drawIndirect(*frame.pointIndirectDrawBuffer, frame.pointGraphicSet.get(), nullptr, 0, 1, 16, pointPipeline.get());
+            }
             frame.cmdG->endRendering();
             frame.cmdG->addBarrier(getColor(), Vulcant::VulcantResourceLayout::ShaderReadOnly);
             frame.cmdG->addBarrier(getDepth(), Vulcant::VulcantResourceLayout::ShaderReadOnly);
@@ -272,6 +280,7 @@ void SphereRasterizer::createWindow(Vulcant::VulcantDevice& deviceInput, const g
           }
 
           ImGui::Checkbox("Enable Frustum Culling", &enableCulling);
+          ImGui::Checkbox("Enable Sub-Pixel Point Fallback", &enableSubPixelFallback);
 
           ImGui::SliderFloat("Base Radius", &baseRadius, 0.01f, 0.25f);
 
@@ -343,9 +352,11 @@ void SphereRasterizer::prepare(Vulcant::VulcantDevice& deviceInput, const glm::i
         frameResources[i].animUbo       = device->createUniform(1, sizeof(SphereAnimUniforms));
         frameResources[i].sceneDataUbo        = device->createUniform(1, sizeof(Vulcant::Rendering::SceneData));
         frameResources[i].spheresBuffer       = device->createBuffer(MAX_SPHERES, sizeof(SphereData));
-        frameResources[i].culledSpheresBuffer = device->createBuffer(MAX_SPHERES, sizeof(SphereData));
-        frameResources[i].indirectDrawBuffer = device->createIndirectBuffer(1, sizeof(VkDrawIndirectCommandCPU));
-        frameResources[i].cullParamsUbo       = device->createUniform(1, sizeof(CullParams));
+        frameResources[i].culledSpheresBuffer   = device->createBuffer(MAX_SPHERES, sizeof(SphereData));
+        frameResources[i].indirectDrawBuffer    = device->createIndirectBuffer(1, sizeof(VkDrawIndirectCommandCPU));
+        frameResources[i].pointSpheresBuffer    = device->createBuffer(MAX_SPHERES, sizeof(SphereData));
+        frameResources[i].pointIndirectDrawBuffer = device->createIndirectBuffer(1, sizeof(VkDrawIndirectCommandCPU));
+        frameResources[i].cullParamsUbo         = device->createUniform(1, sizeof(CullParams));
     }
 
     // Shaders
@@ -367,9 +378,19 @@ void SphereRasterizer::prepare(Vulcant::VulcantDevice& deviceInput, const glm::i
     auto        anim_size  = SphereAnimation_spirv_sizeInBytes;
     auto        anim_spirv = std::vector<uint32_t>(anim_slang, anim_slang + anim_size / sizeof(uint32_t));
 
-    vertShader = device->createShader(vert_spirv);
-    fragShader = device->createShader(frag_spirv);
-    animShader = device->createShader(anim_spirv);
+    const auto* point_vert_slang = SpherePointRasterizer_vert_spirv;
+    auto        point_vert_size  = SpherePointRasterizer_vert_spirv_sizeInBytes;
+    auto        point_vert_spirv = std::vector<uint32_t>(point_vert_slang, point_vert_slang + point_vert_size / sizeof(uint32_t));
+
+    const auto* point_frag_slang = SpherePointRasterizer_frag_spirv;
+    auto        point_frag_size  = SpherePointRasterizer_frag_spirv_sizeInBytes;
+    auto        point_frag_spirv = std::vector<uint32_t>(point_frag_slang, point_frag_slang + point_frag_size / sizeof(uint32_t));
+
+    vertShader      = device->createShader(vert_spirv);
+    fragShader      = device->createShader(frag_spirv);
+    animShader      = device->createShader(anim_spirv);
+    pointVertShader = device->createShader(point_vert_spirv);
+    pointFragShader = device->createShader(point_frag_spirv);
 
     deferred = std::make_unique<Vulcant::Rendering::DeferredShading>();
     deferred->prepare(*device);
@@ -394,23 +415,29 @@ void SphereRasterizer::changeResolution(const glm::ivec2& newResolution)
 
     pipeline = device->createVulcanGraphicPipeline(shaders, colorAttachments, depth.get(), nullptr);
 
+    std::vector<Vulcant::VulcantShader*> pointShaders = { pointVertShader.get(), pointFragShader.get() };
+    pointPipeline = device->createVulcanGraphicPipeline(pointShaders, colorAttachments, depth.get(), nullptr, VK_PRIMITIVE_TOPOLOGY_POINT_LIST);
+
     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
     {
         auto& frame = frameResources[i];
 
         frame.animSet = device->createSet({ { frame.animUbo->asResource(), sphereInitBuffer->asResource(), frame.spheresBuffer->asResource() } }, *animShader);
 
-        // Sets verlinken auf die Frame-spezifischen Buffer
-        frame.graphicSet = device->createSet({ { frame.sceneDataUbo->asResource() }, { frame.spheresBuffer->asResource() } }, *vertShader);
         // Graphic set points to sceneDataUbo and culledSpheresBuffer
         frame.graphicSet = device->createSet({ { frame.sceneDataUbo->asResource() }, { frame.culledSpheresBuffer->asResource() } }, *vertShader);
 
-        // Cull set points to sceneDataUbo, spheresBuffer, cullParamsUbo, culledSpheresBuffer, indirectDrawBuffer all in set 0
+        // Point graphic set points to sceneDataUbo, pointSpheresBuffer, cullParamsUbo
+        frame.pointGraphicSet = device->createSet({ { frame.sceneDataUbo->asResource() }, { frame.pointSpheresBuffer->asResource() }, { frame.cullParamsUbo->asResource() } }, *pointVertShader);
+
+        // Cull set points to sceneDataUbo, spheresBuffer, cullParamsUbo, culledSpheresBuffer, indirectDrawBuffer, pointSpheresBuffer, pointIndirectDrawBuffer all in set 0
         frame.cullSet = device->createSet({ { frame.sceneDataUbo->asResource(),
                                               frame.spheresBuffer->asResource(),
                                               frame.cullParamsUbo->asResource(),
                                               frame.culledSpheresBuffer->asResource(),
-                                              frame.indirectDrawBuffer->asResource() } },
+                                              frame.indirectDrawBuffer->asResource(),
+                                              frame.pointSpheresBuffer->asResource(),
+                                              frame.pointIndirectDrawBuffer->asResource() } },
                                           *cullShader);
     }
 
@@ -433,11 +460,14 @@ void SphereRasterizer::prepareRun()
 
     frame.animUbo->uploadToGPU(&animUnif, 1);
 
-    CullParams cp{ (uint32_t)activeSphereCount, enableCulling ? 1u : 0u, 0, 0 };
+    CullParams cp{ (uint32_t)activeSphereCount, enableCulling ? 1u : 0u, enableSubPixelFallback ? 1u : 0u, (float)resolution.y };
     frame.cullParamsUbo->uploadToGPU(&cp, 1);
 
     VkDrawIndirectCommandCPU drawCmd{ 6, 0, 0, 0 };
     frame.indirectDrawBuffer->uploadToGPU(&drawCmd, 1);
+
+    VkDrawIndirectCommandCPU pointDrawCmd{ 1, 0, 0, 0 };
+    frame.pointIndirectDrawBuffer->uploadToGPU(&pointDrawCmd, 1);
 
     deferred->setSceneData(s);
     deferred->setLight(lightData);
@@ -480,3 +510,29 @@ Vulcant::Rendering::Light SphereRasterizer::getExampleLight()
     light.attenuation               = 1.0f;
     return light;
 }
+
+#ifdef ISTESTPROJECT
+#include <catch2/catch_test_macros.hpp>
+
+TEST_CASE("Sub-Pixel Screen-Space Bounding Diameter Calculation", "[SphereRasterizer]")
+{
+    float radius = 0.05f;
+    float P11 = 1.73205f; // FOV ~60 deg
+    float viewportHeight = 1080.0f;
+
+    // At zDepth = 100.0f
+    float zDepthFar = 100.0f;
+    float pixelDiameterFar = (radius * P11 * viewportHeight) / zDepthFar;
+    REQUIRE(pixelDiameterFar < 1.0f);
+
+    // At zDepth = 1.0f
+    float zDepthNear = 1.0f;
+    float pixelDiameterNear = (radius * P11 * viewportHeight) / zDepthNear;
+    REQUIRE(pixelDiameterNear > 1.0f);
+}
+
+TEST_CASE("CullParams Struct Size and Alignment", "[SphereRasterizer]")
+{
+    REQUIRE(sizeof(CullParams) == 16);
+}
+#endif

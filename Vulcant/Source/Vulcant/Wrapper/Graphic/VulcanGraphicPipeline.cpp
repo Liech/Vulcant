@@ -10,13 +10,13 @@
 
 namespace Vulcant::Wrapper
 {
-    VulcanGraphicPipeline::VulcanGraphicPipeline(VulcanDevice& deviceInput, const std::vector<VulcanShader*>& shader, const std::vector<VulcanImage*>& color, VulcanImage* depth, VulcanImage* stencil)
+    VulcanGraphicPipeline::VulcanGraphicPipeline(VulcanDevice& deviceInput, const std::vector<VulcanShader*>& shader, const std::vector<VulcanImage*>& color, VulcanImage* depth, VulcanImage* stencil, VkPrimitiveTopology topology)
       : device(deviceInput)
     {
         createClearValues(color, depth, stencil);
         createRenderPass(color, depth, stencil);
         createFramebuffer(color, depth, stencil);
-        createPipeline(shader, color, depth, stencil);
+        createPipeline(shader, color, depth, stencil, topology);
     }
 
     VulcanGraphicPipeline::~VulcanGraphicPipeline()
@@ -187,10 +187,10 @@ namespace Vulcant::Wrapper
         VK_CHECK_RESULT(vkCreateFramebuffer(device.getDevice(), &framebufferInfo, nullptr, &framebuffer));
     }
 
-    void VulcanGraphicPipeline::createPipeline(const std::vector<VulcanShader*>& shader, const std::vector<VulcanImage*>& color, VulcanImage* depth, VulcanImage* stencil)
+    void VulcanGraphicPipeline::createPipeline(const std::vector<VulcanShader*>& shader, const std::vector<VulcanImage*>& color, VulcanImage* depth, VulcanImage* stencil, VkPrimitiveTopology topology)
     {
         Vulcant::Wrapper::Graphic::GraphicPipelineGenerator pipeOptions;
-        pipeOptions.setBoiler();
+        pipeOptions.setBoiler(topology);
         pipeOptions.setColor(color);
         pipeOptions.setDepthStencil(depth, stencil);
         pipeOptions.setShader(shader);

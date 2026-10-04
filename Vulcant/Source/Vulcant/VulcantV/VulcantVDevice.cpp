@@ -105,7 +105,8 @@ namespace Vulcant::VulcantV
     std::unique_ptr<VulcantGraphicPipeline> VulcantVDevice::createVulcanGraphicPipeline(const std::vector<VulcantShader*>& shader,
                                                                                         const std::vector<VulcantImage*>&  color,
                                                                                         VulcantImage*                      depth,
-                                                                                        VulcantImage*                      stencil)
+                                                                                        VulcantImage*                      stencil,
+                                                                                        VkPrimitiveTopology                topology)
     {
         std::vector<Vulcant::Wrapper::VulcanShader*> shaderConverted;
         for (auto* s : shader)
@@ -131,7 +132,7 @@ namespace Vulcant::VulcantV
             stencilConverted = static_cast<VulcantVImage*>(stencil)->img.get();
         }
 
-        return std::make_unique<VulcantVGraphicPipeline>(*device, shaderConverted, colorConverted, depthConverted, stencilConverted);
+        return std::make_unique<VulcantVGraphicPipeline>(*device, shaderConverted, colorConverted, depthConverted, stencilConverted, topology);
     }
 
     std::unique_ptr<VulcantUi> VulcantVDevice::createUi(VulcantWindow& window, VulcantImageFormat format, bool clear)

@@ -139,12 +139,14 @@ add_executable(VulcantTest
     "../Examples/Source/Examples/SphereRasterizerScenes/CubeGridScene.cpp"
     "../Examples/Source/Examples/SphereRasterizerScenes/ConcentricRingsScene.cpp"
     "../Examples/Source/Examples/SphereRasterizerScenes/HillLandscapeScene.cpp"
+    "../Examples/Source/Examples/SphereRasterizer.cpp"
 )
 add_library(Vulcant ${ALL_FILES})
 set_property(TARGET VulcantTest PROPERTY CXX_STANDARD 23)
 set_property(TARGET Vulcant PROPERTY CXX_STANDARD 23)
 
 target_link_libraries(VulcantTest PRIVATE 
+Examples
 Catch2::Catch2
 glm::glm
 nlohmann_json::nlohmann_json
@@ -176,6 +178,7 @@ target_include_directories(Vulcant PUBLIC
 target_include_directories(VulcantTest PUBLIC 
 ./Source/
 ../Examples/Source/
+${CMAKE_BINARY_DIR}/ExampleShaderLibrary/generated_shaders
 )
 
 set_property( TARGET VulcantTest PROPERTY COMPILE_DEFINITIONS ISTESTPROJECT=1 )
