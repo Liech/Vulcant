@@ -13,6 +13,8 @@ set(Rendering_Files
     "Source/Rendering/SphereData.h"
     "Source/Rendering/SphereRenderer.h"
     "Source/Rendering/SphereRenderer.cpp"
+    "Source/Rendering/CubeRenderer.h"
+    "Source/Rendering/CubeRenderer.cpp"
     "Source/Rendering/Light.h"
     "Source/Rendering/Freecam.h"
     "Source/Rendering/Freecam.cpp"

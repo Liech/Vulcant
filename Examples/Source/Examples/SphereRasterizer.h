@@ -42,6 +42,7 @@ struct SphereAnimUniforms
 };
 
 #include "Rendering/SphereRenderer.h"
+#include "Rendering/CubeRenderer.h"
 
 struct FrameResources
 {
@@ -56,8 +57,9 @@ struct FrameResources
     std::unique_ptr<Vulcant::VulcantBuffer> animUbo;
     std::unique_ptr<Vulcant::VulcantSet>    animSet;
 
-    // Renderer
+    // Renderers
     std::unique_ptr<Vulcant::Rendering::SphereRenderer> sphereRenderer;
+    std::unique_ptr<Vulcant::Rendering::CubeRenderer>   cubeRenderer;
 };
 
 class SphereRasterizer : public Vulcant::Examples::Example
@@ -109,6 +111,8 @@ class SphereRasterizer : public Vulcant::Examples::Example
     int                                                           currentSceneIndex = 0;
 
     // Simulation / Rendering parameters
+    enum class RenderMode { Spheres, Cubes };
+    RenderMode  renderMode        = RenderMode::Spheres;
     static constexpr size_t MAX_SPHERES = 50000000;
     int   activeSphereCount = 50000;
     float baseRadius        = 0.05f;

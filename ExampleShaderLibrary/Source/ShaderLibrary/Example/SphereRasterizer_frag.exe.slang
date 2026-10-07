@@ -1,3 +1,5 @@
+import Example.BillboardRasterizer;
+
 struct FragmentInput
 {
     float4 position : SV_Position;
@@ -8,15 +10,8 @@ struct FragmentInput
     float4 projParams : TEXCOORD2;
 };
 
-struct FragmentOutput
-{
-    float4 color : SV_Target0;
-    float4 normal : SV_Target1;
-    float depth : SV_Depth;
-};
-
 [shader("fragment")]
-FragmentOutput main(FragmentInput input)
+RasterizerOutput main(FragmentInput input)
 {
     float distSq = dot(input.uv, input.uv);
     if (distSq > 1.0)
@@ -41,7 +36,7 @@ FragmentOutput main(FragmentInput input)
     float clipW = input.projParams.z * hitPosView.z + input.projParams.w;
     float clipDepth = (abs(clipW) > 1e-6) ? (clipZ / clipW) : (input.position.z);
 
-    FragmentOutput output;
+    RasterizerOutput output;
     output.color = outColor;
     output.normal = float4(normalView * 0.5 + 0.5, 1.0);
     output.depth = clipDepth;

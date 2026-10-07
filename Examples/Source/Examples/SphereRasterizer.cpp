@@ -81,6 +81,10 @@ void SphereRasterizer::regenerateSpheres(size_t count)
         {
             frameResources[i].sphereRenderer->setActiveSphereCount(count);
         }
+        if (frameResources[i].cubeRenderer)
+        {
+            frameResources[i].cubeRenderer->setActiveCubeCount(count);
+        }
     }
 }
 
@@ -169,12 +173,26 @@ void SphereRasterizer::createWindow(Vulcant::VulcantDevice& deviceInput, const g
 
             // 1. Frustum Culling Pass
             frame.cullcmd->startRecord();
-            frame.sphereRenderer->recordCull(*frame.cullcmd);
+            if (renderMode == RenderMode::Spheres)
+            {
+                frame.sphereRenderer->recordCull(*frame.cullcmd);
+            }
+            else
+            {
+                frame.cubeRenderer->recordCull(*frame.cullcmd);
+            }
             frame.cullcmd->endRecord();
 
             // 2. Graphic Pass für Frame i
             frame.cmdG->startRecord();
-            frame.sphereRenderer->record(*frame.cmdG);
+            if (renderMode == RenderMode::Spheres)
+            {
+                frame.sphereRenderer->record(*frame.cmdG);
+            }
+            else
+            {
+                frame.cubeRenderer->record(*frame.cmdG);
+            }
             frame.cmdG->endRecord();
 
             // 3. Deferred Lighting Pass
@@ -207,7 +225,28 @@ void SphereRasterizer::createWindow(Vulcant::VulcantDevice& deviceInput, const g
           float frameTimeMs = ImGui::GetIO().Framerate > 0.0f ? (1000.0f / ImGui::GetIO().Framerate) : 0.0f;
           ImGui::Text("Frametime: %.2f ms", frameTimeMs);
           ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
-          ImGui::Text("Rendered Spheres: %d", activeSphereCount);
+          ImGui::Text("Rendered Instances: %d", activeSphereCount);
+          ImGui::Separator();
+
+          ImGui::Text("Render Mode:");
+          int modeInt = (renderMode == RenderMode::Spheres) ? 0 : 1;
+          if (ImGui::RadioButton("Spheres", &modeInt, 0))
+          {
+              if (renderMode != RenderMode::Spheres)
+              {
+                  renderMode = RenderMode::Spheres;
+                  rec();
+              }
+          }
+          ImGui::SameLine();
+          if (ImGui::RadioButton("Cubes", &modeInt, 1))
+          {
+              if (renderMode != RenderMode::Cubes)
+              {
+                  renderMode = RenderMode::Cubes;
+                  rec();
+              }
+          }
           ImGui::Separator();
 
           if (!scenes.empty())
@@ -338,6 +377,9 @@ void SphereRasterizer::prepare(Vulcant::VulcantDevice& deviceInput, const glm::i
         frameResources[i].animUbo        = device->createUniform(1, sizeof(SphereAnimUniforms));
         frameResources[i].sphereRenderer = std::make_unique<Vulcant::Rendering::SphereRenderer>(*device, glm::ivec2(0, 0), MAX_SPHERES);
         frameResources[i].sphereRenderer->setActiveSphereCount(activeSphereCount);
+
+        frameResources[i].cubeRenderer   = std::make_unique<Vulcant::Rendering::CubeRenderer>(*device, glm::ivec2(0, 0), MAX_SPHERES);
+        frameResources[i].cubeRenderer->setCubesBuffer(frameResources[i].sphereRenderer->getSpheresBuffer(), activeSphereCount);
     }
 
     const auto* anim_slang = SphereAnimation_spirv;
@@ -368,6 +410,9 @@ void SphereRasterizer::changeResolution(const glm::ivec2& newResolution)
         frame.sphereRenderer->setOutputTextures(*color, *depth, *normal);
         frame.sphereRenderer->setResolution(resolution);
 
+        frame.cubeRenderer->setOutputTextures(*color, *depth, *normal);
+        frame.cubeRenderer->setResolution(resolution);
+
         frame.animSet = device->createSet(
             { { frame.animUbo->asResource(), sphereInitBuffer->asResource(), frame.sphereRenderer->getSpheresBuffer().asResource() } },
             *animShader);
@@ -381,8 +426,16 @@ void SphereRasterizer::prepareRun()
     auto& frame = frameResources[currentFrame];
     auto  s     = cam->getScene();
 
-    frame.sphereRenderer->setSceneData(s);
-    frame.sphereRenderer->setCullingEnabled(enableCulling);
+    if (renderMode == RenderMode::Spheres)
+    {
+        frame.sphereRenderer->setSceneData(s);
+        frame.sphereRenderer->setCullingEnabled(enableCulling);
+    }
+    else
+    {
+        frame.cubeRenderer->setSceneData(s);
+        frame.cubeRenderer->setCullingEnabled(enableCulling);
+    }
 
     SphereAnimUniforms animUnif;
     animUnif.time              = elapsedTime;

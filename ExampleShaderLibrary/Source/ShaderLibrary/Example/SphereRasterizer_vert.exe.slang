@@ -1,11 +1,5 @@
 import Render.Scene;
-import Utility.HalfPacking;
-
-struct SphereData
-{
-    float3 center;
-    uint radiusHalfAndColor; // bits 0..15 = FP16 radius, bits 16..31 = RGBA4444 color
-};
+import Example.BillboardRasterizer;
 
 struct SphereVertexOutput
 {
@@ -23,15 +17,6 @@ struct SphereVertexOutput
 // Set 1: Spheres
 [[vk::binding(0, 1)]] StructuredBuffer<SphereData> gSpheres;
 
-static const float2 quadOffsets[6] = {
-    float2(-1.0, -1.0),
-    float2( 1.0, -1.0),
-    float2( 1.0,  1.0),
-    float2(-1.0, -1.0),
-    float2( 1.0,  1.0),
-    float2(-1.0,  1.0)
-};
-
 [shader("vertex")]
 SphereVertexOutput main(uint vertexID : SV_VertexID, uint instanceID : SV_InstanceID)
 {
@@ -42,7 +27,7 @@ SphereVertexOutput main(uint vertexID : SV_VertexID, uint instanceID : SV_Instan
     float2 quadPos = quadOffsets[cornerID];
 
     SphereData sphere = gSpheres[sphereID];
-    float radius = unpackHalf(sphere.radiusHalfAndColor & 0xFFFFu);
+    float radius = sphere.getRadius();
     float r = abs(radius);
 
     // Center in view space
@@ -59,14 +44,7 @@ SphereVertexOutput main(uint vertexID : SV_VertexID, uint instanceID : SV_Instan
     // Pass projection parameters for exact depth calculation in fragment shader without needing descriptor sets
     output.projParams = float4(scene.projectionMatrix[2][2], scene.projectionMatrix[2][3], scene.projectionMatrix[3][2], scene.projectionMatrix[3][3]);
 
-    // Unpack RGBA4444 color
-    uint color16 = sphere.radiusHalfAndColor >> 16u;
-    output.color = float4(
-        float(color16 & 0x0Fu) / 15.0,
-        float((color16 >> 4u) & 0x0Fu) / 15.0,
-        float((color16 >> 8u) & 0x0Fu) / 15.0,
-        float((color16 >> 12u) & 0x0Fu) / 15.0
-    );
+    output.color = sphere.getColor();
 
     return output;
 }
