@@ -36,9 +36,9 @@ namespace Vulcant::Rendering
         virtual void setActive(bool a) override { active = a; }
 
         virtual double getTranslationSensitivity() const override { return panSpeed; }
-        virtual void   setTranslationSensitivity(double s) override { panSpeed = s; }
+        virtual void   setTranslationSensitivity(double s) override { panSpeed = static_cast<float>(s); }
         virtual double getRotationSensitivity() const override { return rotateSensitivity; }
-        virtual void   setRotationSensitivity(double s) override { rotateSensitivity = s; }
+        virtual void   setRotationSensitivity(double s) override { rotateSensitivity = static_cast<float>(s); }
 
         virtual SceneData getScene() const override;
 
