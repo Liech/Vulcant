@@ -41,21 +41,7 @@ struct SphereAnimUniforms
     uint32_t pad2;
 };
 
-struct VkDrawIndirectCommandCPU
-{
-    uint32_t vertexCount;
-    uint32_t instanceCount;
-    uint32_t firstVertex;
-    uint32_t firstInstance;
-};
-
-struct CullParams
-{
-    uint32_t activeSphereCount;
-    uint32_t enableCulling;
-    uint32_t pad0;
-    uint32_t pad1;
-};
+#include "Rendering/SphereRenderer.h"
 
 struct FrameResources
 {
@@ -66,18 +52,12 @@ struct FrameResources
     std::unique_ptr<Vulcant::VulcantComputeCommand> animCmd;
     std::unique_ptr<Vulcant::VulcantComputeCommand> cullcmd;
 
-    // Buffers
-    std::unique_ptr<Vulcant::VulcantBuffer> sceneDataUbo;
-    std::unique_ptr<Vulcant::VulcantBuffer> spheresBuffer;
+    // Buffers & Sets
     std::unique_ptr<Vulcant::VulcantBuffer> animUbo;
-    std::unique_ptr<Vulcant::VulcantBuffer> culledSpheresBuffer;
-    std::unique_ptr<Vulcant::VulcantBuffer> indirectDrawBuffer;
-    std::unique_ptr<Vulcant::VulcantBuffer> cullParamsUbo;
+    std::unique_ptr<Vulcant::VulcantSet>    animSet;
 
-    // Sets
-    std::unique_ptr<Vulcant::VulcantSet> graphicSet;
-    std::unique_ptr<Vulcant::VulcantSet> cullSet;
-    std::unique_ptr<Vulcant::VulcantSet> animSet;
+    // Renderer
+    std::unique_ptr<Vulcant::Rendering::SphereRenderer> sphereRenderer;
 };
 
 class SphereRasterizer : public Vulcant::Examples::Example
@@ -144,14 +124,8 @@ class SphereRasterizer : public Vulcant::Examples::Example
     uint32_t                    currentFrame = 0;
 
     std::unique_ptr<Vulcant::Rendering::DeferredShading> deferred;
-    std::unique_ptr<Vulcant::VulcantBuffer>              spheresBuffer;
     std::unique_ptr<Vulcant::VulcantBuffer>              sphereInitBuffer;
-
     std::unique_ptr<Vulcant::VulcantShader>              animShader;
-    std::unique_ptr<Vulcant::VulcantShader>              cullShader;
-    std::unique_ptr<Vulcant::VulcantShader>              vertShader;
-    std::unique_ptr<Vulcant::VulcantShader>              fragShader;
-    std::unique_ptr<Vulcant::VulcantGraphicPipeline>     pipeline;
 
     std::unique_ptr<Vulcant::VulcantImage>               color;
     std::unique_ptr<Vulcant::VulcantImage>               depth;
