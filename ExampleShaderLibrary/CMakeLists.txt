@@ -53,6 +53,8 @@ set(Example_Files
     "Source/ShaderLibrary/Example/CubeRasterizer_frag.exe.slang"
     "Source/ShaderLibrary/Example/SphereAnimation.exe.slang"
     "Source/ShaderLibrary/Example/SphereFrustumCull_comp.exe.slang"
+    "Source/ShaderLibrary/Example/MeshRasterizer_vert.exe.slang"
+    "Source/ShaderLibrary/Example/MeshRasterizer_frag.exe.slang"
 )
 source_group("Source/Example" FILES ${Example_Files})
 

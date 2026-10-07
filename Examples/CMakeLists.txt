@@ -15,6 +15,8 @@ set(Rendering_Files
     "Source/Rendering/SphereRenderer.cpp"
     "Source/Rendering/CubeRenderer.h"
     "Source/Rendering/CubeRenderer.cpp"
+    "Source/Rendering/MeshRenderer.h"
+    "Source/Rendering/MeshRenderer.cpp"
     "Source/Rendering/Light.h"
     "Source/Rendering/Camera.h"
     "Source/Rendering/Freecam.h"

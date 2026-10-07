@@ -7,7 +7,7 @@
 
 namespace Vulcant::Rendering
 {
-    class SceneData;
+    struct SceneData;
 
     class Freecam : public Camera
     {
