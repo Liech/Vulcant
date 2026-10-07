@@ -5,7 +5,9 @@
 #include "Examples/SphereRasterizerScenes/FloatingSpheresScene.h"
 #include "Examples/SphereRasterizerScenes/HillLandscapeScene.h"
 #include "Rendering/DeferredShading.h"
+#include "Rendering/Camera.h"
 #include "Rendering/Freecam.h"
+#include "Rendering/ArcCam.h"
 #include "ShaderLibrary/Example/SphereAnimation.h"
 #include "Vulcant/Interface/VulcantBuffer.h"
 #include "Vulcant/Interface/VulcantComputeCommand.h"
@@ -130,7 +132,9 @@ void SphereRasterizer::createWindow(Vulcant::VulcantDevice& deviceInput, const g
     glm::vec3 eye(0.0f, 4.0f, 8.0f);
     glm::vec3 center(0.0f, 0.0f, 0.0f);
     glm::vec3 up(0.0f, 1.0f, 0.0f);
-    cam = std::make_unique<Vulcant::Rendering::Freecam>(*window, eye, center, up);
+    freecam = std::make_unique<Vulcant::Rendering::Freecam>(*window, eye, center, up);
+    arccam  = std::make_unique<Vulcant::Rendering::ArcCam>(*window, eye, center, up);
+    cam     = freecam.get();
 
     prepare(deviceInput, resolution);
 
@@ -249,6 +253,35 @@ void SphereRasterizer::createWindow(Vulcant::VulcantDevice& deviceInput, const g
           }
           ImGui::Separator();
 
+          ImGui::Text("Camera Mode:");
+          int camInt = (cameraType == CameraType::Freecam) ? 0 : 1;
+          if (ImGui::RadioButton("Freecam (WASD + Mouse)", &camInt, 0))
+          {
+              if (cameraType != CameraType::Freecam)
+              {
+                  cameraType = CameraType::Freecam;
+                  freecam->setEye(arccam->getEye());
+                  freecam->setTarget(arccam->getTarget());
+                  freecam->setUp(arccam->getUp());
+                  freecam->setActive(arccam->isActive());
+                  cam = freecam.get();
+              }
+          }
+          ImGui::SameLine();
+          if (ImGui::RadioButton("ArcCam (Orbit / Pan)", &camInt, 1))
+          {
+              if (cameraType != CameraType::ArcCam)
+              {
+                  cameraType = CameraType::ArcCam;
+                  arccam->setEye(freecam->getEye());
+                  arccam->setTarget(freecam->getTarget());
+                  arccam->setUp(freecam->getUp());
+                  arccam->setActive(freecam->isActive());
+                  cam = arccam.get();
+              }
+          }
+          ImGui::Separator();
+
           if (!scenes.empty())
           {
               if (ImGui::BeginCombo("Scene", scenes[currentSceneIndex]->getName().c_str()))
@@ -357,7 +390,30 @@ void SphereRasterizer::createWindow(Vulcant::VulcantDevice& deviceInput, const g
     window->getInput().setCallback(
       [this](const Vulcant::VulcantInputValue& key)
       {
-          if (cam->keyEvent(key))
+          if (key == Vulcant::VulcantInputValue::C)
+          {
+              if (cameraType == CameraType::Freecam)
+              {
+                  cameraType = CameraType::ArcCam;
+                  arccam->setEye(freecam->getEye());
+                  arccam->setTarget(freecam->getTarget());
+                  arccam->setUp(freecam->getUp());
+                  arccam->setActive(freecam->isActive());
+                  cam = arccam.get();
+              }
+              else
+              {
+                  cameraType = CameraType::Freecam;
+                  freecam->setEye(arccam->getEye());
+                  freecam->setTarget(arccam->getTarget());
+                  freecam->setUp(arccam->getUp());
+                  freecam->setActive(arccam->isActive());
+                  cam = freecam.get();
+              }
+              return;
+          }
+
+          if (cam && cam->keyEvent(key))
               return;
       });
 }

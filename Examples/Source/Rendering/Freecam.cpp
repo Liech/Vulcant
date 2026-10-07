@@ -44,19 +44,18 @@ namespace Vulcant::Rendering
         auto             currentPos = input.getMousePosition();
         auto             diff       = lastMousePosition == mouseCenter ? lastMousePosition - currentPos : glm::dvec2(0.0);
         lastMousePosition = mouseCenter;
-        float sensitivity = 0.0002f;
 
         glm::dvec3 lookDir  = glm::normalize(target - eye);
         glm::dvec3 right    = glm::normalize(glm::cross(lookDir, up));
         glm::dvec3 actualUp = glm::normalize(glm::cross(right, lookDir));
 
-        glm::dmat4 rotY = glm::rotate(glm::dmat4(1.0), diff.x * sensitivity, actualUp);
-        glm::dmat4 rotX = glm::rotate(glm::dmat4(1.0), -diff.y * sensitivity, right);
+        glm::dmat4 rotY = glm::rotate(glm::dmat4(1.0), diff.x * rotationSensitivity, actualUp);
+        glm::dmat4 rotX = glm::rotate(glm::dmat4(1.0), -diff.y * rotationSensitivity, right);
 
         lookDir = glm::mat3(rotY * rotX) * lookDir;
         target  = eye + lookDir;
 
-        double velocity = 5.0 * (double)deltaTime;
+        double velocity = translationSpeed * (double)deltaTime;
         if (input.isPressed(Vulcant::VulcantInputValue::W))
         {
             eye += lookDir * velocity;

@@ -32,6 +32,7 @@ namespace Vulcant::Wrapper
         static void framebufferResizeCallback(GLFWwindow* window, int width, int height);
         static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
         static void mouseCallback(GLFWwindow* window, int button, int action, int mods);
+        static void scrollCallback(GLFWwindow* window, double xoffset, double yoffset);
 
         GLFWwindow*                     window;
         unsigned int                    numberOfSwapchainImages;
@@ -293,6 +294,19 @@ namespace Vulcant::Wrapper
         }
     }
 
+    void Window::pimpl::scrollCallback(GLFWwindow* window, double xoffset, double yoffset)
+    {
+        auto app = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
+        if (yoffset > 0.0)
+        {
+            app->inputQueue.push_back(VulcantInputValue::MouseWheelUp);
+        }
+        else if (yoffset < 0.0)
+        {
+            app->inputQueue.push_back(VulcantInputValue::MouseWheelDown);
+        }
+    }
+
     void Window::pimpl::framebufferResizeCallback(GLFWwindow* window, int width, int height)
     {
         auto app                = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
@@ -342,6 +356,7 @@ namespace Vulcant::Wrapper
         glfwSetWindowUserPointer(p->window, this);
         glfwSetKeyCallback(p->window, Window::pimpl::keyCallback);
         glfwSetMouseButtonCallback(p->window, Window::pimpl::mouseCallback);
+        glfwSetScrollCallback(p->window, Window::pimpl::scrollCallback);
     }
 
     std::vector<std::string> Window::getVulkanExtensions()

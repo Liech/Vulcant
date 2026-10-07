@@ -16,8 +16,11 @@ set(Rendering_Files
     "Source/Rendering/CubeRenderer.h"
     "Source/Rendering/CubeRenderer.cpp"
     "Source/Rendering/Light.h"
+    "Source/Rendering/Camera.h"
     "Source/Rendering/Freecam.h"
     "Source/Rendering/Freecam.cpp"
+    "Source/Rendering/ArcCam.h"
+    "Source/Rendering/ArcCam.cpp"
 )
 source_group("Source/Rendering" FILES ${Rendering_Files})
 

@@ -13,7 +13,9 @@
 #include "Vulcant/Interface/VulcantShader.h"
 #include "Vulcant/Interface/VulcantWindow.h"
 #include "Rendering/DeferredShading.h"
+#include "Rendering/Camera.h"
 #include "Rendering/Freecam.h"
+#include "Rendering/ArcCam.h"
 #include "Vulcant/Wrapper/Window.h"
 #include "Vulcant/VulcantV/VulcantVDevice.h"
 #include "ShaderLibrary/Example/CubeCaster.h"
@@ -51,12 +53,14 @@ namespace Vulcant::Examples
     void CubeCasterFreecam::createWindow(Vulcant::VulcantDevice& device, const glm::ivec2& res)
     {
         resolution = res;
-        window     = device.createWindow(resolution, "Cube Window (ESC + WASD + Mouse)");
+        window     = device.createWindow(resolution, "Cube Window (C: Switch Cam | ESC: Focus | WASD/Mouse)");
 
         glm::vec3 eye    = glm::vec3(0.0, 0.0, 3.0);
-        glm::vec3 center = glm::vec3(0,0, 0.0);
+        glm::vec3 center = glm::vec3(0.0, 0.0, 0.0);
         glm::vec3 up     = glm::vec3(0.0, 1.0, 0.0);
-        cam        = std::make_unique<Vulcant::Rendering::Freecam>(*window, eye,center,up);
+        freecam    = std::make_unique<Vulcant::Rendering::Freecam>(*window, eye, center, up);
+        arccam     = std::make_unique<Vulcant::Rendering::ArcCam>(*window, eye, center, up);
+        cam        = freecam.get();
         prepare(device, resolution);
 
         auto rec = [this, &device]()
@@ -100,7 +104,30 @@ namespace Vulcant::Examples
         window->getInput().setCallback(
           [this](const Vulcant::VulcantInputValue& key)
           {
-              if (cam->keyEvent(key))
+              if (key == Vulcant::VulcantInputValue::C)
+              {
+                  if (cameraType == CameraType::Freecam)
+                  {
+                      cameraType = CameraType::ArcCam;
+                      arccam->setEye(freecam->getEye());
+                      arccam->setTarget(freecam->getTarget());
+                      arccam->setUp(freecam->getUp());
+                      arccam->setActive(freecam->isActive());
+                      cam = arccam.get();
+                  }
+                  else
+                  {
+                      cameraType = CameraType::Freecam;
+                      freecam->setEye(arccam->getEye());
+                      freecam->setTarget(arccam->getTarget());
+                      freecam->setUp(arccam->getUp());
+                      freecam->setActive(arccam->isActive());
+                      cam = freecam.get();
+                  }
+                  return;
+              }
+
+              if (cam && cam->keyEvent(key))
                   return;
           });
     }

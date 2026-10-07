@@ -24,7 +24,9 @@ namespace Vulcant
     {
         struct Light;
         class DeferredShading;
+        class Camera;
         class Freecam;
+        class ArcCam;
     }
 }
 
@@ -137,5 +139,10 @@ class SphereRasterizer : public Vulcant::Examples::Example
 
     std::unique_ptr<Vulcant::VulcantWindow>              window;
     std::unique_ptr<Vulcant::VulcantUi>                  ui;
-    std::unique_ptr<Vulcant::Rendering::Freecam>         cam;
+
+    enum class CameraType { Freecam, ArcCam };
+    CameraType                                           cameraType = CameraType::Freecam;
+    std::unique_ptr<Vulcant::Rendering::Freecam>         freecam;
+    std::unique_ptr<Vulcant::Rendering::ArcCam>          arccam;
+    Vulcant::Rendering::Camera*                          cam = nullptr;
 };

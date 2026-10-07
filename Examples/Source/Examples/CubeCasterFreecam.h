@@ -22,7 +22,9 @@ namespace Vulcant
 namespace Vulcant::Rendering
 {
     class DeferredShading;
+    class Camera;
     class Freecam;
+    class ArcCam;
 }
 
 namespace Vulcant::Examples
@@ -86,6 +88,11 @@ namespace Vulcant::Examples
         std::unique_ptr<Vulcant::VulcantComputeCommand>             cmd;
         std::unique_ptr<Vulcant::VulcantComputeCommand>             defcmd;
         std::unique_ptr<Vulcant::VulcantWindow>              window;
-        std::unique_ptr<Vulcant::Rendering::Freecam>         cam;
+
+        enum class CameraType { Freecam, ArcCam };
+        CameraType                                           cameraType = CameraType::Freecam;
+        std::unique_ptr<Vulcant::Rendering::Freecam>         freecam;
+        std::unique_ptr<Vulcant::Rendering::ArcCam>          arccam;
+        Vulcant::Rendering::Camera*                          cam = nullptr;
     };
 }
