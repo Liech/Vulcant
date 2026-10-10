@@ -57,6 +57,7 @@ namespace Vulcant::Rendering
         scene.invViewMatrix = glm::inverse(scene.viewMatrix);
 
         scene.projectionMatrix    = glm::perspective(fovY, aspect, zNear, zFar);
+        scene.projectionMatrix[1][1] *= -1.0f;
         scene.invProjectionMatrix = glm::inverse(scene.projectionMatrix);
         scene.cameraPos           = glm::vec4(eye, 1.0f);
         scene.resolution          = window.getResolution();
