@@ -1,11 +1,11 @@
 #pragma once
 
 #include "VulcanGraphicPipeline.h"
+#include "Vulcant/Wrapper/Helper/VulcanBarrier.h"
+#include "Vulcant/Wrapper/Helper/VulcanCommand.h"
 #include "Vulcant/Wrapper/VulcanBuffer.h"
 #include "Vulcant/Wrapper/VulcanImage.h"
 #include "Vulcant/Wrapper/VulcanSet.h"
-#include "Vulcant/Wrapper/Helper/VulcanBarrier.h"
-#include "Vulcant/Wrapper/Helper/VulcanCommand.h"
 
 #include <glm/glm.hpp>
 #include <memory>
@@ -15,8 +15,15 @@ namespace Vulcant::Wrapper
 {
     class VulcanGraphicCommand
     {
-    public:
-        enum class status { ready, started, inRenderPass, filled, ongpu };
+      public:
+        enum class status
+        {
+            ready,
+            started,
+            inRenderPass,
+            filled,
+            ongpu
+        };
 
         VulcanGraphicCommand(VulcanPool& poolInput, VulcanDevice& deviceInput);
         ~VulcanGraphicCommand();
@@ -24,25 +31,21 @@ namespace Vulcant::Wrapper
         void startRecord();
         void endRecord();
 
-        // 1. Render-Pass starten
+        void setClearColor(const glm::vec4& color);
+        void setClearDepth(float depth, uint32_t stencil = 0);
+        void setClearValues(const std::vector<VkClearValue>& values);
+
         void beginRendering(VulcanGraphicPipeline& pipeline);
+        void beginRendering(VulcanGraphicPipeline& pipeline, const glm::vec4& clearColorInput);
         void endRendering();
 
         // 2. Dynamic States setzen
         void setViewportAndScissor(glm::uvec2 extent);
 
         // 3. Render Pipeline & Draw Call
-        void draw(uint32_t vertexCount, 
-                  VulcanSet* set = nullptr, 
-                  VulcanBuffer* vertexBuffer = nullptr,
-                  uint32_t instanceCount = 1);
+        void draw(uint32_t vertexCount, VulcanSet* set = nullptr, VulcanBuffer* vertexBuffer = nullptr, uint32_t instanceCount = 1);
 
-        void drawIndirect(VulcanBuffer& indirectBuffer,
-                          VulcanSet* set = nullptr,
-                          VulcanBuffer* vertexBuffer = nullptr,
-                          uint32_t offset = 0,
-                          uint32_t drawCount = 1,
-                          uint32_t stride = 16);
+        void drawIndirect(VulcanBuffer& indirectBuffer, VulcanSet* set = nullptr, VulcanBuffer* vertexBuffer = nullptr, uint32_t offset = 0, uint32_t drawCount = 1, uint32_t stride = 16);
 
         void addBarrier(VulcanImage& inputImg, const VulcantResourceLayout& dest);
         void addBarrier(VulcanBuffer& buffer);
@@ -51,14 +54,22 @@ namespace Vulcant::Wrapper
         void runSync();
         void wait();
 
-        VkCommandBuffer __getCommandBuffer() { return cmd->getCommandBuffer(); }
+        VkCommandBuffer __getCommandBuffer()
+        {
+            return cmd->getCommandBuffer();
+        }
 
-    private:
-        VulcanDevice& device;
-        VulcanPool& pool;
+      private:
+        VulcanDevice&                  device;
+        VulcanPool&                    pool;
         VulcanGraphicPipeline*         currentPipeline = nullptr;
         std::unique_ptr<VulcanCommand> cmd;
         std::unique_ptr<VulcanBarrier> barrier;
-        status currentStatus = status::ready;
+        status                         currentStatus = status::ready;
+
+        glm::vec4                 clearColor   = glm::vec4(0.1f, 0.1f, 0.15f, 1.0f);
+        float                     clearDepth   = 1.0f;
+        uint32_t                  clearStencil = 0;
+        std::vector<VkClearValue> customClearValues;
     };
 }

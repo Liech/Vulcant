@@ -7,6 +7,7 @@
 #include "UiExample.h"
 #include "GraphicPipelineTriangle.h"
 #include "GraphicPipelineCube.h"
+#include "MeshRendererUi.h"
 #include "SphereRasterizer.h"
 
 namespace Vulcant::Examples
@@ -22,6 +23,7 @@ namespace Vulcant::Examples
         result.push_back(std::make_shared<GraphicPipelineTriangle>());
         result.push_back(std::make_shared<GraphicPipelineCube>());
         result.push_back(std::make_shared<SphereRasterizer>());
+        result.push_back(std::make_shared<MeshRendererUi>());
         return result;
     }
 }

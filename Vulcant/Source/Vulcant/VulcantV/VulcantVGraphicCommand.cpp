@@ -1,13 +1,13 @@
 #include "VulcantVGraphicCommand.h"
 
+#include "Vulcant/VulcantV/VulcantVBuffer.h"
+#include "Vulcant/VulcantV/VulcantVGraphicPipeline.h"
+#include "Vulcant/VulcantV/VulcantVImage.h"
+#include "Vulcant/VulcantV/VulcantVSet.h"
+#include "Vulcant/VulcantV/VulcantVShader.h"
 #include "Vulcant/Wrapper/Graphic/VulcanGraphicCommand.h"
 #include "Vulcant/Wrapper/VulcanImage.h"
 #include "Vulcant/Wrapper/VulcanShader.h"
-#include "Vulcant/VulcantV/VulcantVImage.h"
-#include "Vulcant/VulcantV/VulcantVShader.h"
-#include "Vulcant/VulcantV/VulcantVSet.h"
-#include "Vulcant/VulcantV/VulcantVGraphicPipeline.h"
-#include "Vulcant/VulcantV/VulcantVBuffer.h"
 
 namespace Vulcant::VulcantV
 {
@@ -40,10 +40,21 @@ namespace Vulcant::VulcantV
         cmd->endRecord();
     }
 
+    void VulcantVGraphicCommand::setClearColor(const glm::vec4& color)
+    {
+        cmd->setClearColor(color);
+    }
+
     void VulcantVGraphicCommand::beginRendering(Vulcant::VulcantGraphicPipeline& pipeline)
     {
         auto& vPipe = (Vulcant::VulcantV::VulcantVGraphicPipeline&)pipeline;
         cmd->beginRendering(*vPipe.pipe);
+    }
+
+    void VulcantVGraphicCommand::beginRendering(Vulcant::VulcantGraphicPipeline& pipeline, const glm::vec4& clearColor)
+    {
+        auto& vPipe = (Vulcant::VulcantV::VulcantVGraphicPipeline&)pipeline;
+        cmd->beginRendering(*vPipe.pipe, clearColor);
     }
 
     void VulcantVGraphicCommand::endRendering()
@@ -99,8 +110,8 @@ namespace Vulcant::VulcantV
 }
 
 #ifdef ISTESTPROJECT
-#include <catch2/catch_test_macros.hpp>
 #include "VulcantVDevice.h"
+#include <catch2/catch_test_macros.hpp>
 
 // Note: Graphic pipeline shader tests with source strings are omitted as ShaderCompiler currently defaults to compute shader stage.
 #endif

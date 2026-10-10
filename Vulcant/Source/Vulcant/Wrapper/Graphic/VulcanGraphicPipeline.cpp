@@ -59,7 +59,7 @@ namespace Vulcant::Wrapper
     {
         return extent;
     }
-    
+
     const std::vector<VkClearValue>& VulcanGraphicPipeline::getClearValues() const
     {
         return clearValues;
@@ -73,7 +73,18 @@ namespace Vulcant::Wrapper
         for (size_t i = 0; i < color.size(); i++)
         {
             VkClearValue cv{};
-            cv.color = { { 0.0f, 0.0f, 0.0f, 0.0f } };
+            if (i == 0)
+            {
+                cv.color = {
+                    { 0.1f, 0.1f, 0.15f, 1.0f }
+                };
+            }
+            else
+            {
+                cv.color = {
+                    { 0.0f, 0.0f, 0.0f, 0.0f }
+                };
+            }
             clearValues.push_back(cv);
         }
 

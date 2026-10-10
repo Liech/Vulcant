@@ -33,6 +33,28 @@ namespace Vulcant::Wrapper
         currentStatus = status::started;
     }
 
+    void VulcanGraphicCommand::setClearColor(const glm::vec4& color)
+    {
+        clearColor = color;
+    }
+
+    void VulcanGraphicCommand::setClearDepth(float depth, uint32_t stencil)
+    {
+        clearDepth   = depth;
+        clearStencil = stencil;
+    }
+
+    void VulcanGraphicCommand::setClearValues(const std::vector<VkClearValue>& values)
+    {
+        customClearValues = values;
+    }
+
+    void VulcanGraphicCommand::beginRendering(VulcanGraphicPipeline& pipeline, const glm::vec4& clearColorInput)
+    {
+        setClearColor(clearColorInput);
+        beginRendering(pipeline);
+    }
+
     void VulcanGraphicCommand::beginRendering(VulcanGraphicPipeline& pipeline)
     {
         assert(currentStatus == status::started);
@@ -47,7 +69,32 @@ namespace Vulcant::Wrapper
         renderPassInfo.renderArea.offset = { 0, 0 };
         renderPassInfo.renderArea.extent = { pipeline.getExtent().x, pipeline.getExtent().y };
 
-        auto clearValues               = pipeline.getClearValues();
+        std::vector<VkClearValue> clearValues;
+        if (!customClearValues.empty())
+        {
+            clearValues = customClearValues;
+        }
+        else
+        {
+            const auto& pipeClearValues = pipeline.getClearValues();
+            clearValues.reserve(pipeClearValues.size());
+            for (size_t i = 0; i < pipeClearValues.size(); ++i)
+            {
+                if (i == 0)
+                {
+                    VkClearValue cv{};
+                    cv.color = {
+                        { clearColor.r, clearColor.g, clearColor.b, clearColor.a }
+                    };
+                    clearValues.push_back(cv);
+                }
+                else
+                {
+                    clearValues.push_back(pipeClearValues[i]);
+                }
+            }
+        }
+
         renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
         renderPassInfo.pClearValues    = clearValues.data();
 

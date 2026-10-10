@@ -426,7 +426,7 @@ namespace Vulcant::Wrapper
         blitRegion.dstOffsets[0]  = { 0, 0, 0 };
         blitRegion.dstOffsets[1]  = { static_cast<int32_t>(p->resolution.x), static_cast<int32_t>(p->resolution.y), 1 };
 
-        vkCmdBlitImage(cmdBuffer, srcImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, dstImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &blitRegion, VK_FILTER_LINEAR);
+        vkCmdBlitImage(cmdBuffer, srcImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, dstImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &blitRegion, VK_FILTER_NEAREST);
 
         VkImageMemoryBarrier barrierDstEnd{};
         barrierDstEnd.sType            = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;

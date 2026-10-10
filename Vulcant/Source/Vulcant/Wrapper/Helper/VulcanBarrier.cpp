@@ -53,6 +53,10 @@ namespace Vulcant::Wrapper
         {
             source = formerLayouts[img];
         }
+        else if (dest == VulcantResourceLayout::ColorAttachment)
+        {
+            source = VulcantResourceLayout::TransferSrc;
+        }
         addBarrier(inputImg, source, dest); 
         formerLayouts[img] = dest;
     }
@@ -104,12 +108,25 @@ namespace Vulcant::Wrapper
             barrier.dstAccessMask = VK_ACCESS_SHADER_WRITE_BIT;
             srcStage              = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
         }
-        // Neu: Übergang zu Color Attachment (Graphics RenderPass Start)
+        // Übergang zu Color Attachment (Graphics RenderPass Start)
         else if (new_layout == VulcantResourceLayout::ColorAttachment)
         {
-            barrier.srcAccessMask = (old_layout == VulcantResourceLayout::General) ? VK_ACCESS_SHADER_WRITE_BIT : 0;
+            if (old_layout == VulcantResourceLayout::General)
+            {
+                barrier.srcAccessMask = VK_ACCESS_SHADER_WRITE_BIT;
+                srcStage              = VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT;
+            }
+            else if (old_layout == VulcantResourceLayout::TransferSrc)
+            {
+                barrier.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_TRANSFER_READ_BIT;
+                srcStage              = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_TRANSFER_BIT;
+            }
+            else
+            {
+                barrier.srcAccessMask = 0;
+                srcStage              = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+            }
             barrier.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_COLOR_ATTACHMENT_READ_BIT;
-            srcStage              = (old_layout == VulcantResourceLayout::General) ? VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT : VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
             dstStage              = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
         }
         // Neu: Übergang zu Depth/Stencil Attachment (Depth Pass Start)

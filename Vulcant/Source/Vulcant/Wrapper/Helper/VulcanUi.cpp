@@ -148,9 +148,9 @@ namespace Vulcant::Wrapper
         }
         else
         {
-            // Compute-to-graphics setup: Wait for compute storage writes to finish
-            dependency.srcStageMask  = VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT;
-            dependency.srcAccessMask = VK_ACCESS_SHADER_WRITE_BIT;
+            // Wait for previous graphics, compute storage or transfer writes to finish
+            dependency.srcStageMask  = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT | VK_PIPELINE_STAGE_TRANSFER_BIT;
+            dependency.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_SHADER_WRITE_BIT | VK_ACCESS_TRANSFER_WRITE_BIT;
         }
 
         dependency.dstStageMask  = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;

@@ -61,6 +61,8 @@ set(Example_Files
     "Source/Examples/GraphicPipelineCube.h"
     "Source/Examples/SphereRasterizer.cpp"
     "Source/Examples/SphereRasterizer.h"
+    "Source/Examples/MeshRendererUi.cpp"
+    "Source/Examples/MeshRendererUi.h"
 )
 source_group("Source/Examples" FILES ${Example_Files})
 
