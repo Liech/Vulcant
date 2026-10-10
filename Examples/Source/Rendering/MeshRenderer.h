@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Rendering/MeshShaderParams.h"
 #include "Rendering/SceneData.h"
 #include <glm/glm.hpp>
 #include <memory>
@@ -28,6 +29,13 @@ namespace Vulcant::Rendering
     class MeshRenderer
     {
       public:
+        enum class WireframeMode
+        {
+            Off           = 0,
+            Overlay       = 1,
+            WireframeOnly = 2
+        };
+
         MeshRenderer();
         MeshRenderer(Vulcant::VulcantDevice& device, const glm::ivec2& resolution = glm::ivec2(0, 0));
         virtual ~MeshRenderer();
@@ -36,19 +44,15 @@ namespace Vulcant::Rendering
         void setResolution(const glm::ivec2& resolution);
         void setSceneData(const SceneData& sceneData);
 
-        // Upload mesh geometry
-        void setMesh(const std::vector<glm::vec3>& positions,
-                     const std::vector<uint32_t>&  indices,
-                     const glm::vec3&              color = glm::vec3(0.8f, 0.8f, 0.8f));
+        void             setWireframeMode(WireframeMode mode);
+        void             setWireframeColor(const glm::vec3& color);
+        WireframeMode    getWireframeMode() const;
+        const glm::vec3& getWireframeColor() const;
 
-        void setMesh(const std::vector<glm::vec3>& positions,
-                     const std::vector<glm::vec3>& normals,
-                     const std::vector<uint32_t>&  indices,
-                     const glm::vec3&              color = glm::vec3(0.8f, 0.8f, 0.8f));
-
+        void setMesh(const std::vector<glm::vec3>& positions, const std::vector<uint32_t>& indices, const glm::vec3& color = glm::vec3(0.8f, 0.8f, 0.8f));
+        void setMesh(const std::vector<glm::vec3>& positions, const std::vector<glm::vec3>& normals, const std::vector<uint32_t>& indices, const glm::vec3& color = glm::vec3(0.8f, 0.8f, 0.8f));
         void setVertices(const std::vector<MeshVertex>& vertices);
 
-        // Generic support for static Triangulation (duck-typed with .vertices and .indices)
         template<typename TTriangulation>
         void setTriangulation(const TTriangulation& tri, const glm::vec3& color = glm::vec3(0.8f, 0.8f, 0.8f))
         {
@@ -61,7 +65,6 @@ namespace Vulcant::Rendering
             std::vector<MeshVertex> meshVertices;
             meshVertices.reserve(tri.indices.size());
 
-            // STL/triangulation triangle soup: 3 indices per face
             for (size_t i = 0; i + 2 < tri.indices.size(); i += 3)
             {
                 size_t idx0 = tri.indices[i];
@@ -94,45 +97,43 @@ namespace Vulcant::Rendering
             setVertices(meshVertices);
         }
 
-        // Custom render targets (e.g. for DeferredShading G-Buffer integration)
         void setOutputTextures(Vulcant::VulcantImage& color, Vulcant::VulcantImage& depth, Vulcant::VulcantImage& normal);
 
-        // Descriptor sets & recording
         void updateDescriptorSets();
         void record(Vulcant::VulcantGraphicCommand& cmd);
 
-        // Texture accessors
         Vulcant::VulcantImage& getColor() const;
         Vulcant::VulcantImage& getDepth() const;
         Vulcant::VulcantImage& getNormal() const;
 
-        uint32_t getVertexCount() const { return vertexCount; }
-        uint32_t getTriangleCount() const { return vertexCount / 3; }
+        uint32_t getVertexCount() const;
+        uint32_t getTriangleCount() const;
 
       private:
         void createPipeline();
         void allocateOutputTextures();
+        void updateMeshParamsBuffer();
 
         Vulcant::VulcantDevice* device             = nullptr;
         glm::ivec2              resolution         = glm::ivec2(0, 0);
         uint32_t                vertexCount        = 0;
         bool                    ownsOutputTextures = true;
+        WireframeMode           wireframeMode      = WireframeMode::Off;
+        glm::vec3               wireframeColor     = glm::vec3(1.0f, 0.0f, 0.0f);
 
-        SceneData sceneData{};
+        SceneData        sceneData{};
+        MeshShaderParams meshParams{};
 
-        // Shaders & Pipeline
         std::unique_ptr<Vulcant::VulcantShader>          vertShader;
         std::unique_ptr<Vulcant::VulcantShader>          fragShader;
         std::unique_ptr<Vulcant::VulcantGraphicPipeline> pipeline;
 
-        // Buffers
         std::unique_ptr<Vulcant::VulcantBuffer> sceneDataUbo;
+        std::unique_ptr<Vulcant::VulcantBuffer> meshParamsUbo;
         std::unique_ptr<Vulcant::VulcantBuffer> vertexBuffer;
 
-        // Descriptor Set
         std::unique_ptr<Vulcant::VulcantSet> graphicSet;
 
-        // Output images
         std::unique_ptr<Vulcant::VulcantImage> internalColor;
         std::unique_ptr<Vulcant::VulcantImage> internalDepth;
         std::unique_ptr<Vulcant::VulcantImage> internalNormal;

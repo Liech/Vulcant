@@ -30,19 +30,19 @@ namespace Vulcant::Rendering
         device     = &deviceInput;
         resolution = res;
 
-        // Create SceneData UBO (bound to set 0, binding 0)
-        sceneDataUbo = device->createUniform(1, sizeof(SceneData));
+        sceneDataUbo  = device->createUniform(1, sizeof(SceneData));
+        meshParamsUbo = device->createUniform(1, sizeof(MeshShaderParams));
+        updateMeshParamsBuffer();
 
-        // Shaders
-        const auto* vert_slang = MeshRasterizer_vert_spirv;
-        auto        vert_size  = MeshRasterizer_vert_spirv_sizeInBytes;
-        auto        vert_spirv = std::vector<uint32_t>(vert_slang, vert_slang + vert_size / sizeof(uint32_t));
-        vertShader             = device->createShader(vert_spirv);
+        const auto* vertSlang = MeshRasterizer_vert_spirv;
+        auto        vertSize  = MeshRasterizer_vert_spirv_sizeInBytes;
+        auto        vertSpirv = std::vector<uint32_t>(vertSlang, vertSlang + vertSize / sizeof(uint32_t));
+        vertShader            = device->createShader(vertSpirv);
 
-        const auto* frag_slang = MeshRasterizer_frag_spirv;
-        auto        frag_size  = MeshRasterizer_frag_spirv_sizeInBytes;
-        auto        frag_spirv = std::vector<uint32_t>(frag_slang, frag_slang + frag_size / sizeof(uint32_t));
-        fragShader             = device->createShader(frag_spirv);
+        const auto* fragSlang = MeshRasterizer_frag_spirv;
+        auto        fragSize  = MeshRasterizer_frag_spirv_sizeInBytes;
+        auto        fragSpirv = std::vector<uint32_t>(fragSlang, fragSlang + fragSize / sizeof(uint32_t));
+        fragShader            = device->createShader(fragSpirv);
 
         if (resolution.x > 0 && resolution.y > 0)
         {
@@ -82,9 +82,7 @@ namespace Vulcant::Rendering
         depth  = internalDepth.get();
     }
 
-    void MeshRenderer::setOutputTextures(Vulcant::VulcantImage& colorInput,
-                                         Vulcant::VulcantImage& depthInput,
-                                         Vulcant::VulcantImage& normalInput)
+    void MeshRenderer::setOutputTextures(Vulcant::VulcantImage& colorInput, Vulcant::VulcantImage& depthInput, Vulcant::VulcantImage& normalInput)
     {
         ownsOutputTextures = false;
         color              = &colorInput;
@@ -111,12 +109,14 @@ namespace Vulcant::Rendering
 
     void MeshRenderer::updateDescriptorSets()
     {
-        if (!device || !vertShader || !sceneDataUbo)
+        if (!device || !vertShader || !sceneDataUbo || !meshParamsUbo)
             return;
 
         graphicSet = device->createSet(
-            { { sceneDataUbo->asResource() } },
-            *vertShader);
+          {
+            { sceneDataUbo->asResource(), meshParamsUbo->asResource() }
+        },
+          *vertShader);
     }
 
     void MeshRenderer::setSceneData(const SceneData& newSceneData)
@@ -128,22 +128,53 @@ namespace Vulcant::Rendering
         }
     }
 
+    void MeshRenderer::setWireframeMode(WireframeMode mode)
+    {
+        wireframeMode = mode;
+        updateMeshParamsBuffer();
+    }
+
+    void MeshRenderer::setWireframeColor(const glm::vec3& colorVal)
+    {
+        wireframeColor = colorVal;
+        updateMeshParamsBuffer();
+    }
+
+    MeshRenderer::WireframeMode MeshRenderer::getWireframeMode() const
+    {
+        return wireframeMode;
+    }
+
+    const glm::vec3& MeshRenderer::getWireframeColor() const
+    {
+        return wireframeColor;
+    }
+
+    void MeshRenderer::updateMeshParamsBuffer()
+    {
+        meshParams.wireframeColor = glm::vec4(wireframeColor, 1.5f);
+        meshParams.wireframeMode  = static_cast<int>(wireframeMode);
+        if (meshParamsUbo)
+        {
+            meshParamsUbo->uploadToGPU(&meshParams, 1);
+        }
+    }
+
     void MeshRenderer::setVertices(const std::vector<MeshVertex>& vertices)
     {
         if (!device || vertices.empty())
         {
             vertexCount = 0;
+            vertexBuffer.reset();
             return;
         }
 
-        vertexCount = static_cast<uint32_t>(vertices.size());
+        vertexCount  = static_cast<uint32_t>(vertices.size());
         vertexBuffer = device->createVertexBuffer(vertexCount, sizeof(MeshVertex), false);
         vertexBuffer->uploadToGPU(vertices.data(), vertexCount, 0);
     }
 
-    void MeshRenderer::setMesh(const std::vector<glm::vec3>& positions,
-                               const std::vector<uint32_t>&  indices,
-                               const glm::vec3&              colorVal)
+    void MeshRenderer::setMesh(const std::vector<glm::vec3>& positions, const std::vector<uint32_t>& indices, const glm::vec3& colorVal)
     {
         if (positions.empty() || indices.empty())
         {
@@ -186,10 +217,7 @@ namespace Vulcant::Rendering
         setVertices(vertices);
     }
 
-    void MeshRenderer::setMesh(const std::vector<glm::vec3>& positions,
-                               const std::vector<glm::vec3>& normals,
-                               const std::vector<uint32_t>&  indices,
-                               const glm::vec3&              colorVal)
+    void MeshRenderer::setMesh(const std::vector<glm::vec3>& positions, const std::vector<glm::vec3>& normals, const std::vector<uint32_t>& indices, const glm::vec3& colorVal)
     {
         if (positions.empty() || indices.empty())
         {
@@ -234,9 +262,7 @@ namespace Vulcant::Rendering
 
         cmd.beginRendering(*pipeline);
         cmd.setViewportAndScissor(glm::uvec2(resolution.x, resolution.y));
-
         cmd.draw(vertexCount, graphicSet.get(), vertexBuffer.get());
-
         cmd.endRendering();
     }
 
@@ -253,5 +279,15 @@ namespace Vulcant::Rendering
     Vulcant::VulcantImage& MeshRenderer::getNormal() const
     {
         return *normal;
+    }
+
+    uint32_t MeshRenderer::getVertexCount() const
+    {
+        return vertexCount;
+    }
+
+    uint32_t MeshRenderer::getTriangleCount() const
+    {
+        return vertexCount / 3;
     }
 }
