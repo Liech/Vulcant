@@ -10,13 +10,18 @@
 
 namespace Vulcant::Wrapper
 {
-    VulcanGraphicPipeline::VulcanGraphicPipeline(VulcanDevice& deviceInput, const std::vector<VulcanShader*>& shader, const std::vector<VulcanImage*>& color, VulcanImage* depth, VulcanImage* stencil)
+    VulcanGraphicPipeline::VulcanGraphicPipeline(VulcanDevice&                             deviceInput,
+                                                 const std::vector<VulcanShader*>&         shader,
+                                                 const std::vector<VulcanImage*>&          color,
+                                                 VulcanImage*                              depth,
+                                                 VulcanImage*                              stencil,
+                                                 const VulcantRasterizationConfig&         rasterConfig)
       : device(deviceInput)
     {
         createClearValues(color, depth, stencil);
         createRenderPass(color, depth, stencil);
         createFramebuffer(color, depth, stencil);
-        createPipeline(shader, color, depth, stencil);
+        createPipeline(shader, color, depth, stencil, rasterConfig);
     }
 
     VulcanGraphicPipeline::~VulcanGraphicPipeline()
@@ -198,7 +203,11 @@ namespace Vulcant::Wrapper
         VK_CHECK_RESULT(vkCreateFramebuffer(device.getDevice(), &framebufferInfo, nullptr, &framebuffer));
     }
 
-    void VulcanGraphicPipeline::createPipeline(const std::vector<VulcanShader*>& shader, const std::vector<VulcanImage*>& color, VulcanImage* depth, VulcanImage* stencil)
+    void VulcanGraphicPipeline::createPipeline(const std::vector<VulcanShader*>&         shader,
+                                               const std::vector<VulcanImage*>&          color,
+                                               VulcanImage*                              depth,
+                                               VulcanImage*                              stencil,
+                                               const VulcantRasterizationConfig&         rasterConfig)
     {
         Vulcant::Wrapper::Graphic::GraphicPipelineGenerator pipeOptions;
         pipeOptions.setBoiler();
@@ -206,6 +215,7 @@ namespace Vulcant::Wrapper
         pipeOptions.setDepthStencil(depth, stencil);
         pipeOptions.setShader(shader);
         pipeOptions.setRenderPass(renderPass, 0);
+        pipeOptions.setRasterizationConfig(rasterConfig);
 
         VkGraphicsPipelineCreateInfo& pipeInfo = pipeOptions.get();
 

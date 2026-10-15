@@ -82,8 +82,8 @@ Primary factory class for allocating Vulkan GPU resources, creating pipelines, a
 * `std::unique_ptr<VulcantGraphicCommand> createGraphicCommand()`  
   Instantiates an independent command buffer context for graphic draw commands.
 
-* `std::unique_ptr<VulcantGraphicPipeline> createVulcanGraphicPipeline(const std::vector<VulcantShader*>& shader, const std::vector<VulcantImage*>& color, VulcantImage* depth = nullptr, VulcantImage* stencil = nullptr)`  
-  Constructs a graphic pipeline object bound to color render targets and optional depth/stencil attachments.
+* `std::unique_ptr<VulcantGraphicPipeline> createVulcanGraphicPipeline(const std::vector<VulcantShader*>& shader, const std::vector<VulcantImage*>& color, VulcantImage* depth = nullptr, VulcantImage* stencil = nullptr, const VulcantRasterizationConfig& rasterConfig = VulcantRasterizationConfig())`  
+  Constructs a graphic pipeline object bound to color render targets, optional depth/stencil attachments, and rasterization configuration.
 
 * `std::unique_ptr<VulcantSet> createSet(const std::vector<std::vector<std::shared_ptr<VulcantResource>>>& buffer, VulcantShader& shader)`  
   Binds resource layout sets to target shader reflection requirements.
@@ -219,3 +219,11 @@ Command context for managing graphics render passes, pipeline state, and draw ex
 
 ### 6. `VulcantGraphicPipeline`
 Opaque handle interface encapsulating Vulkan rasterization state, fixed-function stages, and shader binding states. Constructed directly via `VulcantDevice::createVulcanGraphicPipeline`.
+
+---
+
+### 7. `VulcantRasterizationConfig`
+Configuration object defining fixed-function rasterizer stage state:
+* `VulcantCullMode`: `None`, `Front`, `Back`, `FrontAndBack`.
+* `VulcantFrontFace`: `Clockwise`, `CounterClockwise`.
+* `VulcantPolygonMode`: `Fill`, `Line`, `Point`.

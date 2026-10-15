@@ -13,11 +13,16 @@
 
 namespace Vulcant::VulcantG::Wrapper
 {
-    VulcanGraphicPipeline::VulcanGraphicPipeline(VulcanDevice& deviceInput, const std::vector<VulcanShader*>& shader, const std::vector<VulcanImage*>& color, VulcanImage* depth, VulcanImage* stencil)
+    VulcanGraphicPipeline::VulcanGraphicPipeline(VulcanDevice&                             deviceInput,
+                                                 const std::vector<VulcanShader*>&         shader,
+                                                 const std::vector<VulcanImage*>&          color,
+                                                 VulcanImage*                              depth,
+                                                 VulcanImage*                              stencil,
+                                                 const VulcantRasterizationConfig&         rasterConfig)
       : device(deviceInput)
     {
         createFramebuffer(color, depth, stencil);
-        createPipeline(shader, color, depth, stencil);
+        createPipeline(shader, color, depth, stencil, rasterConfig);
     }
 
     VulcanGraphicPipeline::~VulcanGraphicPipeline()
@@ -91,7 +96,11 @@ namespace Vulcant::VulcantG::Wrapper
         framebuffer = rd.framebuffer_create(attachments);
     }
 
-    void VulcanGraphicPipeline::createPipeline(const std::vector<VulcanShader*>& shader, const std::vector<VulcanImage*>& color, VulcanImage* depth, VulcanImage* stencil)
+    void VulcanGraphicPipeline::createPipeline(const std::vector<VulcanShader*>&         shader,
+                                               const std::vector<VulcanImage*>&          color,
+                                               VulcanImage*                              depth,
+                                               VulcanImage*                              stencil,
+                                               const VulcantRasterizationConfig&         rasterConfig)
     {
         godot::RenderingDevice& rd = device.getDevice();
 
@@ -190,7 +199,34 @@ namespace Vulcant::VulcantG::Wrapper
 
         godot::Ref<godot::RDPipelineRasterizationState> rasterization_state;
         rasterization_state.instantiate();
-        rasterization_state->set_cull_mode(godot::RenderingDevice::POLYGON_CULL_DISABLED);
+
+        switch (rasterConfig.getCullMode())
+        {
+            case VulcantCullMode::None:
+                rasterization_state->set_cull_mode(godot::RenderingDevice::POLYGON_CULL_DISABLED);
+                break;
+            case VulcantCullMode::Front:
+                rasterization_state->set_cull_mode(godot::RenderingDevice::POLYGON_CULL_FRONT);
+                break;
+            case VulcantCullMode::Back:
+                rasterization_state->set_cull_mode(godot::RenderingDevice::POLYGON_CULL_BACK);
+                break;
+            case VulcantCullMode::FrontAndBack:
+                rasterization_state->set_cull_mode(godot::RenderingDevice::POLYGON_CULL_DISABLED);
+                break;
+        }
+
+        switch (rasterConfig.getFrontFace())
+        {
+            case VulcantFrontFace::Clockwise:
+                rasterization_state->set_front_face(godot::RenderingDevice::POLYGON_FRONT_FACE_CLOCKWISE);
+                break;
+            case VulcantFrontFace::CounterClockwise:
+                rasterization_state->set_front_face(godot::RenderingDevice::POLYGON_FRONT_FACE_COUNTER_CLOCKWISE);
+                break;
+        }
+
+        rasterization_state->set_wireframe(rasterConfig.getPolygonMode() == VulcantPolygonMode::Line);
 
         godot::Ref<godot::RDPipelineMultisampleState> multisample_state;
         multisample_state.instantiate();

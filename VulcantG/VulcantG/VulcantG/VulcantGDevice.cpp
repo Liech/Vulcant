@@ -60,10 +60,11 @@ namespace Vulcant::VulcantG
         return std::make_unique<VulcantGGraphicCommand>(*device);
     }
 
-    std::unique_ptr<VulcantGraphicPipeline> VulcantGDevice::createVulcanGraphicPipeline(const std::vector<VulcantShader*>& shader,
-                                                                                        const std::vector<VulcantImage*>&  color,
-                                                                                        VulcantImage*                      depth,
-                                                                                        VulcantImage*                      stencil)
+    std::unique_ptr<VulcantGraphicPipeline> VulcantGDevice::createVulcanGraphicPipeline(const std::vector<VulcantShader*>&        shader,
+                                                                                        const std::vector<VulcantImage*>&         color,
+                                                                                        VulcantImage*                             depth,
+                                                                                        VulcantImage*                             stencil,
+                                                                                        const VulcantRasterizationConfig&         rasterConfig)
     {
         std::vector<VulcantGImage*> gcolor;
         gcolor.reserve(color.size());
@@ -75,7 +76,7 @@ namespace Vulcant::VulcantG
         for (auto* s : shader)
             gshader.push_back(static_cast<VulcantGShader*>(s));
 
-        return std::make_unique<VulcantGGraphicPipeline>(*this, gshader, gcolor, static_cast<VulcantGImage*>(depth), static_cast<VulcantGImage*>(stencil));
+        return std::make_unique<VulcantGGraphicPipeline>(*this, gshader, gcolor, static_cast<VulcantGImage*>(depth), static_cast<VulcantGImage*>(stencil), rasterConfig);
     }
 
     std::unique_ptr<VulcantShader> VulcantGDevice::createShader(const std::string& shader)

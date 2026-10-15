@@ -9,11 +9,12 @@
 
 namespace Vulcant::VulcantG
 {
-    VulcantGGraphicPipeline::VulcantGGraphicPipeline(Vulcant::VulcantG::VulcantGDevice&  device,
-                                                     const std::vector<VulcantGShader*>& shader,
-                                                     const std::vector<VulcantGImage*>&  color,
-                                                     VulcantGImage*                      depth,
-                                                     VulcantGImage*                      stencil)
+    VulcantGGraphicPipeline::VulcantGGraphicPipeline(Vulcant::VulcantG::VulcantGDevice&        device,
+                                                     const std::vector<VulcantGShader*>&       shader,
+                                                     const std::vector<VulcantGImage*>&        color,
+                                                     VulcantGImage*                            depth,
+                                                     VulcantGImage*                            stencil,
+                                                     const VulcantRasterizationConfig&         rasterConfig)
     {
         std::vector<Wrapper::VulcanShader*> wShader;
         for (const auto& x : shader)
@@ -25,8 +26,10 @@ namespace Vulcant::VulcantG
         Wrapper::VulcanImage* wDepth   = depth ? depth->img.get() : nullptr;
         Wrapper::VulcanImage* wStencil = stencil ? stencil->img.get() : nullptr;
 
-        pipe = std::make_unique<Wrapper::VulcanGraphicPipeline>(device.__getDevice(), wShader, wColor, wDepth, wStencil);
+        pipe = std::make_unique<Wrapper::VulcanGraphicPipeline>(device.__getDevice(), wShader, wColor, wDepth, wStencil, rasterConfig);
     }
 
-    VulcantGGraphicPipeline::~VulcantGGraphicPipeline() {}
+    VulcantGGraphicPipeline::~VulcantGGraphicPipeline()
+    {
+    }
 }

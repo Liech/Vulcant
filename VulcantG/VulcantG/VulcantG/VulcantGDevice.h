@@ -36,10 +36,11 @@ namespace Vulcant::VulcantG
         virtual VulcantComputeCommand&                 getDefaultCommand() override;
         virtual std::unique_ptr<VulcantUi>             createUi(VulcantWindow& window, VulcantImageFormat format = VulcantImageFormat::R32G32B32A32_SFLOAT, bool clear = true) override;
 
-        virtual std::unique_ptr<VulcantGraphicPipeline> createVulcanGraphicPipeline(const std::vector<VulcantShader*>& shader,
-                                                                                    const std::vector<VulcantImage*>&  color,
-                                                                                    VulcantImage*                      depth   = nullptr,
-                                                                                    VulcantImage*                      stencil = nullptr) override;
+        virtual std::unique_ptr<VulcantGraphicPipeline> createVulcanGraphicPipeline(const std::vector<VulcantShader*>&        shader,
+                                                                                    const std::vector<VulcantImage*>&         color,
+                                                                                    VulcantImage*                             depth        = nullptr,
+                                                                                    VulcantImage*                             stencil      = nullptr,
+                                                                                    const VulcantRasterizationConfig&         rasterConfig = VulcantRasterizationConfig()) override;
 
         Wrapper::VulcanDevice& __getDevice();
 

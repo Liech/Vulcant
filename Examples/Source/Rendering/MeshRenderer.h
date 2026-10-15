@@ -2,6 +2,7 @@
 
 #include "Rendering/MeshShaderParams.h"
 #include "Rendering/SceneData.h"
+#include "Vulcant/Interface/VulcantCullMode.h"
 #include <glm/glm.hpp>
 #include <memory>
 #include <vector>
@@ -48,6 +49,9 @@ namespace Vulcant::Rendering
         void             setWireframeColor(const glm::vec3& color);
         WireframeMode    getWireframeMode() const;
         const glm::vec3& getWireframeColor() const;
+
+        void            setCullMode(Vulcant::VulcantCullMode mode);
+        Vulcant::VulcantCullMode getCullMode() const;
 
         void setMesh(const std::vector<glm::vec3>& positions, const std::vector<uint32_t>& indices, const glm::vec3& color = glm::vec3(0.8f, 0.8f, 0.8f));
         void setMesh(const std::vector<glm::vec3>& positions, const std::vector<glm::vec3>& normals, const std::vector<uint32_t>& indices, const glm::vec3& color = glm::vec3(0.8f, 0.8f, 0.8f));
@@ -101,6 +105,7 @@ namespace Vulcant::Rendering
 
         void updateDescriptorSets();
         void record(Vulcant::VulcantGraphicCommand& cmd);
+        void record(Vulcant::VulcantGraphicCommand& cmd, Vulcant::VulcantBuffer& customVertexBuffer, uint32_t customVertexCount);
 
         Vulcant::VulcantImage& getColor() const;
         Vulcant::VulcantImage& getDepth() const;
@@ -120,6 +125,7 @@ namespace Vulcant::Rendering
         bool                    ownsOutputTextures = true;
         WireframeMode           wireframeMode      = WireframeMode::Off;
         glm::vec3               wireframeColor     = glm::vec3(1.0f, 0.0f, 0.0f);
+        Vulcant::VulcantCullMode cullMode          = Vulcant::VulcantCullMode::None;
 
         SceneData        sceneData{};
         MeshShaderParams meshParams{};

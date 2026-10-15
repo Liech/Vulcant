@@ -18,11 +18,12 @@ namespace Vulcant::VulcantG
     class VulcantGGraphicPipeline : public VulcantGraphicPipeline
     {
       public:
-        VulcantGGraphicPipeline(Vulcant::VulcantG::VulcantGDevice&  device,
-                                const std::vector<VulcantGShader*>& shader,
-                                const std::vector<VulcantGImage*>&  color,
-                                VulcantGImage*                      depth   = nullptr,
-                                VulcantGImage*                      stencil = nullptr);
+        VulcantGGraphicPipeline(Vulcant::VulcantG::VulcantGDevice&        device,
+                                const std::vector<VulcantGShader*>&       shader,
+                                const std::vector<VulcantGImage*>&        color,
+                                VulcantGImage*                            depth        = nullptr,
+                                VulcantGImage*                            stencil      = nullptr,
+                                const VulcantRasterizationConfig&         rasterConfig = VulcantRasterizationConfig());
 
         virtual ~VulcantGGraphicPipeline();
 

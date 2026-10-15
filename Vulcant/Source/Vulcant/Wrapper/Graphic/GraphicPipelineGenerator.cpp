@@ -1,5 +1,6 @@
 #include "GraphicPipelineGenerator.h"
 
+#include "Vulcant/Interface/VulcantRasterizationConfig.h"
 #include "Vulcant/Wrapper/ShaderCompiler.h"
 #include "Vulcant/Wrapper/VulcanImage.h"
 #include "Vulcant/Wrapper/VulcanShader.h"
@@ -101,6 +102,48 @@ namespace Vulcant::Wrapper::Graphic
     {
         pipeInfo.renderPass = renderPass;
         pipeInfo.subpass    = subpass;
+    }
+
+    void GraphicPipelineGenerator::setRasterizationConfig(const VulcantRasterizationConfig& config)
+    {
+        switch (config.getCullMode())
+        {
+            case VulcantCullMode::None:
+                rasterizer.cullMode = VK_CULL_MODE_NONE;
+                break;
+            case VulcantCullMode::Front:
+                rasterizer.cullMode = VK_CULL_MODE_FRONT_BIT;
+                break;
+            case VulcantCullMode::Back:
+                rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
+                break;
+            case VulcantCullMode::FrontAndBack:
+                rasterizer.cullMode = VK_CULL_MODE_FRONT_AND_BACK;
+                break;
+        }
+
+        switch (config.getFrontFace())
+        {
+            case VulcantFrontFace::Clockwise:
+                rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;
+                break;
+            case VulcantFrontFace::CounterClockwise:
+                rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
+                break;
+        }
+
+        switch (config.getPolygonMode())
+        {
+            case VulcantPolygonMode::Fill:
+                rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
+                break;
+            case VulcantPolygonMode::Line:
+                rasterizer.polygonMode = VK_POLYGON_MODE_LINE;
+                break;
+            case VulcantPolygonMode::Point:
+                rasterizer.polygonMode = VK_POLYGON_MODE_POINT;
+                break;
+        }
     }
 
     void GraphicPipelineGenerator::setBoiler()

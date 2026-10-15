@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Vulcant/Interface/VulcantRasterizationConfig.h"
 #include <glm/glm.hpp>
 #include <memory>
 #include <vector>
@@ -14,7 +15,12 @@ namespace Vulcant::Wrapper
     class VulcanGraphicPipeline
     {
       public:
-        VulcanGraphicPipeline(VulcanDevice&, const std::vector<VulcanShader*>& shader, const std::vector<VulcanImage*>& color, VulcanImage* depth = nullptr, VulcanImage* stencil = nullptr);
+        VulcanGraphicPipeline(VulcanDevice&                             deviceInput,
+                              const std::vector<VulcanShader*>&         shader,
+                              const std::vector<VulcanImage*>&          color,
+                              VulcanImage*                              depth        = nullptr,
+                              VulcanImage*                              stencil      = nullptr,
+                              const VulcantRasterizationConfig&         rasterConfig = VulcantRasterizationConfig());
         virtual ~VulcanGraphicPipeline();
 
         VkPipeline       getPipeline();
@@ -28,7 +34,11 @@ namespace Vulcant::Wrapper
       private:
         void createRenderPass(const std::vector<VulcanImage*>& color, VulcanImage* depth, VulcanImage* stencil);
         void createFramebuffer(const std::vector<VulcanImage*>& color, VulcanImage* depth, VulcanImage* stencil);
-        void createPipeline(const std::vector<VulcanShader*>& shader, const std::vector<VulcanImage*>& color, VulcanImage* depth, VulcanImage* stencil);
+        void createPipeline(const std::vector<VulcanShader*>&         shader,
+                            const std::vector<VulcanImage*>&          color,
+                            VulcanImage*                              depth,
+                            VulcanImage*                              stencil,
+                            const VulcantRasterizationConfig&         rasterConfig);
         void createClearValues(const std::vector<VulcanImage*>& color, VulcanImage* depth = nullptr, VulcanImage* stencil = nullptr);
 
         VulcanDevice& device;

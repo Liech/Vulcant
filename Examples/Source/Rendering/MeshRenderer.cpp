@@ -104,7 +104,10 @@ namespace Vulcant::Rendering
         std::vector<Vulcant::VulcantShader*> shaders          = { vertShader.get(), fragShader.get() };
         std::vector<Vulcant::VulcantImage*>  colorAttachments = { color, normal };
 
-        pipeline = device->createVulcanGraphicPipeline(shaders, colorAttachments, depth, nullptr);
+        Vulcant::VulcantRasterizationConfig rasterConfig;
+        rasterConfig.setCullMode(cullMode);
+
+        pipeline = device->createVulcanGraphicPipeline(shaders, colorAttachments, depth, nullptr, rasterConfig);
     }
 
     void MeshRenderer::updateDescriptorSets()
@@ -148,6 +151,20 @@ namespace Vulcant::Rendering
     const glm::vec3& MeshRenderer::getWireframeColor() const
     {
         return wireframeColor;
+    }
+
+    void MeshRenderer::setCullMode(Vulcant::VulcantCullMode mode)
+    {
+        if (cullMode != mode)
+        {
+            cullMode = mode;
+            createPipeline();
+        }
+    }
+
+    Vulcant::VulcantCullMode MeshRenderer::getCullMode() const
+    {
+        return cullMode;
     }
 
     void MeshRenderer::updateMeshParamsBuffer()
@@ -263,6 +280,17 @@ namespace Vulcant::Rendering
         cmd.beginRendering(*pipeline);
         cmd.setViewportAndScissor(glm::uvec2(resolution.x, resolution.y));
         cmd.draw(vertexCount, graphicSet.get(), vertexBuffer.get());
+        cmd.endRendering();
+    }
+
+    void MeshRenderer::record(Vulcant::VulcantGraphicCommand& cmd, Vulcant::VulcantBuffer& customVertexBuffer, uint32_t customVertexCount)
+    {
+        if (customVertexCount == 0 || !pipeline || !color || !depth || !normal)
+            return;
+
+        cmd.beginRendering(*pipeline);
+        cmd.setViewportAndScissor(glm::uvec2(resolution.x, resolution.y));
+        cmd.draw(customVertexCount, graphicSet.get(), &customVertexBuffer);
         cmd.endRendering();
     }
 

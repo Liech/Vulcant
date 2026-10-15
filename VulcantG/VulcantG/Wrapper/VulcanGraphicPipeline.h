@@ -2,6 +2,7 @@
 
 #include "VulcanImage.h"
 #include "VulcanShader.h"
+#include "Vulcant/Interface/VulcantRasterizationConfig.h"
 #include <glm/glm.hpp>
 #include <godot_cpp/classes/rendering_device.hpp>
 #include <godot_cpp/variant/rid.hpp>
@@ -9,13 +10,18 @@
 
 namespace Vulcant::VulcantG::Wrapper
 {
-    class VulcantDevice;
+    class VulcanDevice;
 
     class VulcanGraphicPipeline
     {
       public:
-        VulcanGraphicPipeline(VulcanDevice& deviceInput, const std::vector<VulcanShader*>& shader, const std::vector<VulcanImage*>& color, VulcanImage* depth, VulcanImage* stencil);
-        ~VulcanGraphicPipeline();
+        VulcanGraphicPipeline(VulcanDevice&                             deviceInput,
+                              const std::vector<VulcanShader*>&         shader,
+                              const std::vector<VulcanImage*>&          color,
+                              VulcanImage*                              depth        = nullptr,
+                              VulcanImage*                              stencil      = nullptr,
+                              const VulcantRasterizationConfig&         rasterConfig = VulcantRasterizationConfig());
+        virtual ~VulcanGraphicPipeline();
 
         godot::RID getPipeline() const;
         godot::RID getFramebuffer() const;
@@ -25,15 +31,19 @@ namespace Vulcant::VulcantG::Wrapper
         size_t     getVertexAttributeCount() const;
 
       private:
+        void createFramebuffer(const std::vector<VulcanImage*>& color, VulcanImage* depth, VulcanImage* stencil);
+        void createPipeline(const std::vector<VulcanShader*>&         shader,
+                            const std::vector<VulcanImage*>&          color,
+                            VulcanImage*                              depth,
+                            VulcanImage*                              stencil,
+                            const VulcantRasterizationConfig&         rasterConfig);
+
         VulcanDevice& device;
         godot::RID    pipeline;
         godot::RID    framebuffer;
         godot::RID    shaderRid;
-        int64_t       vertexFormat = 0;
+        int64_t       vertexFormat         = 0;
         glm::uvec2    extent{ 0, 0 };
         size_t        vertexAttributeCount = 0;
-
-        void createFramebuffer(const std::vector<VulcanImage*>& color, VulcanImage* depth, VulcanImage* stencil);
-        void createPipeline(const std::vector<VulcanShader*>& shader, const std::vector<VulcanImage*>& color, VulcanImage* depth, VulcanImage* stencil);
     };
-}
+}

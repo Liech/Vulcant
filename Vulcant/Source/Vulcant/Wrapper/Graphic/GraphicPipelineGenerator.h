@@ -6,6 +6,11 @@
 #include <optional>
 #include <vector>
 
+namespace Vulcant
+{
+    class VulcantRasterizationConfig;
+}
+
 namespace Vulcant::Wrapper
 {
     class VulcanImage;
@@ -28,6 +33,7 @@ namespace Vulcant::Wrapper::Graphic
         void setDepthStencil(VulcanImage* depth = nullptr, VulcanImage* stencil = nullptr);
         void setShader(const std::vector<VulcanShader*>& shader);
         void setRenderPass(VkRenderPass renderPass, uint32_t subpass = 0);
+        void setRasterizationConfig(const VulcantRasterizationConfig& config);
 
         VkGraphicsPipelineCreateInfo& get();
 

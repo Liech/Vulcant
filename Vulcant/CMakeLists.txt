@@ -84,6 +84,11 @@ set(Vulcant_Interface
     "Source/Vulcant/Interface/VulcantInputValue.h"
     "Source/Vulcant/Interface/VulcantInput.h"
     "Source/Vulcant/Interface/VulcantBufferType.h"
+    "Source/Vulcant/Interface/VulcantCullMode.h"
+    "Source/Vulcant/Interface/VulcantFrontFace.h"
+    "Source/Vulcant/Interface/VulcantPolygonMode.h"
+    "Source/Vulcant/Interface/VulcantRasterizationConfig.h"
+    "Source/Vulcant/Interface/VulcantRasterizationConfig.cpp"
     "Source/Vulcant/Interface/VulcantUi.h"
 )
 source_group("Source/Vulcant/Interface" FILES ${Vulcant_Interface})
