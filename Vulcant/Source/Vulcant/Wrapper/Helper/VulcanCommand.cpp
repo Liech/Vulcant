@@ -30,15 +30,23 @@ namespace Vulcant::Wrapper
     {
         assert(state == status::fresh || state == status::ready);
 
-        VkCommandBufferAllocateInfo commandBufferAllocateInfo = {};
-        commandBufferAllocateInfo.sType                       = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-        commandBufferAllocateInfo.commandPool                 = pool.getCommands();
-        commandBufferAllocateInfo.level                       = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-        commandBufferAllocateInfo.commandBufferCount          = 1;
-        VK_CHECK_RESULT(vkAllocateCommandBuffers(device.getDevice(), &commandBufferAllocateInfo, &commandBuffer));
+        if (commandBuffer == VK_NULL_HANDLE)
+        {
+            VkCommandBufferAllocateInfo commandBufferAllocateInfo = {};
+            commandBufferAllocateInfo.sType                       = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+            commandBufferAllocateInfo.commandPool                 = pool.getCommands();
+            commandBufferAllocateInfo.level                       = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+            commandBufferAllocateInfo.commandBufferCount          = 1;
+            VK_CHECK_RESULT(vkAllocateCommandBuffers(device.getDevice(), &commandBufferAllocateInfo, &commandBuffer));
+        }
+        else
+        {
+            VK_CHECK_RESULT(vkResetCommandBuffer(commandBuffer, 0));
+        }
+
         VkCommandBufferBeginInfo beginInfo = {};
         beginInfo.sType                    = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-        beginInfo.flags                    = 0; // VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+        beginInfo.flags                    = 0;
         VK_CHECK_RESULT(vkBeginCommandBuffer(commandBuffer, &beginInfo));
         state = status::recording;
     }

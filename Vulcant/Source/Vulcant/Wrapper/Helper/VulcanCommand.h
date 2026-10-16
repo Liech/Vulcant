@@ -36,6 +36,6 @@ namespace Vulcant::Wrapper
         VulcanPool&   pool;
 
         VkFence         fence;
-        VkCommandBuffer commandBuffer;
+        VkCommandBuffer commandBuffer = VK_NULL_HANDLE;
     };
 }
