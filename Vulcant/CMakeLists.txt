@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.24...4.0.2)
 
-find_package(Catch2 REQUIRED)
+if(BUILD_TESTS)
+    find_package(Catch2 REQUIRED)
+endif()
 
 project(Vulcant)
 project(VulcantTest)
@@ -125,8 +127,7 @@ set(Source_Files
 )
 source_group("Source" FILES ${Source_Files})
 
-set(ALL_FILES
-    ${Source_Files}
+set(VULCANT_FILES
     ${Wrapper_Files}
     ${WrapperGraphic_Files}
     ${WrapperHelper_Files}
@@ -134,20 +135,20 @@ set(ALL_FILES
     ${VulcantV_Files}
 )
 
+set(ALL_FILES
+    ${Source_Files}
+    ${VULCANT_FILES}
+)
+
 ############################################################################
 ############################################################################
 ############################################################################
 
+if(BUILD_TESTS)
 add_executable(VulcantTest
     ${ALL_FILES}
-    "../Examples/Source/Examples/SphereRasterizerScenes/FloatingSpheresScene.cpp"
-    "../Examples/Source/Examples/SphereRasterizerScenes/CubeGridScene.cpp"
-    "../Examples/Source/Examples/SphereRasterizerScenes/ConcentricRingsScene.cpp"
-    "../Examples/Source/Examples/SphereRasterizerScenes/HillLandscapeScene.cpp"
 )
-add_library(Vulcant ${ALL_FILES})
 set_property(TARGET VulcantTest PROPERTY CXX_STANDARD 23)
-set_property(TARGET Vulcant PROPERTY CXX_STANDARD 23)
 
 target_link_libraries(VulcantTest PRIVATE 
 Catch2::Catch2
@@ -160,6 +161,21 @@ unofficial::spirv-reflect
 glfw
 imgui::imgui
 )
+
+target_include_directories(VulcantTest PUBLIC 
+./Source/
+)
+
+set_property( TARGET VulcantTest PROPERTY COMPILE_DEFINITIONS ISTESTPROJECT=1 )
+
+include(CTest)
+include(Catch)
+catch_discover_tests(VulcantTest)
+endif()
+
+add_library(Vulcant ${VULCANT_FILES})
+add_library(Vulcant::Vulcant ALIAS Vulcant)
+set_property(TARGET Vulcant PROPERTY CXX_STANDARD 23)
 
 target_link_libraries(Vulcant PUBLIC 
 glm::glm
@@ -176,16 +192,23 @@ glfw
 )
 
 target_include_directories(Vulcant PUBLIC 
-./Source/
-)
-target_include_directories(VulcantTest PUBLIC 
-./Source/
-../Examples/Source/
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/Source/>
+    $<INSTALL_INTERFACE:include>
 )
 
-set_property( TARGET VulcantTest PROPERTY COMPILE_DEFINITIONS ISTESTPROJECT=1 )
+install(TARGETS Vulcant EXPORT VulcantTargets
+    LIBRARY DESTINATION lib
+    ARCHIVE DESTINATION lib
+    RUNTIME DESTINATION bin
+)
+install(DIRECTORY Source/ DESTINATION include FILES_MATCHING PATTERN "*.h")
+install(EXPORT VulcantTargets FILE VulcantTargets.cmake NAMESPACE Vulcant:: DESTINATION share/vulcant)
 
-
-include(CTest)
-include(Catch)
-catch_discover_tests(VulcantTest)
+file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/VulcantConfig.cmake"
+"include(CMakeFindDependencyMacro)\n"
+"find_dependency(glm CONFIG)\n"
+"find_dependency(nlohmann_json CONFIG)\n"
+"find_dependency(imgui CONFIG)\n"
+"include(\"\${CMAKE_CURRENT_LIST_DIR}/VulcantTargets.cmake\")\n"
+)
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/VulcantConfig.cmake" DESTINATION share/vulcant)
