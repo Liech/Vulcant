@@ -47,12 +47,12 @@ namespace Vulcant::VulcantG
 
     void VulcantGComputeCommand::addBarrier(VulcantBuffer& buffer)
     {
-        // godot does not need this
+        cmd->addBarrier();
     }
 
     void VulcantGComputeCommand::addBarrier(VulcantImage& img, const VulcantResourceLayout& dest)
     {
-        // godot does not need this
+        cmd->addBarrier();
     }
 
     void VulcantGComputeCommand::addCopyBuffer(VulcantBuffer& source, VulcantBuffer& dest, size_t elementCount, size_t sourceOffset, size_t destOffset)
@@ -67,6 +67,6 @@ namespace Vulcant::VulcantG
 
     void VulcantGComputeCommand::downloadImageFromGPU(VulcantImage& srcImage, void* outData, glm::uvec3 extent, glm::uvec3 offset)
     {
-        cmd->uploadImageToGPU(*((VulcantGImage&)srcImage).img, outData, extent, offset);
+        cmd->downloadImageFromGPU(*((VulcantGImage&)srcImage).img, outData, extent, offset);
     }
 }

@@ -47,7 +47,18 @@ namespace Vulcant::VulcantG
         cmd->draw(vertexCount, gSet, gBuf, instanceCount);
     }
 
-    void VulcantGGraphicCommand::drawIndirect(VulcantBuffer& indirectBuffer, VulcantSet* set, VulcantBuffer* vertexBuffer, uint32_t offset, uint32_t drawCount, uint32_t stride) {}
+    void VulcantGGraphicCommand::drawIndirect(VulcantBuffer& indirectBuffer, VulcantSet* set, VulcantBuffer* vertexBuffer, uint32_t offset, uint32_t drawCount, uint32_t stride) {
+        VulcantG::Wrapper::VulcanSet* gSet = nullptr;
+        if (set)
+            gSet = ((VulcantGSet*)set)->set.get();
+
+        VulcantG::Wrapper::VulcanBuffer* gBuf = nullptr;
+        if (vertexBuffer)
+            gBuf = static_cast<VulcantGBuffer*>(vertexBuffer)->buffer.get();
+
+        auto& ib = static_cast<VulcantGBuffer&>(indirectBuffer);
+        cmd->drawIndirect(*ib.buffer, gSet, gBuf, offset, drawCount, stride);
+    }
 
     void VulcantGGraphicCommand::addBarrier(VulcantImage& inputImg, const VulcantResourceLayout& dest) {
         cmd->addBarrier(*static_cast<VulcantGImage&>(inputImg).img, dest);

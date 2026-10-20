@@ -408,9 +408,12 @@ namespace Vulcant::VulcantG::Wrapper
         for (const auto& b : batches)
         {
             godot::TypedArray<godot::RID> src_buffers;
-            src_buffers.push_back(vtxBuffer);
             godot::PackedInt64Array offsets;
-            offsets.push_back(b.vtxOffset * sizeof(ImDrawVert));
+            for (int i = 0; i < 3; ++i)
+            {
+                src_buffers.push_back(vtxBuffer);
+                offsets.push_back(b.vtxOffset * sizeof(ImDrawVert));
+            }
 
             godot::RID va = rd.vertex_array_create(b.vtxCount, vertexFormat, src_buffers, offsets);
             frameBuffersToFree.push_back(va);

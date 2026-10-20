@@ -145,6 +145,58 @@ namespace Vulcant::VulcantG::Wrapper
           });
     }
 
+    void VulcanGraphicCommand::drawIndirect(VulcanBuffer& indirectBuffer, VulcanSet* set, VulcanBuffer* vertexBuffer, uint32_t offset, uint32_t drawCount, uint32_t stride)
+    {
+        assert(currentPipeline);
+        auto* pipe = currentPipeline;
+
+        godot::RID vertexArray;
+        if (vertexBuffer && vertexBuffer->getRid().is_valid())
+        {
+            godot::TypedArray<godot::RID> src_buffers;
+            godot::PackedInt64Array       offsets;
+
+            uint32_t attrCount = pipe->getVertexAttributeCount();
+            for (uint32_t i = 0; i < attrCount; ++i)
+            {
+                src_buffers.push_back(vertexBuffer->getRid());
+                offsets.push_back(0);
+            }
+
+            vertexArray = device.getDevice().vertex_array_create(0, pipe->getVertexFormat(), src_buffers, offsets);
+
+            if (vertexArray.is_valid())
+            {
+                createdVertexArrays.push_back(vertexArray);
+            }
+        }
+
+        godot::RID indirectRid = indirectBuffer.getRid();
+
+        drawListQueue.push_back(
+          [this, pipe, indirectRid, set, vertexArray, offset, drawCount, stride]()
+          {
+              if (drawList == 0)
+                  return;
+
+              auto& rd = device.getDevice();
+
+              rd.draw_list_bind_render_pipeline(drawList, pipe->getPipeline());
+
+              if (set)
+              {
+                  set->bindDrawList(drawList);
+              }
+
+              if (vertexArray.is_valid())
+              {
+                  rd.draw_list_bind_vertex_array(drawList, vertexArray);
+              }
+
+              rd.draw_list_draw_indirect(drawList, false, indirectRid, offset, drawCount, stride);
+          });
+    }
+
     void VulcanGraphicCommand::endRendering()
     {
         drawListQueue.push_back(
