@@ -209,6 +209,11 @@ file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/VulcantConfig.cmake"
 "find_dependency(glm CONFIG)\n"
 "find_dependency(nlohmann_json CONFIG)\n"
 "find_dependency(imgui CONFIG)\n"
+"find_dependency(lodepng CONFIG)\n"
+"find_dependency(Vulkan)\n"
+"find_dependency(unofficial-shaderc CONFIG)\n"
+"find_dependency(unofficial-spirv-reflect CONFIG)\n"
+"find_dependency(glfw3 CONFIG)\n"
 "include(\"\${CMAKE_CURRENT_LIST_DIR}/VulcantTargets.cmake\")\n"
 )
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/VulcantConfig.cmake" DESTINATION share/vulcant)
