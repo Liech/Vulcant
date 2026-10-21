@@ -3,7 +3,7 @@
 
 #include "Vulcant/Interface/VulcantImage.h"
 #include "Vulcant/Interface/VulcantComputeCommand.h"
-#include "Rendering/BlitShader.h"
+#include "Vulcant/Toolkit/BlitShader.h"
 #include "VulcantG/VulcantG/VulcantGDevice.h"
 #include "VulcantG/VulcantG/VulcantGResource.h"
 #include "VulcantG/Wrapper/VulcanDevice.h"
@@ -22,7 +22,7 @@ namespace Vulcant::VulcantG::Wrapper
     {
         device  = std::make_unique<Vulcant::VulcantG::VulcantGDevice>(false);
         blitCmd = device->createComputeCommand();
-        blit    = std::make_unique<Vulcant::Rendering::BlitShader>();
+        blit    = std::make_unique<Vulcant::Toolkit::BlitShader>();
         blit->setDevice(*device);
         resolution = glm::ivec2(-1, -1);
 

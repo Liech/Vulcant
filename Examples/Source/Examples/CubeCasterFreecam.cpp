@@ -12,10 +12,10 @@
 #include "Vulcant/Interface/VulcantSet.h"
 #include "Vulcant/Interface/VulcantShader.h"
 #include "Vulcant/Interface/VulcantWindow.h"
-#include "Rendering/DeferredShading.h"
-#include "Rendering/Camera.h"
-#include "Rendering/Freecam.h"
-#include "Rendering/ArcCam.h"
+#include "Vulcant/Toolkit/DeferredShading.h"
+#include "Vulcant/Toolkit/Camera.h"
+#include "Vulcant/Toolkit/Freecam.h"
+#include "Vulcant/Toolkit/ArcCam.h"
 #include "Vulcant/Wrapper/Window.h"
 #include "Vulcant/VulcantV/VulcantVDevice.h"
 #include "ShaderLibrary/Example/CubeCaster.h"
@@ -58,8 +58,8 @@ namespace Vulcant::Examples
         glm::vec3 eye    = glm::vec3(0.0, 0.0, 3.0);
         glm::vec3 center = glm::vec3(0.0, 0.0, 0.0);
         glm::vec3 up     = glm::vec3(0.0, 1.0, 0.0);
-        freecam    = std::make_unique<Vulcant::Rendering::Freecam>(*window, eye, center, up);
-        arccam     = std::make_unique<Vulcant::Rendering::ArcCam>(*window, eye, center, up);
+        freecam    = std::make_unique<Vulcant::Toolkit::Freecam>(*window, eye, center, up);
+        arccam     = std::make_unique<Vulcant::Toolkit::ArcCam>(*window, eye, center, up);
         cam        = freecam.get();
         prepare(device, resolution);
 
@@ -136,7 +136,7 @@ namespace Vulcant::Examples
     {
         device = &deviceInput;
         // scene
-        sceneDataUbo = device->createUniform(1, sizeof(Vulcant::Rendering::SceneData));
+        sceneDataUbo = device->createUniform(1, sizeof(Vulcant::Toolkit::SceneData));
 
         // shader
         const auto* slang      = CubeCaster_spirv;
@@ -146,7 +146,7 @@ namespace Vulcant::Examples
         shader = device->createShader(spirv);
 
         // deferred
-        deferred = std::make_unique<Vulcant::Rendering::DeferredShading>();
+        deferred = std::make_unique<Vulcant::Toolkit::DeferredShading>();
         deferred->prepare(*device);
 
         // set & images
@@ -202,9 +202,9 @@ namespace Vulcant::Examples
         return *normal;
     }
 
-    Vulcant::Rendering::Light CubeCasterFreecam::getExampleLight()
+    Vulcant::Toolkit::Light CubeCasterFreecam::getExampleLight()
     {
-        Vulcant::Rendering::Light light = {};
+        Vulcant::Toolkit::Light light = {};
 
         // Type 1.0 = Omni/Point
         light.type = 1.0f;

@@ -1,7 +1,7 @@
 #include "MeshRendererUi.h"
 
-#include "Rendering/ArcCam.h"
-#include "Rendering/MeshRenderer.h"
+#include "Vulcant/Toolkit/ArcCam.h"
+#include "Vulcant/Toolkit/MeshRenderer.h"
 #include "Vulcant/Interface/VulcantDevice.h"
 #include "Vulcant/Interface/VulcantGraphicCommand.h"
 #include "Vulcant/Interface/VulcantImage.h"
@@ -127,8 +127,8 @@ namespace Vulcant::Examples
         device     = &deviceInput;
         resolution = inputResolution;
 
-        meshRenderer = std::make_unique<Vulcant::Rendering::MeshRenderer>(*device, resolution);
-        cam          = std::make_unique<Vulcant::Rendering::ArcCam>(*window, glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        meshRenderer = std::make_unique<Vulcant::Toolkit::MeshRenderer>(*device, resolution);
+        cam          = std::make_unique<Vulcant::Toolkit::ArcCam>(*window, glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
         std::vector<glm::vec3> positions = {
             { -0.5f, -0.5f, -0.5f },

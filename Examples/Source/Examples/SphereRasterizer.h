@@ -7,7 +7,8 @@
 
 #include "Examples/Example.h"
 #include "Examples/SphereRasterizerScenes/SphereScene.h"
-#include "Rendering/SceneData.h"
+#include "Vulcant/Toolkit/SceneData.h"
+#include "Vulcant/Toolkit/Light.h"
 namespace Vulcant
 {
     class VulcantDevice;
@@ -20,9 +21,8 @@ namespace Vulcant
     class VulcantGraphicCommand;
     class VulcantGraphicPipeline;
     class VulcantUi;
-    namespace Rendering
+    namespace Toolkit
     {
-        struct Light;
         class DeferredShading;
         class Camera;
         class Freecam;
@@ -43,8 +43,8 @@ struct SphereAnimUniforms
     uint32_t pad2;
 };
 
-#include "Rendering/SphereRenderer.h"
-#include "Rendering/CubeRenderer.h"
+#include "Vulcant/Toolkit/SphereRenderer.h"
+#include "Vulcant/Toolkit/CubeRenderer.h"
 
 struct FrameResources
 {
@@ -60,8 +60,8 @@ struct FrameResources
     std::unique_ptr<Vulcant::VulcantSet>    animSet;
 
     // Renderers
-    std::unique_ptr<Vulcant::Rendering::SphereRenderer> sphereRenderer;
-    std::unique_ptr<Vulcant::Rendering::CubeRenderer>   cubeRenderer;
+    std::unique_ptr<Vulcant::Toolkit::SphereRenderer> sphereRenderer;
+    std::unique_ptr<Vulcant::Toolkit::CubeRenderer>   cubeRenderer;
 };
 
 class SphereRasterizer : public Vulcant::Examples::Example
@@ -97,10 +97,10 @@ class SphereRasterizer : public Vulcant::Examples::Example
     void updateSpheres(float time, float dt);
     void regenerateSpheres(size_t count);
 
-    std::vector<Vulcant::Rendering::Light> lightData;
+    std::vector<Vulcant::Toolkit::Light> lightData;
 
   private:
-    Vulcant::Rendering::Light getExampleLight();
+    Vulcant::Toolkit::Light getExampleLight();
 
     glm::ivec2 resolution = glm::ivec2(-1, -1);
 
@@ -129,7 +129,7 @@ class SphereRasterizer : public Vulcant::Examples::Example
     std::vector<FrameResources> frameResources;
     uint32_t                    currentFrame = 0;
 
-    std::unique_ptr<Vulcant::Rendering::DeferredShading> deferred;
+    std::unique_ptr<Vulcant::Toolkit::DeferredShading> deferred;
     std::unique_ptr<Vulcant::VulcantBuffer>              sphereInitBuffer;
     std::unique_ptr<Vulcant::VulcantShader>              animShader;
 
@@ -142,7 +142,7 @@ class SphereRasterizer : public Vulcant::Examples::Example
 
     enum class CameraType { Freecam, ArcCam };
     CameraType                                           cameraType = CameraType::Freecam;
-    std::unique_ptr<Vulcant::Rendering::Freecam>         freecam;
-    std::unique_ptr<Vulcant::Rendering::ArcCam>          arccam;
-    Vulcant::Rendering::Camera*                          cam = nullptr;
+    std::unique_ptr<Vulcant::Toolkit::Freecam>         freecam;
+    std::unique_ptr<Vulcant::Toolkit::ArcCam>          arccam;
+    Vulcant::Toolkit::Camera*                          cam = nullptr;
 };

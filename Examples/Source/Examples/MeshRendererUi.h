@@ -9,7 +9,7 @@ namespace Vulcant
     class VulcantUi;
 }
 
-namespace Vulcant::Rendering
+namespace Vulcant::Toolkit
 {
     class MeshRenderer;
     class ArcCam;
@@ -47,8 +47,8 @@ namespace Vulcant::Examples
         Vulcant::VulcantDevice*                           device = nullptr;
         std::unique_ptr<Vulcant::VulcantWindow>           window;
         glm::ivec2                                        resolution;
-        std::unique_ptr<Vulcant::Rendering::MeshRenderer> meshRenderer;
-        std::unique_ptr<Vulcant::Rendering::ArcCam>       cam;
+        std::unique_ptr<Vulcant::Toolkit::MeshRenderer> meshRenderer;
+        std::unique_ptr<Vulcant::Toolkit::ArcCam>       cam;
         std::unique_ptr<Vulcant::VulcantUi>               ui;
         std::unique_ptr<Vulcant::VulcantGraphicCommand>   drawCmd;
         std::unique_ptr<Vulcant::VulcantGraphicCommand>   uiCmd;

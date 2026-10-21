@@ -5,8 +5,8 @@
 #include <string>
 
 #include "Example.h"
-#include "Rendering/Light.h"
-#include "Rendering/SceneData.h"
+#include "Vulcant/Toolkit/Light.h"
+#include "Vulcant/Toolkit/SceneData.h"
 
 namespace Vulcant
 {
@@ -19,7 +19,7 @@ namespace Vulcant
     class VulcantComputeCommand;
 }
 
-namespace Vulcant::Rendering
+namespace Vulcant::Toolkit
 {
     class DeferredShading;
     class Camera;
@@ -49,7 +49,7 @@ namespace Vulcant::Examples
 
         void setDevice(Vulcant::VulcantDevice& device, Vulcant::VulcantComputeCommand& cmd);
         void setResolution(const glm::ivec2& resolution);
-        void setSceneData(const Vulcant::Rendering::SceneData&);
+        void setSceneData(const Vulcant::Toolkit::SceneData&);
         void render();
 
         Vulcant::VulcantImage& getColor();
@@ -64,10 +64,10 @@ namespace Vulcant::Examples
         virtual Vulcant::VulcantImage&  getResult() override;
         virtual Vulcant::VulcantWindow& getWindow() override;
 
-        std::vector<Vulcant::Rendering::Light> lightData;
+        std::vector<Vulcant::Toolkit::Light> lightData;
 
       private:
-        Vulcant::Rendering::Light     getExampleLight();
+        Vulcant::Toolkit::Light     getExampleLight();
 
         glm::ivec2 resolution        = glm::ivec2(-1, -1);
         bool       sceneDataUploaded = false;
@@ -77,7 +77,7 @@ namespace Vulcant::Examples
         double                                               factor = 1.0;
         float                                                time   = 0.0f;
         glm::dvec2                                           mouse  = glm::dvec2(0, 0);
-        std::unique_ptr<Vulcant::Rendering::DeferredShading> deferred;
+        std::unique_ptr<Vulcant::Toolkit::DeferredShading> deferred;
         std::unique_ptr<Vulcant::VulcantBuffer>              sceneDataUbo;
         std::unique_ptr<Vulcant::VulcantShader>              shader;
         std::unique_ptr<Vulcant::VulcantSet>                 set;
@@ -91,8 +91,8 @@ namespace Vulcant::Examples
 
         enum class CameraType { Freecam, ArcCam };
         CameraType                                           cameraType = CameraType::Freecam;
-        std::unique_ptr<Vulcant::Rendering::Freecam>         freecam;
-        std::unique_ptr<Vulcant::Rendering::ArcCam>          arccam;
-        Vulcant::Rendering::Camera*                          cam = nullptr;
+        std::unique_ptr<Vulcant::Toolkit::Freecam>         freecam;
+        std::unique_ptr<Vulcant::Toolkit::ArcCam>          arccam;
+        Vulcant::Toolkit::Camera*                          cam = nullptr;
     };
 }

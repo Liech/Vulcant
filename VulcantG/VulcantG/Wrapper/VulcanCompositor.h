@@ -14,7 +14,7 @@ namespace Vulcant
         class VulcantGDevice;
         class VulcantGResource;
     }
-    namespace Rendering
+    namespace Toolkit
     {
         class BlitShader;
     }
@@ -50,8 +50,8 @@ namespace Vulcant::VulcantG::Wrapper
       private:
         static godot::WorldEnvironment* getWorld(godot::Node* root_node);
 
-        std::unique_ptr<VulcantGDevice>                      device  = nullptr;
-        std::unique_ptr<Vulcant::Rendering::BlitShader>      blit    = nullptr;
+        std::unique_ptr<VulcantGDevice>                 device  = nullptr;
+        std::unique_ptr<Vulcant::Toolkit::BlitShader>   blit    = nullptr;
         std::unique_ptr<Vulcant::VulcantComputeCommand>      blitCmd = nullptr;
         std::shared_ptr<Vulcant::VulcantG::VulcantGResource> screenColor;
 

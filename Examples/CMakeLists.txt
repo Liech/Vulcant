@@ -2,33 +2,6 @@ cmake_minimum_required(VERSION 3.24...4.0.2)
 
 project(Examples)
 
-set(Rendering_Files
-    "Source/Rendering/SceneData.h"
-    "Source/Rendering/DeferredShading.h"
-    "Source/Rendering/DeferredShading.cpp"
-    "Source/Rendering/BlitShader.h"
-    "Source/Rendering/BlitShader.cpp"
-    "Source/Rendering/BlitDepthAwareShader.h"
-    "Source/Rendering/BlitDepthAwareShader.cpp"
-    "Source/Rendering/SphereData.h"
-    "Source/Rendering/SphereRenderer.h"
-    "Source/Rendering/SphereRenderer.cpp"
-    "Source/Rendering/CubeRenderer.h"
-    "Source/Rendering/CubeRenderer.cpp"
-    "Source/Rendering/MeshRenderer.h"
-    "Source/Rendering/MeshRenderer.cpp"
-    "Source/Rendering/MeshShaderParams.h"
-    "Source/Rendering/MeshShaderParams.cpp"
-    "Source/Rendering/Light.h"
-    "Source/Rendering/Camera.h"
-    "Source/Rendering/Freecam.h"
-    "Source/Rendering/Freecam.cpp"
-    "Source/Rendering/ArcCam.h"
-    "Source/Rendering/ArcCam.cpp"
-)
-source_group("Source/Rendering" FILES ${Rendering_Files})
-
-
 set(SphereScene_Files
     "Source/Examples/SphereRasterizerScenes/SphereScene.h"
     "Source/Examples/SphereRasterizerScenes/FloatingSpheresScene.h"
@@ -70,7 +43,6 @@ source_group("Source/Examples" FILES ${Example_Files})
 set(ALL_FILES
     ${Example_Files}
     ${SphereScene_Files}
-    ${Rendering_Files}
 )
 
 
@@ -83,6 +55,7 @@ set_property(TARGET Examples PROPERTY CXX_STANDARD 23)
 
 target_link_libraries(Examples PRIVATE 
 Vulcant
+VulcantToolkit
 ExampleShaderLibrary
 )
 

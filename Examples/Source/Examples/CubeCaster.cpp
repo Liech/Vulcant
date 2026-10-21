@@ -12,7 +12,7 @@
 #include "Vulcant/Interface/VulcantSet.h"
 #include "Vulcant/Interface/VulcantShader.h"
 #include "Vulcant/Interface/VulcantWindow.h"
-#include "Rendering/DeferredShading.h"
+#include "Vulcant/Toolkit/DeferredShading.h"
 #include "Vulcant/Wrapper/Window.h"
 #include "Vulcant/VulcantV/VulcantVDevice.h"
 #include "ShaderLibrary/Example/CubeCaster.h"
@@ -113,7 +113,7 @@ namespace Vulcant::Examples
     {
         device = &deviceInput;
         // scene
-        sceneDataUbo = device->createUniform(1, sizeof(Vulcant::Rendering::SceneData));
+        sceneDataUbo = device->createUniform(1, sizeof(Vulcant::Toolkit::SceneData));
 
         // shader
         const auto* slang      = CubeCaster_spirv;
@@ -123,7 +123,7 @@ namespace Vulcant::Examples
         shader = device->createShader(spirv);
 
         // deferred
-        deferred = std::make_unique<Vulcant::Rendering::DeferredShading>();
+        deferred = std::make_unique<Vulcant::Toolkit::DeferredShading>();
         deferred->prepare(*device);
 
         // set & images
@@ -178,9 +178,9 @@ namespace Vulcant::Examples
         return *normal;
     }
 
-    Vulcant::Rendering::Light CubeCaster::getExampleLight()
+    Vulcant::Toolkit::Light CubeCaster::getExampleLight()
     {
-        Vulcant::Rendering::Light light = {};
+        Vulcant::Toolkit::Light light = {};
 
         // Type 1.0 = Omni/Point
         light.type = 1.0f;
@@ -203,9 +203,9 @@ namespace Vulcant::Examples
         return light;
     }
 
-    Vulcant::Rendering::SceneData CubeCaster::getScene(const glm::vec3& cameraPos, const glm::dvec2& mouse)
+    Vulcant::Toolkit::SceneData CubeCaster::getScene(const glm::vec3& cameraPos, const glm::dvec2& mouse)
     {
-        Vulcant::Rendering::SceneData scene;
+        Vulcant::Toolkit::SceneData scene;
 
         glm::dvec2 dir = glm::dvec2(resolution) * 0.5 - mouse;
         double     len = glm::length(dir) / glm::length(glm::dvec2(resolution));

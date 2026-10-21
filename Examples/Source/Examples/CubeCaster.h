@@ -5,8 +5,8 @@
 #include <string>
 
 #include "Example.h"
-#include "Rendering/Light.h"
-#include "Rendering/SceneData.h"
+#include "Vulcant/Toolkit/Light.h"
+#include "Vulcant/Toolkit/SceneData.h"
 
 namespace Vulcant
 {
@@ -19,7 +19,7 @@ namespace Vulcant
     class VulcantComputeCommand;
 }
 
-namespace Vulcant::Rendering
+namespace Vulcant::Toolkit
 {
     class DeferredShading;
 }
@@ -46,7 +46,7 @@ namespace Vulcant::Examples
 
         void setDevice(Vulcant::VulcantDevice& device, Vulcant::VulcantComputeCommand& cmd);
         void setResolution(const glm::ivec2& resolution);
-        void setSceneData(const Vulcant::Rendering::SceneData&);
+        void setSceneData(const Vulcant::Toolkit::SceneData&);
         void render();
 
         Vulcant::VulcantImage& getColor();
@@ -61,14 +61,14 @@ namespace Vulcant::Examples
         virtual Vulcant::VulcantImage&  getResult() override;
         virtual Vulcant::VulcantWindow& getWindow() override;
 
-        Vulcant::Rendering::SceneData          sceneData;
-        std::vector<Vulcant::Rendering::Light> lightData;
+        Vulcant::Toolkit::SceneData          sceneData;
+        std::vector<Vulcant::Toolkit::Light> lightData;
 
         double pos = 3.0;
 
       private:
-        Vulcant::Rendering::Light     getExampleLight();
-        Vulcant::Rendering::SceneData getScene(const glm::vec3& cameraPos, const glm::dvec2& mouse);
+        Vulcant::Toolkit::Light     getExampleLight();
+        Vulcant::Toolkit::SceneData getScene(const glm::vec3& cameraPos, const glm::dvec2& mouse);
 
         glm::ivec2 resolution        = glm::ivec2(-1, -1);
         bool       sceneDataUploaded = false;
@@ -78,7 +78,7 @@ namespace Vulcant::Examples
         double                                               factor = 1.0;
         float                                                time   = 0.0f;
         glm::dvec2                                           mouse  = glm::dvec2(0, 0);
-        std::unique_ptr<Vulcant::Rendering::DeferredShading> deferred;
+        std::unique_ptr<Vulcant::Toolkit::DeferredShading> deferred;
         std::unique_ptr<Vulcant::VulcantBuffer>              sceneDataUbo;
         std::unique_ptr<Vulcant::VulcantShader>              shader;
         std::unique_ptr<Vulcant::VulcantSet>                 set;

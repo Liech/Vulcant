@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 
-#include "Rendering/SphereData.h"
+#include "Vulcant/Toolkit/SphereData.h"
 
 struct SphereInitData
 {

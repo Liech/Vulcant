@@ -4,10 +4,10 @@
 #include "Examples/SphereRasterizerScenes/CubeGridScene.h"
 #include "Examples/SphereRasterizerScenes/FloatingSpheresScene.h"
 #include "Examples/SphereRasterizerScenes/HillLandscapeScene.h"
-#include "Rendering/DeferredShading.h"
-#include "Rendering/Camera.h"
-#include "Rendering/Freecam.h"
-#include "Rendering/ArcCam.h"
+#include "Vulcant/Toolkit/DeferredShading.h"
+#include "Vulcant/Toolkit/Camera.h"
+#include "Vulcant/Toolkit/Freecam.h"
+#include "Vulcant/Toolkit/ArcCam.h"
 #include "ShaderLibrary/Example/SphereAnimation.h"
 #include "Vulcant/Interface/VulcantBuffer.h"
 #include "Vulcant/Interface/VulcantComputeCommand.h"
@@ -132,8 +132,8 @@ void SphereRasterizer::createWindow(Vulcant::VulcantDevice& deviceInput, const g
     glm::vec3 eye(0.0f, 4.0f, 8.0f);
     glm::vec3 center(0.0f, 0.0f, 0.0f);
     glm::vec3 up(0.0f, 1.0f, 0.0f);
-    freecam = std::make_unique<Vulcant::Rendering::Freecam>(*window, eye, center, up);
-    arccam  = std::make_unique<Vulcant::Rendering::ArcCam>(*window, eye, center, up);
+    freecam = std::make_unique<Vulcant::Toolkit::Freecam>(*window, eye, center, up);
+    arccam  = std::make_unique<Vulcant::Toolkit::ArcCam>(*window, eye, center, up);
     cam     = freecam.get();
 
     prepare(deviceInput, resolution);
@@ -431,10 +431,10 @@ void SphereRasterizer::prepare(Vulcant::VulcantDevice& deviceInput, const glm::i
     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
     {
         frameResources[i].animUbo        = device->createUniform(1, sizeof(SphereAnimUniforms));
-        frameResources[i].sphereRenderer = std::make_unique<Vulcant::Rendering::SphereRenderer>(*device, glm::ivec2(0, 0), MAX_SPHERES);
+        frameResources[i].sphereRenderer = std::make_unique<Vulcant::Toolkit::SphereRenderer>(*device, glm::ivec2(0, 0), MAX_SPHERES);
         frameResources[i].sphereRenderer->setActiveSphereCount(activeSphereCount);
 
-        frameResources[i].cubeRenderer   = std::make_unique<Vulcant::Rendering::CubeRenderer>(*device, glm::ivec2(0, 0), MAX_SPHERES);
+        frameResources[i].cubeRenderer   = std::make_unique<Vulcant::Toolkit::CubeRenderer>(*device, glm::ivec2(0, 0), MAX_SPHERES);
         frameResources[i].cubeRenderer->setCubesBuffer(frameResources[i].sphereRenderer->getSpheresBuffer(), activeSphereCount);
     }
 
@@ -443,7 +443,7 @@ void SphereRasterizer::prepare(Vulcant::VulcantDevice& deviceInput, const glm::i
     auto        anim_spirv = std::vector<uint32_t>(anim_slang, anim_slang + anim_size / sizeof(uint32_t));
     animShader             = device->createShader(anim_spirv);
 
-    deferred = std::make_unique<Vulcant::Rendering::DeferredShading>();
+    deferred = std::make_unique<Vulcant::Toolkit::DeferredShading>();
     deferred->prepare(*device);
 
     ui = device->createUi(*window, Vulcant::VulcantImageFormat::R32G32B32A32_SFLOAT, false);
@@ -528,9 +528,9 @@ Vulcant::VulcantImage& SphereRasterizer::getNormal()
     return *normal;
 }
 
-Vulcant::Rendering::Light SphereRasterizer::getExampleLight()
+Vulcant::Toolkit::Light SphereRasterizer::getExampleLight()
 {
-    Vulcant::Rendering::Light light = {};
+    Vulcant::Toolkit::Light light = {};
     light.type                      = 1.0f; // Point light
     light.position[0]               = 0.0f;
     light.position[1]               = 80.0f;
