@@ -215,5 +215,11 @@ file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/VulcantConfig.cmake"
 "find_dependency(unofficial-spirv-reflect CONFIG)\n"
 "find_dependency(glfw3 CONFIG)\n"
 "include(\"\${CMAKE_CURRENT_LIST_DIR}/VulcantTargets.cmake\")\n"
+"if(EXISTS \"\${CMAKE_CURRENT_LIST_DIR}/VulcantToolkitTargets.cmake\")\n"
+"    include(\"\${CMAKE_CURRENT_LIST_DIR}/VulcantToolkitTargets.cmake\")\n"
+"    if(TARGET Vulcant::VulcantToolkit AND NOT TARGET VulcantToolkit)\n"
+"        add_library(VulcantToolkit ALIAS Vulcant::VulcantToolkit)\n"
+"    endif()\n"
+"endif()\n"
 )
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/VulcantConfig.cmake" DESTINATION share/vulcant)

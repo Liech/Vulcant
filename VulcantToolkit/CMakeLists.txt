@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.24...4.0.2)
 
 project(VulcantToolkit)
 
-find_program(SLANG_COMPILER slangc REQUIRED)
+find_program(SLANG_COMPILER NAMES slangc slangc.exe PATH_SUFFIXES tools/shader-slang REQUIRED)
 find_package(glm REQUIRED)
 
 set(SHADER_GEN_DIR "${CMAKE_CURRENT_BINARY_DIR}/generated_shaders")
