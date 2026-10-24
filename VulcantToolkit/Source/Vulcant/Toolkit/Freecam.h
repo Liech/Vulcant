@@ -45,21 +45,29 @@ namespace Vulcant::Toolkit
         virtual SceneData getScene() const override;
 
       private:
-        void updateScene();
+        void updateAnglesFromVectors();
+        void updateTargetFromAngles();
+        glm::dvec3 getLookDir() const;
+        void getBasis(glm::dvec3& r, glm::dvec3& u, glm::dvec3& f) const;
 
-        bool       active = false;
-        glm::dvec2 lastMousePosition;
+        bool       active     = false;
+        bool       firstMouse = true;
+        glm::dvec2 lastMousePosition{ 0.0 };
 
-        glm::dvec3 up;
-        glm::dvec3 target;
-        glm::dvec3 eye;
+        glm::dvec3 up{ 0.0, 1.0, 0.0 };
+        glm::dvec3 target{ 0.0, 0.0, 0.0 };
+        glm::dvec3 eye{ 0.0, 0.0, 3.0 };
+
+        double     yaw   = 0.0;
+        double     pitch = 0.0;
+
         float      fovY   = glm::radians(75.0f);
         float      aspect = 16.0f / 9.0f;
         float      zNear  = 0.05f;
         float      zFar   = 2000.0f;
 
         double     translationSpeed    = 5.0;
-        double     rotationSensitivity = 0.0002;
+        double     rotationSensitivity = 0.002;
 
         Vulcant::VulcantWindow& window;
     };

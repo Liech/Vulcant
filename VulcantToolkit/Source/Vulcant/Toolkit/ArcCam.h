@@ -55,6 +55,7 @@ namespace Vulcant::Toolkit
       private:
         void updateEyeFromAngles();
         void updateAnglesFromEye();
+        void getBasis(glm::dvec3& r, glm::dvec3& u, glm::dvec3& f) const;
 
         Vulcant::VulcantWindow& window;
 

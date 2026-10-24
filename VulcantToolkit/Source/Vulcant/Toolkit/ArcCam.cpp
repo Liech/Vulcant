@@ -14,11 +14,34 @@ namespace Vulcant::Toolkit
       , eye(eyeInput)
       , up(upInput)
     {
-        lastMousePosition = window.getInput().getMousePosition();
+        lastMousePosition = glm::dvec2(window.getResolution()) * 0.5;
         updateAnglesFromEye();
     }
 
     ArcCam::~ArcCam() {}
+
+    void ArcCam::getBasis(glm::dvec3& r, glm::dvec3& u, glm::dvec3& f) const
+    {
+        u = glm::length(up) > 0.0001 ? glm::normalize(up) : glm::dvec3(0.0, 1.0, 0.0);
+        if (std::abs(u.y) < 0.9999)
+        {
+            r = glm::normalize(glm::cross(glm::dvec3(0.0, 1.0, 0.0), u));
+            f = glm::cross(u, r);
+        }
+        else
+        {
+            if (u.y > 0.0)
+            {
+                r = glm::dvec3(1.0, 0.0, 0.0);
+                f = glm::dvec3(0.0, 0.0, 1.0);
+            }
+            else
+            {
+                r = glm::dvec3(-1.0, 0.0, 0.0);
+                f = glm::dvec3(0.0, 0.0, 1.0);
+            }
+        }
+    }
 
     void ArcCam::updateAnglesFromEye()
     {
@@ -30,9 +53,16 @@ namespace Vulcant::Toolkit
             dir      = glm::dvec3(0.0, 0.0, 1.0);
         }
 
+        glm::dvec3 r, u, f;
+        getBasis(r, u, f);
+
         glm::dvec3 normDir = dir / distance;
-        pitch = std::asin(std::clamp(normDir.y, -0.9999, 0.9999));
-        yaw   = std::atan2(normDir.x, normDir.z);
+        double projU = glm::dot(normDir, u);
+        double projR = glm::dot(normDir, r);
+        double projF = glm::dot(normDir, f);
+
+        pitch = std::asin(std::clamp(projU, -0.9999, 0.9999));
+        yaw   = std::atan2(projR, projF);
     }
 
     void ArcCam::updateEyeFromAngles()
@@ -41,10 +71,12 @@ namespace Vulcant::Toolkit
         const double maxPitch = glm::radians(89.0);
         pitch = std::clamp(pitch, -maxPitch, maxPitch);
 
-        glm::dvec3 offset;
-        offset.x = distance * std::cos(pitch) * std::sin(yaw);
-        offset.y = distance * std::sin(pitch);
-        offset.z = distance * std::cos(pitch) * std::cos(yaw);
+        glm::dvec3 r, u, f;
+        getBasis(r, u, f);
+
+        glm::dvec3 offset = distance * (std::cos(pitch) * std::sin(yaw) * r +
+                                        std::sin(pitch) * u +
+                                        std::cos(pitch) * std::cos(yaw) * f);
 
         eye = target + offset;
     }
@@ -68,21 +100,6 @@ namespace Vulcant::Toolkit
 
     void ArcCam::tick(double deltaTime)
     {
-        auto& input = window.getInput();
-
-        // 1. Mouse Wheel ZOOM: Always available or when active/interacting
-        // If MouseWheel events arrive, adjust distance
-        if (input.isPressed(Vulcant::VulcantInputValue::MouseWheelUp))
-        {
-            distance = std::max(0.1, distance - zoomSpeed * (double)deltaTime * 10.0);
-            updateEyeFromAngles();
-        }
-        else if (input.isPressed(Vulcant::VulcantInputValue::MouseWheelDown))
-        {
-            distance += zoomSpeed * (double)deltaTime * 10.0;
-            updateEyeFromAngles();
-        }
-
         // Without focus, do not rotate or move
         if (!active)
         {
@@ -90,53 +107,62 @@ namespace Vulcant::Toolkit
             return;
         }
 
+        auto& input = window.getInput();
+
         const glm::dvec2 mouseCenter = glm::dvec2(window.getResolution()) * 0.5;
         auto             currentPos  = input.getMousePosition();
-        auto             diff        = (lastMousePosition == mouseCenter) ? (currentPos - lastMousePosition) : glm::dvec2(0.0);
-        lastMousePosition            = mouseCenter;
 
-        // 2. ArcCam ROTATION: Enabled ONLY with FOCUS (active == true)!
-        // Moving mouse right increases yaw (rotates eye right), moving mouse up increases pitch (looks up)
+        if (firstMouse)
+        {
+            lastMousePosition = mouseCenter;
+            firstMouse        = false;
+        }
+
+        auto diff         = currentPos - mouseCenter;
+        lastMousePosition = mouseCenter;
+
+        // ArcCam ROTATION: Enabled ONLY with FOCUS (active == true)!
         yaw   += diff.x * rotateSensitivity;
         pitch += diff.y * rotateSensitivity;
+
+        const double twoPi = glm::two_pi<double>();
+        while (yaw > glm::pi<double>())  yaw -= twoPi;
+        while (yaw < -glm::pi<double>()) yaw += twoPi;
+
         updateEyeFromAngles();
 
-        // 3. ArcCam MOVEMENT (target pan / translation): Enabled ONLY with FOCUS (active == true)!
+        // ArcCam MOVEMENT (target pan / translation)
         glm::dvec3 forward = glm::normalize(target - eye);
-        glm::dvec3 right   = glm::normalize(glm::cross(forward, up));
-        glm::dvec3 camUp   = glm::normalize(glm::cross(right, forward));
+        glm::dvec3 r, u, f;
+        getBasis(r, u, f);
 
-        double moveSpeed = panSpeed * (double)deltaTime;
+        // Safe right vector that never degenerates to zero even at poles
+        glm::dvec3 right = std::cos(yaw) * r - std::sin(yaw) * f;
+        glm::dvec3 camUp = glm::normalize(glm::cross(right, forward));
 
-        glm::dvec3 translation(0.0);
+        double moveSpeed = panSpeed * deltaTime;
+        if (input.isPressed(Vulcant::VulcantInputValue::Shift))
+        {
+            moveSpeed *= 2.5;
+        }
 
+        glm::dvec3 moveDir(0.0);
         if (input.isPressed(Vulcant::VulcantInputValue::W))
-        {
-            translation += forward * moveSpeed;
-        }
+            moveDir += forward;
         if (input.isPressed(Vulcant::VulcantInputValue::S))
-        {
-            translation -= forward * moveSpeed;
-        }
+            moveDir -= forward;
         if (input.isPressed(Vulcant::VulcantInputValue::A))
-        {
-            translation -= right * moveSpeed;
-        }
+            moveDir -= right;
         if (input.isPressed(Vulcant::VulcantInputValue::D))
-        {
-            translation += right * moveSpeed;
-        }
+            moveDir += right;
         if (input.isPressed(Vulcant::VulcantInputValue::Q))
-        {
-            translation += up * moveSpeed;
-        }
+            moveDir += camUp;
         if (input.isPressed(Vulcant::VulcantInputValue::E))
-        {
-            translation -= up * moveSpeed;
-        }
+            moveDir -= camUp;
 
-        if (glm::length(translation) > 0.0)
+        if (glm::length(moveDir) > 0.0001)
         {
+            glm::dvec3 translation = glm::normalize(moveDir) * moveSpeed;
             target += translation;
             eye    += translation;
         }
@@ -148,7 +174,7 @@ namespace Vulcant::Toolkit
     {
         if (key == Vulcant::VulcantInputValue::MouseWheelUp)
         {
-            distance = std::max(0.1, distance * 0.9);
+            distance = std::max(0.01, distance * 0.9);
             updateEyeFromAngles();
             return true;
         }
@@ -166,6 +192,7 @@ namespace Vulcant::Toolkit
             {
                 lastMousePosition = glm::dvec2(window.getResolution()) * 0.5;
                 window.getInput().setMousePosition(lastMousePosition);
+                firstMouse = true;
             }
             return true;
         }
