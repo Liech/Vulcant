@@ -2,13 +2,9 @@
 
 namespace Vulcant
 {
-    VulcantRasterizationConfig::VulcantRasterizationConfig()
-    {
-    }
+    VulcantRasterizationConfig::VulcantRasterizationConfig() {}
 
-    VulcantRasterizationConfig::~VulcantRasterizationConfig()
-    {
-    }
+    VulcantRasterizationConfig::~VulcantRasterizationConfig() {}
 
     VulcantCullMode VulcantRasterizationConfig::getCullMode() const
     {
@@ -39,6 +35,16 @@ namespace Vulcant
     {
         polygonMode = mode;
     }
+
+    bool VulcantRasterizationConfig::isClear() const
+    {
+        return clear;
+    }
+
+    void VulcantRasterizationConfig::setClear(bool clearInput)
+    {
+        clear = clearInput;
+    }
 }
 
 #ifdef ISTESTPROJECT
@@ -50,6 +56,7 @@ TEST_CASE("VulcantRasterizationConfig/Defaults")
     REQUIRE(config.getCullMode() == Vulcant::VulcantCullMode::None);
     REQUIRE(config.getFrontFace() == Vulcant::VulcantFrontFace::Clockwise);
     REQUIRE(config.getPolygonMode() == Vulcant::VulcantPolygonMode::Fill);
+    REQUIRE(config.isClear() == true);
 }
 
 TEST_CASE("VulcantRasterizationConfig/Setters")
@@ -58,9 +65,11 @@ TEST_CASE("VulcantRasterizationConfig/Setters")
     config.setCullMode(Vulcant::VulcantCullMode::Back);
     config.setFrontFace(Vulcant::VulcantFrontFace::CounterClockwise);
     config.setPolygonMode(Vulcant::VulcantPolygonMode::Line);
+    config.setClear(false);
 
     REQUIRE(config.getCullMode() == Vulcant::VulcantCullMode::Back);
     REQUIRE(config.getFrontFace() == Vulcant::VulcantFrontFace::CounterClockwise);
     REQUIRE(config.getPolygonMode() == Vulcant::VulcantPolygonMode::Line);
+    REQUIRE(config.isClear() == false);
 }
 #endif

@@ -10,16 +10,16 @@
 
 namespace Vulcant::Wrapper
 {
-    VulcanGraphicPipeline::VulcanGraphicPipeline(VulcanDevice&                             deviceInput,
-                                                 const std::vector<VulcanShader*>&         shader,
-                                                 const std::vector<VulcanImage*>&          color,
-                                                 VulcanImage*                              depth,
-                                                 VulcanImage*                              stencil,
-                                                 const VulcantRasterizationConfig&         rasterConfig)
+    VulcanGraphicPipeline::VulcanGraphicPipeline(VulcanDevice&                     deviceInput,
+                                                 const std::vector<VulcanShader*>& shader,
+                                                 const std::vector<VulcanImage*>&  color,
+                                                 VulcanImage*                      depth,
+                                                 VulcanImage*                      stencil,
+                                                 const VulcantRasterizationConfig& rasterConfig)
       : device(deviceInput)
     {
         createClearValues(color, depth, stencil);
-        createRenderPass(color, depth, stencil);
+        createRenderPass(color, depth, stencil, rasterConfig);
         createFramebuffer(color, depth, stencil);
         createPipeline(shader, color, depth, stencil, rasterConfig);
     }
@@ -108,21 +108,22 @@ namespace Vulcant::Wrapper
         }
     }
 
-    void VulcanGraphicPipeline::createRenderPass(const std::vector<VulcanImage*>& color, VulcanImage* depth, VulcanImage* stencil)
+    void VulcanGraphicPipeline::createRenderPass(const std::vector<VulcanImage*>& color, VulcanImage* depth, VulcanImage* stencil, const VulcantRasterizationConfig& rasterConfig)
     {
         std::vector<VkAttachmentDescription> attachments;
         std::vector<VkAttachmentReference>   colorAttachmentRefs;
+        bool                                 clear = rasterConfig.isClear();
 
         for (size_t i = 0; i < color.size(); i++)
         {
             VkAttachmentDescription colorAttachment{};
             colorAttachment.format         = color[i]->getFormat();
             colorAttachment.samples        = VK_SAMPLE_COUNT_1_BIT;
-            colorAttachment.loadOp         = VK_ATTACHMENT_LOAD_OP_CLEAR;
+            colorAttachment.loadOp         = clear ? VK_ATTACHMENT_LOAD_OP_CLEAR : VK_ATTACHMENT_LOAD_OP_LOAD;
             colorAttachment.storeOp        = VK_ATTACHMENT_STORE_OP_STORE;
             colorAttachment.stencilLoadOp  = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
             colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-            colorAttachment.initialLayout  = VK_IMAGE_LAYOUT_UNDEFINED;
+            colorAttachment.initialLayout  = clear ? VK_IMAGE_LAYOUT_UNDEFINED : VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
             colorAttachment.finalLayout    = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
 
             attachments.push_back(colorAttachment);
@@ -139,11 +140,11 @@ namespace Vulcant::Wrapper
             VkAttachmentDescription depthAttachment{};
             depthAttachment.format         = depth->getFormat();
             depthAttachment.samples        = VK_SAMPLE_COUNT_1_BIT;
-            depthAttachment.loadOp         = VK_ATTACHMENT_LOAD_OP_CLEAR;
+            depthAttachment.loadOp         = clear ? VK_ATTACHMENT_LOAD_OP_CLEAR : VK_ATTACHMENT_LOAD_OP_LOAD;
             depthAttachment.storeOp        = VK_ATTACHMENT_STORE_OP_STORE;
             depthAttachment.stencilLoadOp  = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
             depthAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-            depthAttachment.initialLayout  = VK_IMAGE_LAYOUT_UNDEFINED;
+            depthAttachment.initialLayout  = clear ? VK_IMAGE_LAYOUT_UNDEFINED : VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
             depthAttachment.finalLayout    = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
             depthAttachmentRef.attachment = static_cast<uint32_t>(attachments.size());
@@ -158,10 +159,18 @@ namespace Vulcant::Wrapper
         subpass.pDepthStencilAttachment = depth ? &depthAttachmentRef : nullptr;
 
         VkSubpassDependency dependency{};
-        dependency.srcSubpass    = VK_SUBPASS_EXTERNAL;
-        dependency.dstSubpass    = 0;
-        dependency.srcStageMask  = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | (depth ? VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT : 0);
-        dependency.srcAccessMask = 0;
+        dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
+        dependency.dstSubpass = 0;
+        if (clear)
+        {
+            dependency.srcStageMask  = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | (depth ? VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT : 0);
+            dependency.srcAccessMask = 0;
+        }
+        else
+        {
+            dependency.srcStageMask  = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | (depth ? VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT : 0) | VK_PIPELINE_STAGE_TRANSFER_BIT;
+            dependency.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | (depth ? VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT : 0) | VK_ACCESS_TRANSFER_WRITE_BIT;
+        }
         dependency.dstStageMask  = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | (depth ? VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT : 0);
         dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | (depth ? VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT : 0);
 
@@ -203,11 +212,11 @@ namespace Vulcant::Wrapper
         VK_CHECK_RESULT(vkCreateFramebuffer(device.getDevice(), &framebufferInfo, nullptr, &framebuffer));
     }
 
-    void VulcanGraphicPipeline::createPipeline(const std::vector<VulcanShader*>&         shader,
-                                               const std::vector<VulcanImage*>&          color,
-                                               VulcanImage*                              depth,
-                                               VulcanImage*                              stencil,
-                                               const VulcantRasterizationConfig&         rasterConfig)
+    void VulcanGraphicPipeline::createPipeline(const std::vector<VulcanShader*>& shader,
+                                               const std::vector<VulcanImage*>&  color,
+                                               VulcanImage*                      depth,
+                                               VulcanImage*                      stencil,
+                                               const VulcantRasterizationConfig& rasterConfig)
     {
         Vulcant::Wrapper::Graphic::GraphicPipelineGenerator pipeOptions;
         pipeOptions.setBoiler();

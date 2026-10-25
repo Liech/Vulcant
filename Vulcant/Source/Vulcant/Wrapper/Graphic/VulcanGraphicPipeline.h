@@ -15,12 +15,12 @@ namespace Vulcant::Wrapper
     class VulcanGraphicPipeline
     {
       public:
-        VulcanGraphicPipeline(VulcanDevice&                             deviceInput,
-                              const std::vector<VulcanShader*>&         shader,
-                              const std::vector<VulcanImage*>&          color,
-                              VulcanImage*                              depth        = nullptr,
-                              VulcanImage*                              stencil      = nullptr,
-                              const VulcantRasterizationConfig&         rasterConfig = VulcantRasterizationConfig());
+        VulcanGraphicPipeline(VulcanDevice&                     deviceInput,
+                              const std::vector<VulcanShader*>& shader,
+                              const std::vector<VulcanImage*>&  color,
+                              VulcanImage*                      depth        = nullptr,
+                              VulcanImage*                      stencil      = nullptr,
+                              const VulcantRasterizationConfig& rasterConfig = VulcantRasterizationConfig());
         virtual ~VulcanGraphicPipeline();
 
         VkPipeline       getPipeline();
@@ -32,13 +32,9 @@ namespace Vulcant::Wrapper
         const std::vector<VkClearValue>& getClearValues() const;
 
       private:
-        void createRenderPass(const std::vector<VulcanImage*>& color, VulcanImage* depth, VulcanImage* stencil);
+        void createRenderPass(const std::vector<VulcanImage*>& color, VulcanImage* depth, VulcanImage* stencil, const VulcantRasterizationConfig& rasterConfig);
         void createFramebuffer(const std::vector<VulcanImage*>& color, VulcanImage* depth, VulcanImage* stencil);
-        void createPipeline(const std::vector<VulcanShader*>&         shader,
-                            const std::vector<VulcanImage*>&          color,
-                            VulcanImage*                              depth,
-                            VulcanImage*                              stencil,
-                            const VulcantRasterizationConfig&         rasterConfig);
+        void createPipeline(const std::vector<VulcanShader*>& shader, const std::vector<VulcanImage*>& color, VulcanImage* depth, VulcanImage* stencil, const VulcantRasterizationConfig& rasterConfig);
         void createClearValues(const std::vector<VulcanImage*>& color, VulcanImage* depth = nullptr, VulcanImage* stencil = nullptr);
 
         VulcanDevice& device;

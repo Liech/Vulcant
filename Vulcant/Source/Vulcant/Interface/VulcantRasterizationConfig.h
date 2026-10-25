@@ -21,9 +21,13 @@ namespace Vulcant
         VulcantPolygonMode getPolygonMode() const;
         void               setPolygonMode(VulcantPolygonMode mode);
 
+        bool isClear() const;
+        void setClear(bool clear);
+
       private:
         VulcantCullMode    cullMode    = VulcantCullMode::None;
         VulcantFrontFace   frontFace   = VulcantFrontFace::Clockwise;
         VulcantPolygonMode polygonMode = VulcantPolygonMode::Fill;
+        bool               clear       = true;
     };
 }

@@ -52,21 +52,29 @@ namespace Vulcant::Toolkit
                 allocateOutputTextures();
             }
             createPipeline();
-            updateDescriptorSets();
         }
+        updateDescriptorSets();
     }
 
     void MeshRenderer::setResolution(const glm::ivec2& newResolution)
     {
+        if (resolution == newResolution && pipeline)
+        {
+            return;
+        }
+
         resolution = newResolution;
 
         if (ownsOutputTextures)
         {
             allocateOutputTextures();
+            createPipeline();
         }
+    }
 
-        createPipeline();
-        updateDescriptorSets();
+    const glm::ivec2& MeshRenderer::getResolution() const
+    {
+        return resolution;
     }
 
     void MeshRenderer::allocateOutputTextures()
@@ -85,6 +93,13 @@ namespace Vulcant::Toolkit
 
     void MeshRenderer::setOutputTextures(Vulcant::VulcantImage& colorInput, Vulcant::VulcantImage& depthInput, Vulcant::VulcantImage& normalInput)
     {
+        resolution = colorInput.getResolution();
+
+        if (!ownsOutputTextures && color == &colorInput && depth == &depthInput && normal == &normalInput && pipeline)
+        {
+            return;
+        }
+
         ownsOutputTextures = false;
         color              = &colorInput;
         depth              = &depthInput;
@@ -107,8 +122,11 @@ namespace Vulcant::Toolkit
 
         Vulcant::VulcantRasterizationConfig rasterConfig;
         rasterConfig.setCullMode(cullMode);
+        rasterConfig.setClear(clear);
 
         pipeline = device->createVulcanGraphicPipeline(shaders, colorAttachments, depth, nullptr, rasterConfig);
+        graphicSet.reset();
+        updateDescriptorSets();
     }
 
     void MeshRenderer::updateDescriptorSets()
@@ -134,12 +152,20 @@ namespace Vulcant::Toolkit
 
     void MeshRenderer::setWireframeMode(WireframeMode mode)
     {
+        if (wireframeMode == mode)
+        {
+            return;
+        }
         wireframeMode = mode;
         updateMeshParamsBuffer();
     }
 
     void MeshRenderer::setWireframeColor(const glm::vec3& colorVal)
     {
+        if (wireframeColor == colorVal)
+        {
+            return;
+        }
         wireframeColor = colorVal;
         updateMeshParamsBuffer();
     }
@@ -166,6 +192,20 @@ namespace Vulcant::Toolkit
     Vulcant::VulcantCullMode MeshRenderer::getCullMode() const
     {
         return cullMode;
+    }
+
+    void MeshRenderer::setClear(bool clearVal)
+    {
+        if (clear != clearVal)
+        {
+            clear = clearVal;
+            createPipeline();
+        }
+    }
+
+    bool MeshRenderer::isClear() const
+    {
+        return clear;
     }
 
     void MeshRenderer::updateMeshParamsBuffer()

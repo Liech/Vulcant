@@ -11,7 +11,7 @@ namespace Vulcant::Wrapper
     class VulcanPool
     {
       public:
-        VulcanPool(VulcanDevice& device, uint32_t space = 64);
+        VulcanPool(VulcanDevice& device, uint32_t space = 1024);
         virtual ~VulcanPool();
 
         void reset();
@@ -30,8 +30,8 @@ namespace Vulcant::Wrapper
         VulcanDevice& device;
         uint32_t      space;
 
-        VkDescriptorPool     descriptorPool;
-        VkCommandPool        commandPool;
+        VkDescriptorPool descriptorPool;
+        VkCommandPool    commandPool;
 
         std::set<VulcanSet*> tracked;
     };

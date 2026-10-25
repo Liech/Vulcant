@@ -42,9 +42,10 @@ namespace Vulcant::Toolkit
         MeshRenderer(Vulcant::VulcantDevice& device, const glm::ivec2& resolution = glm::ivec2(0, 0));
         virtual ~MeshRenderer();
 
-        void init(Vulcant::VulcantDevice& device, const glm::ivec2& resolution);
-        void setResolution(const glm::ivec2& resolution);
-        void setSceneData(const SceneData& sceneData);
+        void              init(Vulcant::VulcantDevice& device, const glm::ivec2& resolution);
+        void              setResolution(const glm::ivec2& resolution);
+        const glm::ivec2& getResolution() const;
+        void              setSceneData(const SceneData& sceneData);
 
         void             setWireframeMode(WireframeMode mode);
         void             setWireframeColor(const glm::vec3& color);
@@ -53,6 +54,9 @@ namespace Vulcant::Toolkit
 
         void                     setCullMode(Vulcant::VulcantCullMode mode);
         Vulcant::VulcantCullMode getCullMode() const;
+
+        void setClear(bool clear);
+        bool isClear() const;
 
         void setMesh(const std::vector<glm::vec3>& positions, const std::vector<uint32_t>& indices, const glm::vec3& color = glm::vec3(0.8f, 0.8f, 0.8f));
         void setMesh(const std::vector<glm::vec3>& positions, const std::vector<glm::vec3>& normals, const std::vector<uint32_t>& indices, const glm::vec3& color = glm::vec3(0.8f, 0.8f, 0.8f));
@@ -86,6 +90,7 @@ namespace Vulcant::Toolkit
         WireframeMode            wireframeMode      = WireframeMode::Off;
         glm::vec3                wireframeColor     = glm::vec3(1.0f, 0.0f, 0.0f);
         Vulcant::VulcantCullMode cullMode           = Vulcant::VulcantCullMode::None;
+        bool                     clear              = true;
 
         SceneData        sceneData{};
         MeshShaderParams meshParams{};

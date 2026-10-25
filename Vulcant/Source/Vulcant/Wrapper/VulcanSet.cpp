@@ -26,14 +26,12 @@ namespace Vulcant::Wrapper
     {
         if (!valid)
             return;
-        // Intuitivly this should be called, but descriptors seem to be optimized in a way that forbids this. Leaving it here to avoid confusion
-        // See flag VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT
-        // 
-        //if (!descriptorSets.empty())
-        //{
-        //    vkFreeDescriptorSets(pool.getDevice().getDevice(), pool.getDescriptor(), static_cast<uint32_t>(descriptorSets.size()), descriptorSets.data());
-        //}
-        descriptorSets.clear();
+
+        if (!descriptorSets.empty())
+        {
+            vkFreeDescriptorSets(pool.getDevice().getDevice(), pool.getDescriptor(), static_cast<uint32_t>(descriptorSets.size()), descriptorSets.data());
+            descriptorSets.clear();
+        }
         valid = false;
     }
 
