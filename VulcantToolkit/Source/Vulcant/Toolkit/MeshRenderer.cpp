@@ -30,8 +30,9 @@ namespace Vulcant::Toolkit
         device     = &deviceInput;
         resolution = res;
 
-        sceneDataUbo  = device->createUniform(1, sizeof(SceneData));
-        meshParamsUbo = device->createUniform(1, sizeof(MeshShaderParams));
+        sceneDataUbo   = device->createUniform(1, sizeof(SceneData));
+        meshParamsUbo  = device->createUniform(1, sizeof(MeshShaderParams));
+        indirectBuffer = device->createIndirectBuffer(1, sizeof(uint32_t) * 4);
         updateMeshParamsBuffer();
 
         const auto* vertSlang = MeshRasterizer_vert_spirv;
@@ -189,6 +190,12 @@ namespace Vulcant::Toolkit
         vertexCount  = static_cast<uint32_t>(vertices.size());
         vertexBuffer = device->createVertexBuffer(vertexCount, sizeof(MeshVertex), false);
         vertexBuffer->uploadToGPU(vertices.data(), vertexCount, 0);
+
+        if (indirectBuffer)
+        {
+            uint32_t indirectCmd[4] = { vertexCount, 1u, 0u, 0u };
+            indirectBuffer->uploadToGPU(indirectCmd, 1);
+        }
     }
 
     void MeshRenderer::setMesh(const std::vector<glm::vec3>& positions, const std::vector<uint32_t>& indices, const glm::vec3& colorVal)
@@ -274,23 +281,26 @@ namespace Vulcant::Toolkit
 
     void MeshRenderer::record(Vulcant::VulcantGraphicCommand& cmd)
     {
-        if (vertexCount == 0 || !pipeline || !vertexBuffer || !color || !depth || !normal)
+        if (vertexCount == 0 || !pipeline || !vertexBuffer || !color || !depth || !normal || !indirectBuffer)
             return;
 
         cmd.beginRendering(*pipeline);
         cmd.setViewportAndScissor(glm::uvec2(resolution.x, resolution.y));
-        cmd.draw(vertexCount, graphicSet.get(), vertexBuffer.get());
+        cmd.drawIndirect(*indirectBuffer, graphicSet.get(), vertexBuffer.get());
         cmd.endRendering();
     }
 
     void MeshRenderer::record(Vulcant::VulcantGraphicCommand& cmd, Vulcant::VulcantBuffer& customVertexBuffer, uint32_t customVertexCount)
     {
-        if (customVertexCount == 0 || !pipeline || !color || !depth || !normal)
+        if (customVertexCount == 0 || !pipeline || !color || !depth || !normal || !indirectBuffer)
             return;
+
+        uint32_t indirectCmd[4] = { customVertexCount, 1u, 0u, 0u };
+        indirectBuffer->uploadToGPU(indirectCmd, 1);
 
         cmd.beginRendering(*pipeline);
         cmd.setViewportAndScissor(glm::uvec2(resolution.x, resolution.y));
-        cmd.draw(customVertexCount, graphicSet.get(), &customVertexBuffer);
+        cmd.drawIndirect(*indirectBuffer, graphicSet.get(), &customVertexBuffer);
         cmd.endRendering();
     }
 
