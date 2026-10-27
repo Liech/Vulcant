@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Vulcant/Interface/VulcantWindow.h"
-#include "Vulcant/Interface/VulcantInputValue.h"
 #include "Camera.h"
 #include "SceneData.h"
+#include "Vulcant/Interface/VulcantInputValue.h"
+#include "Vulcant/Interface/VulcantWindow.h"
 
 namespace Vulcant::Toolkit
 {
@@ -32,34 +32,62 @@ namespace Vulcant::Toolkit
         virtual float getFov() const override;
         virtual void  setFov(const float v) override;
 
-        virtual bool isActive() const override { return active; }
-        virtual void setActive(bool a) override { active = a; }
+        virtual bool isActive() const override
+        {
+            return active;
+        }
+        virtual void setActive(bool a) override
+        {
+            active = a;
+        }
 
-        virtual double getTranslationSensitivity() const override { return panSpeed; }
-        virtual void   setTranslationSensitivity(double s) override { panSpeed = static_cast<float>(s); }
-        virtual double getRotationSensitivity() const override { return rotateSensitivity; }
-        virtual void   setRotationSensitivity(double s) override { rotateSensitivity = static_cast<float>(s); }
+        virtual double getTranslationSensitivity() const override
+        {
+            return panSpeed;
+        }
+        virtual void setTranslationSensitivity(double s) override
+        {
+            panSpeed = static_cast<float>(s);
+        }
+        virtual double getRotationSensitivity() const override
+        {
+            return rotateSensitivity;
+        }
+        virtual void setRotationSensitivity(double s) override
+        {
+            rotateSensitivity = static_cast<float>(s);
+        }
 
         virtual SceneData getScene() const override;
 
         // ArcCam specific controls
-        double getDistance() const { return distance; }
-        void   setDistance(double dist);
+        double getDistance() const
+        {
+            return distance;
+        }
+        void setDistance(double dist);
 
-        double getYaw() const { return yaw; }
-        void   setYaw(double y);
+        double getYaw() const
+        {
+            return yaw;
+        }
+        void setYaw(double y);
 
-        double getPitch() const { return pitch; }
-        void   setPitch(double p);
+        double getPitch() const
+        {
+            return pitch;
+        }
+        void setPitch(double p);
 
       private:
+        void rotate(double deltaX, double deltaY);
         void updateEyeFromAngles();
         void updateAnglesFromEye();
         void getBasis(glm::dvec3& r, glm::dvec3& u, glm::dvec3& f) const;
 
         Vulcant::VulcantWindow& window;
 
-        bool       active = false; // Focus mode: controls movement (WASD/QE/Panning/Zoom)
+        bool       active = false;
         glm::dvec2 lastMousePosition;
         bool       firstMouse = true;
 
@@ -67,10 +95,9 @@ namespace Vulcant::Toolkit
         glm::dvec3 eye;
         glm::dvec3 up = glm::dvec3(0.0, 1.0, 0.0);
 
-        // Spherical coordinates around target
         double distance = 5.0;
-        double yaw      = 0.0; // in radians
-        double pitch    = 0.0; // in radians
+        double yaw      = 0.0;
+        double pitch    = 0.0;
 
         float fovY   = glm::radians(75.0f);
         float aspect = 16.0f / 9.0f;

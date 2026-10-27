@@ -68,15 +68,55 @@ namespace Vulcant::Toolkit
 
     void ArcCam::updateEyeFromAngles()
     {
-        const double maxPitch = glm::radians(89.0);
-        pitch                 = std::clamp(pitch, -maxPitch, maxPitch);
-
         glm::dvec3 r, u, f;
         getBasis(r, u, f);
 
         glm::dvec3 offset = distance * (std::cos(pitch) * std::sin(yaw) * r + std::sin(pitch) * u + std::cos(pitch) * std::cos(yaw) * f);
 
         eye = target + offset;
+    }
+
+    void ArcCam::rotate(double deltaX, double deltaY)
+    {
+        glm::dvec3 toEye = eye - target;
+        double     dist  = glm::length(toEye);
+        if (dist < 1e-6)
+        {
+            dist  = 1.0;
+            toEye = glm::dvec3(0.0, 0.0, 1.0);
+        }
+
+        glm::dvec3 forward = -glm::normalize(toEye);
+
+        glm::dvec3 right = glm::cross(forward, up);
+        if (glm::length(right) < 1e-6)
+        {
+            if (std::abs(forward.y) < 0.999)
+            {
+                right = glm::cross(forward, glm::dvec3(0.0, 1.0, 0.0));
+            }
+            else
+            {
+                right = glm::cross(forward, glm::dvec3(0.0, 0.0, 1.0));
+            }
+        }
+        right            = glm::normalize(right);
+        glm::dvec3 camUp = glm::normalize(glm::cross(right, forward));
+        up               = camUp;
+
+        double     thetaX = -deltaX * rotateSensitivity;
+        glm::dmat4 rotYaw = glm::rotate(glm::dmat4(1.0), thetaX, camUp);
+        toEye             = glm::dvec3(rotYaw * glm::dvec4(toEye, 0.0));
+        right             = glm::dvec3(rotYaw * glm::dvec4(right, 0.0));
+
+        double     thetaY   = -deltaY * rotateSensitivity;
+        glm::dmat4 rotPitch = glm::rotate(glm::dmat4(1.0), thetaY, right);
+        toEye               = glm::dvec3(rotPitch * glm::dvec4(toEye, 0.0));
+        up                  = glm::normalize(glm::dvec3(rotPitch * glm::dvec4(camUp, 0.0)));
+
+        eye      = target + toEye;
+        distance = dist;
+        updateAnglesFromEye();
     }
 
     SceneData ArcCam::getScene() const
@@ -118,22 +158,15 @@ namespace Vulcant::Toolkit
             auto diff         = currentPos - mouseCenter;
             lastMousePosition = mouseCenter;
 
-            yaw += diff.x * rotateSensitivity;
-            pitch -= diff.y * rotateSensitivity;
-
-            const double twoPi = glm::two_pi<double>();
-            while (yaw > glm::pi<double>())
-                yaw -= twoPi;
-            while (yaw < -glm::pi<double>())
-                yaw += twoPi;
-
-            updateEyeFromAngles();
+            rotate(diff.x, diff.y);
 
             glm::dvec3 forward = glm::normalize(target - eye);
-            glm::dvec3 r, u, f;
-            getBasis(r, u, f);
-
-            glm::dvec3 right = std::cos(yaw) * r - std::sin(yaw) * f;
+            glm::dvec3 right   = glm::cross(forward, up);
+            if (glm::length(right) < 1e-6)
+            {
+                right = glm::cross(forward, glm::dvec3(0.0, 1.0, 0.0));
+            }
+            right            = glm::normalize(right);
             glm::dvec3 camUp = glm::normalize(glm::cross(right, forward));
 
             double moveSpeed = panSpeed * deltaTime;
@@ -185,32 +218,29 @@ namespace Vulcant::Toolkit
         lastMousePosition = currentPos;
 
         glm::dvec3 forward = glm::normalize(target - eye);
-        glm::dvec3 r, u, f;
-        getBasis(r, u, f);
-
-        glm::dvec3 right = std::cos(yaw) * r - std::sin(yaw) * f;
+        glm::dvec3 right   = glm::cross(forward, up);
+        if (glm::length(right) < 1e-6)
+        {
+            right = glm::cross(forward, glm::dvec3(0.0, 1.0, 0.0));
+        }
+        right            = glm::normalize(right);
         glm::dvec3 camUp = glm::normalize(glm::cross(right, forward));
 
         if ((isMiddle && isShift) || isRight)
         {
-            yaw += diff.x * rotateSensitivity;
-            pitch -= diff.y * rotateSensitivity;
-
-            const double twoPi = glm::two_pi<double>();
-            while (yaw > glm::pi<double>())
-                yaw -= twoPi;
-            while (yaw < -glm::pi<double>())
-                yaw += twoPi;
-
-            updateEyeFromAngles();
+            rotate(diff.x, diff.y);
         }
         else if (isMiddle && isCtrl)
         {
             double zoomFactor = 1.0 + diff.y * 0.005;
             if (zoomFactor > 0.0)
             {
-                distance = std::max(0.001, distance * zoomFactor);
-                updateEyeFromAngles();
+                distance         = std::max(0.001, distance * zoomFactor);
+                glm::dvec3 toEye = eye - target;
+                if (glm::length(toEye) > 1e-6)
+                {
+                    eye = target + glm::normalize(toEye) * distance;
+                }
             }
         }
         else if (isMiddle)
@@ -231,14 +261,22 @@ namespace Vulcant::Toolkit
     {
         if (key == Vulcant::VulcantInputValue::MouseWheelUp)
         {
-            distance = std::max(0.001, distance * 0.88);
-            updateEyeFromAngles();
+            distance         = std::max(0.001, distance * 0.88);
+            glm::dvec3 toEye = eye - target;
+            if (glm::length(toEye) > 1e-6)
+            {
+                eye = target + glm::normalize(toEye) * distance;
+            }
             return true;
         }
         if (key == Vulcant::VulcantInputValue::MouseWheelDown)
         {
-            distance = std::max(0.001, distance * 1.14);
-            updateEyeFromAngles();
+            distance         = std::max(0.001, distance * 1.14);
+            glm::dvec3 toEye = eye - target;
+            if (glm::length(toEye) > 1e-6)
+            {
+                eye = target + glm::normalize(toEye) * distance;
+            }
             return true;
         }
 
@@ -291,8 +329,16 @@ namespace Vulcant::Toolkit
 
     void ArcCam::setDistance(double dist)
     {
-        distance = std::max(0.01, dist);
-        updateEyeFromAngles();
+        distance         = std::max(0.001, dist);
+        glm::dvec3 toEye = eye - target;
+        if (glm::length(toEye) > 1e-6)
+        {
+            eye = target + glm::normalize(toEye) * distance;
+        }
+        else
+        {
+            updateEyeFromAngles();
+        }
     }
 
     void ArcCam::setYaw(double y)

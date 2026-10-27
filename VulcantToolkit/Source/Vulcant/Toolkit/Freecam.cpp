@@ -66,22 +66,67 @@ namespace Vulcant::Toolkit
 
     void Freecam::updateTargetFromAngles()
     {
-        glm::dvec3 dir  = getLookDir();
+        glm::dvec3 r, u, f;
+        getBasis(r, u, f);
+
+        glm::dvec3 dir  = std::cos(pitch) * std::sin(yaw) * r + std::sin(pitch) * u + std::cos(pitch) * std::cos(yaw) * f;
         double     dist = glm::distance(eye, target);
         if (dist < 0.0001)
         {
             dist = 1.0;
         }
-        target = eye + dir * dist;
+        target = eye + glm::normalize(dir) * dist;
     }
 
     glm::dvec3 Freecam::getLookDir() const
     {
-        glm::dvec3 r, u, f;
-        getBasis(r, u, f);
-
-        glm::dvec3 dir = std::cos(pitch) * std::sin(yaw) * r + std::sin(pitch) * u + std::cos(pitch) * std::cos(yaw) * f;
+        glm::dvec3 dir = target - eye;
+        if (glm::length(dir) < 1e-6)
+        {
+            return glm::dvec3(0.0, 0.0, -1.0);
+        }
         return glm::normalize(dir);
+    }
+
+    void Freecam::rotate(double deltaX, double deltaY)
+    {
+        glm::dvec3 lookDir = target - eye;
+        double     dist    = glm::length(lookDir);
+        if (dist < 1e-6)
+        {
+            dist    = 1.0;
+            lookDir = glm::dvec3(0.0, 0.0, -1.0);
+        }
+        lookDir = glm::normalize(lookDir);
+
+        glm::dvec3 right = glm::cross(lookDir, up);
+        if (glm::length(right) < 1e-6)
+        {
+            if (std::abs(lookDir.y) < 0.999)
+            {
+                right = glm::cross(lookDir, glm::dvec3(0.0, 1.0, 0.0));
+            }
+            else
+            {
+                right = glm::cross(lookDir, glm::dvec3(0.0, 0.0, 1.0));
+            }
+        }
+        right            = glm::normalize(right);
+        glm::dvec3 camUp = glm::normalize(glm::cross(right, lookDir));
+        up               = camUp;
+
+        double     thetaX = deltaX * rotationSensitivity;
+        glm::dmat4 rotYaw = glm::rotate(glm::dmat4(1.0), thetaX, camUp);
+        lookDir           = glm::dvec3(rotYaw * glm::dvec4(lookDir, 0.0));
+        right             = glm::dvec3(rotYaw * glm::dvec4(right, 0.0));
+
+        double     thetaY   = -deltaY * rotationSensitivity;
+        glm::dmat4 rotPitch = glm::rotate(glm::dmat4(1.0), thetaY, right);
+        lookDir             = glm::dvec3(rotPitch * glm::dvec4(lookDir, 0.0));
+        up                  = glm::normalize(glm::dvec3(rotPitch * glm::dvec4(camUp, 0.0)));
+
+        target = eye + lookDir * dist;
+        updateAnglesFromVectors();
     }
 
     SceneData Freecam::getScene() const
@@ -122,24 +167,16 @@ namespace Vulcant::Toolkit
             auto diff         = currentPos - mouseCenter;
             lastMousePosition = mouseCenter;
 
-            yaw += diff.x * rotationSensitivity;
-            pitch -= diff.y * rotationSensitivity;
-
-            const double maxPitch = glm::radians(89.5);
-            pitch                 = std::clamp(pitch, -maxPitch, maxPitch);
-
-            const double twoPi = glm::two_pi<double>();
-            while (yaw > glm::pi<double>())
-                yaw -= twoPi;
-            while (yaw < -glm::pi<double>())
-                yaw += twoPi;
-
-            updateTargetFromAngles();
+            rotate(diff.x, diff.y);
 
             glm::dvec3 lookDir = getLookDir();
-            glm::dvec3 worldUp = glm::length(up) > 0.0001 ? glm::normalize(up) : glm::dvec3(0.0, 1.0, 0.0);
-            glm::dvec3 right   = glm::normalize(glm::cross(lookDir, worldUp));
-            glm::dvec3 camUp   = glm::normalize(glm::cross(right, lookDir));
+            glm::dvec3 right   = glm::cross(lookDir, up);
+            if (glm::length(right) < 1e-6)
+            {
+                right = glm::cross(lookDir, glm::dvec3(0.0, 1.0, 0.0));
+            }
+            right            = glm::normalize(right);
+            glm::dvec3 camUp = glm::normalize(glm::cross(right, lookDir));
 
             glm::dvec3 moveDir(0.0);
             if (input.isPressed(Vulcant::VulcantInputValue::W))
@@ -189,27 +226,19 @@ namespace Vulcant::Toolkit
         lastMousePosition = currentPos;
 
         glm::dvec3 lookDir = getLookDir();
-        glm::dvec3 worldUp = glm::length(up) > 0.0001 ? glm::normalize(up) : glm::dvec3(0.0, 1.0, 0.0);
-        glm::dvec3 right   = glm::normalize(glm::cross(lookDir, worldUp));
-        glm::dvec3 camUp   = glm::normalize(glm::cross(right, lookDir));
+        glm::dvec3 right   = glm::cross(lookDir, up);
+        if (glm::length(right) < 1e-6)
+        {
+            right = glm::cross(lookDir, glm::dvec3(0.0, 1.0, 0.0));
+        }
+        right            = glm::normalize(right);
+        glm::dvec3 camUp = glm::normalize(glm::cross(right, lookDir));
 
         if (isRight || (isMiddle && isShift))
         {
-            yaw += diff.x * rotationSensitivity;
-            pitch -= diff.y * rotationSensitivity;
-
-            const double maxPitch = glm::radians(89.5);
-            pitch                 = std::clamp(pitch, -maxPitch, maxPitch);
-
-            const double twoPi = glm::two_pi<double>();
-            while (yaw > glm::pi<double>())
-                yaw -= twoPi;
-            while (yaw < -glm::pi<double>())
-                yaw += twoPi;
-
-            updateTargetFromAngles();
+            rotate(diff.x, diff.y);
             lookDir = getLookDir();
-            right   = glm::normalize(glm::cross(lookDir, worldUp));
+            right   = glm::normalize(glm::cross(lookDir, up));
             camUp   = glm::normalize(glm::cross(right, lookDir));
 
             glm::dvec3 moveDir(0.0);

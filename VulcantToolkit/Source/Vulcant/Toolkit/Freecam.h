@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Vulcant/Interface/VulcantWindow.h"
-#include "Vulcant/Interface/VulcantInputValue.h"
 #include "Camera.h"
 #include "SceneData.h"
+#include "Vulcant/Interface/VulcantInputValue.h"
+#include "Vulcant/Interface/VulcantWindow.h"
 
 namespace Vulcant::Toolkit
 {
@@ -24,31 +24,50 @@ namespace Vulcant::Toolkit
         virtual void       setEye(const glm::dvec3 v) override;
         virtual glm::dvec3 getTarget() const override;
         virtual void       setTarget(const glm::dvec3 v) override;
-        
-        virtual float      getZNear() const override;
-        virtual void       setZNear(const float v) override;
-        virtual float      getZFar() const override;
-        virtual void       setZFar(const float v) override;
-        virtual float      getAspect() const override;
-        virtual void       setAspect(const float v) override;
-        virtual float      getFov() const override;
-        virtual void       setFov(const float v) override;
 
-        virtual bool       isActive() const override { return active; }
-        virtual void       setActive(bool a) override { active = a; }
+        virtual float getZNear() const override;
+        virtual void  setZNear(const float v) override;
+        virtual float getZFar() const override;
+        virtual void  setZFar(const float v) override;
+        virtual float getAspect() const override;
+        virtual void  setAspect(const float v) override;
+        virtual float getFov() const override;
+        virtual void  setFov(const float v) override;
 
-        virtual double     getTranslationSensitivity() const override { return translationSpeed; }
-        virtual void       setTranslationSensitivity(double s) override { translationSpeed = s; }
-        virtual double     getRotationSensitivity() const override { return rotationSensitivity; }
-        virtual void       setRotationSensitivity(double s) override { rotationSensitivity = s; }
+        virtual bool isActive() const override
+        {
+            return active;
+        }
+        virtual void setActive(bool a) override
+        {
+            active = a;
+        }
+
+        virtual double getTranslationSensitivity() const override
+        {
+            return translationSpeed;
+        }
+        virtual void setTranslationSensitivity(double s) override
+        {
+            translationSpeed = s;
+        }
+        virtual double getRotationSensitivity() const override
+        {
+            return rotationSensitivity;
+        }
+        virtual void setRotationSensitivity(double s) override
+        {
+            rotationSensitivity = s;
+        }
 
         virtual SceneData getScene() const override;
 
       private:
-        void updateAnglesFromVectors();
-        void updateTargetFromAngles();
+        void       rotate(double deltaX, double deltaY);
+        void       updateAnglesFromVectors();
+        void       updateTargetFromAngles();
         glm::dvec3 getLookDir() const;
-        void getBasis(glm::dvec3& r, glm::dvec3& u, glm::dvec3& f) const;
+        void       getBasis(glm::dvec3& r, glm::dvec3& u, glm::dvec3& f) const;
 
         bool       active     = false;
         bool       firstMouse = true;
@@ -58,16 +77,16 @@ namespace Vulcant::Toolkit
         glm::dvec3 target{ 0.0, 0.0, 0.0 };
         glm::dvec3 eye{ 0.0, 0.0, 3.0 };
 
-        double     yaw   = 0.0;
-        double     pitch = 0.0;
+        double yaw   = 0.0;
+        double pitch = 0.0;
 
-        float      fovY   = glm::radians(75.0f);
-        float      aspect = 16.0f / 9.0f;
-        float      zNear  = 0.05f;
-        float      zFar   = 2000.0f;
+        float fovY   = glm::radians(75.0f);
+        float aspect = 16.0f / 9.0f;
+        float zNear  = 0.05f;
+        float zFar   = 2000.0f;
 
-        double     translationSpeed    = 5.0;
-        double     rotationSensitivity = 0.002;
+        double translationSpeed    = 5.0;
+        double rotationSensitivity = 0.002;
 
         Vulcant::VulcantWindow& window;
     };
