@@ -32,6 +32,9 @@ namespace Vulcant::Toolkit
         virtual float getFov() const override;
         virtual void  setFov(const float v) override;
 
+        virtual bool isOrthographic() const override;
+        virtual void setOrthographic(bool ortho) override;
+
         virtual bool isActive() const override
         {
             return active;
@@ -99,10 +102,11 @@ namespace Vulcant::Toolkit
         double yaw      = 0.0;
         double pitch    = 0.0;
 
-        float fovY   = glm::radians(75.0f);
-        float aspect = 16.0f / 9.0f;
-        float zNear  = 0.05f;
-        float zFar   = 2000.0f;
+        float fovY         = glm::radians(75.0f);
+        float aspect       = 16.0f / 9.0f;
+        float zNear        = 0.05f;
+        float zFar         = 2000.0f;
+        bool  orthographic = false;
 
         float rotateSensitivity = 0.005f;
         float panSpeed          = 5.0f;

@@ -34,6 +34,9 @@ namespace Vulcant::Toolkit
         virtual float getFov() const override;
         virtual void  setFov(const float v) override;
 
+        virtual bool isOrthographic() const override;
+        virtual void setOrthographic(bool ortho) override;
+
         virtual bool isActive() const override
         {
             return active;
@@ -73,17 +76,18 @@ namespace Vulcant::Toolkit
         bool       firstMouse = true;
         glm::dvec2 lastMousePosition{ 0.0 };
 
-        glm::dvec3 up{ 0.0, 1.0, 0.0 };
         glm::dvec3 target{ 0.0, 0.0, 0.0 };
         glm::dvec3 eye{ 0.0, 0.0, 3.0 };
+        glm::dvec3 up{ 0.0, 1.0, 0.0 };
 
         double yaw   = 0.0;
         double pitch = 0.0;
 
-        float fovY   = glm::radians(75.0f);
-        float aspect = 16.0f / 9.0f;
-        float zNear  = 0.05f;
-        float zFar   = 2000.0f;
+        float fovY         = glm::radians(75.0f);
+        float aspect       = 16.0f / 9.0f;
+        float zNear        = 0.05f;
+        float zFar         = 2000.0f;
+        bool  orthographic = false;
 
         double translationSpeed    = 5.0;
         double rotationSensitivity = 0.002;

@@ -136,13 +136,31 @@ namespace Vulcant::Toolkit
         scene.viewMatrix    = glm::lookAt(eye, target, up);
         scene.invViewMatrix = glm::inverse(scene.viewMatrix);
 
-        scene.projectionMatrix = glm::perspective(fovY, aspect, zNear, zFar);
-        scene.projectionMatrix[1][1] *= -1.0f;
+        if (orthographic)
+        {
+            double dist = glm::length(target - eye);
+            if (dist < 1e-4)
+            {
+                dist = 5.0;
+            }
+            float halfHeight       = static_cast<float>(dist * std::tan(fovY * 0.5));
+            float halfWidth        = halfHeight * aspect;
+            scene.projectionMatrix = glm::ortho(-halfWidth, halfWidth, -halfHeight, halfHeight, -zFar, zFar);
+            scene.projectionMatrix[1][1] *= -1.0f;
+            scene.nearPlane = -zFar;
+            scene.farPlane  = zFar;
+        }
+        else
+        {
+            scene.projectionMatrix = glm::perspective(fovY, aspect, zNear, zFar);
+            scene.projectionMatrix[1][1] *= -1.0f;
+            scene.nearPlane = zNear;
+            scene.farPlane  = zFar;
+        }
+
         scene.invProjectionMatrix = glm::inverse(scene.projectionMatrix);
         scene.cameraPos           = glm::vec4(eye, 1.0f);
         scene.resolution          = window.getResolution();
-        scene.farPlane            = zFar;
-        scene.nearPlane           = zNear;
         return scene;
     }
 
@@ -390,5 +408,15 @@ namespace Vulcant::Toolkit
     void Freecam::setFov(const float v)
     {
         fovY = v;
+    }
+
+    bool Freecam::isOrthographic() const
+    {
+        return orthographic;
+    }
+
+    void Freecam::setOrthographic(bool ortho)
+    {
+        orthographic = ortho;
     }
 }

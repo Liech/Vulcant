@@ -35,8 +35,9 @@ if(BUILD_GODOT_BINDINGS)
     add_subdirectory(VulcantG)
 endif()
 
-set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT Executable)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set(PREDEFINED_TARGETS_FOLDER "CustomTargets")
 
-set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT Executable)
+if(BUILD_EXAMPLES)
+    set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT ExampleBrowser)
+endif()
