@@ -38,8 +38,9 @@ namespace Vulcant
         virtual void addBarrier(VulcantImage& inputImg, const VulcantResourceLayout& dest) = 0;
         virtual void addBarrier(VulcantBuffer& buffer)                                     = 0;
 
-        virtual void runAsync() = 0;
-        virtual void runSync()  = 0;
-        virtual void wait()     = 0;
+        virtual void runAsync()   = 0;
+        virtual void runSync()    = 0;
+        virtual void wait()       = 0;
+        virtual bool isFinished() = 0;
     };
 }

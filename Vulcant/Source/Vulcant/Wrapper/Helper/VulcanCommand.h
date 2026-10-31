@@ -14,6 +14,7 @@ namespace Vulcant::Wrapper
         virtual ~VulcanCommand();
 
         void wait();
+        bool isFinished();
         void startRecord();
         void endRecord();
 

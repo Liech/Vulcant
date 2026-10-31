@@ -315,7 +315,7 @@ namespace Vulcant::Toolkit
     void ArcCam::setUp(const glm::dvec3 v)
     {
         up = v;
-        updateEyeFromAngles();
+        updateAnglesFromEye();
     }
 
     glm::dvec3 ArcCam::getEye() const

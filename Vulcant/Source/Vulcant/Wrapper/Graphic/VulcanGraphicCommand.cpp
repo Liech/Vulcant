@@ -227,4 +227,18 @@ namespace Vulcant::Wrapper
             currentStatus = status::ready;
         }
     }
+
+    bool VulcanGraphicCommand::isFinished()
+    {
+        if (currentStatus != status::ongpu)
+        {
+            return true;
+        }
+        if (cmd->isFinished())
+        {
+            currentStatus = status::ready;
+            return true;
+        }
+        return false;
+    }
 }

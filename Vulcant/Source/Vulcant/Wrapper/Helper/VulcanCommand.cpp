@@ -70,6 +70,17 @@ namespace Vulcant::Wrapper
         VK_CHECK_RESULT(vkResetFences(device.getDevice(), 1, &fence));
     }
 
+    bool VulcanCommand::isFinished()
+    {
+        VkResult result = vkGetFenceStatus(device.getDevice(), fence);
+        if (result == VK_SUCCESS)
+        {
+            VK_CHECK_RESULT(vkResetFences(device.getDevice(), 1, &fence));
+            return true;
+        }
+        return false;
+    }
+
     void VulcanCommand::endRecord()
     {
         assert(state == status::recording);

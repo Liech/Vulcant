@@ -37,6 +37,7 @@ namespace Vulcant::VulcantG
         virtual void runAsync() override;
         virtual void runSync() override;
         virtual void wait() override;
+        virtual bool isFinished() override;
 
         std::unique_ptr<Vulcant::VulcantG::Wrapper::VulcanGraphicCommand> cmd = nullptr;
     };

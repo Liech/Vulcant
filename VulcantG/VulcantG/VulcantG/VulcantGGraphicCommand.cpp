@@ -65,4 +65,7 @@ namespace Vulcant::VulcantG
     void VulcantGGraphicCommand::wait() {
         cmd->wait();
     }
+    bool VulcantGGraphicCommand::isFinished() {
+        return true;
+    }
 }

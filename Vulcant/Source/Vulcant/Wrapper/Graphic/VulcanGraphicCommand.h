@@ -53,6 +53,7 @@ namespace Vulcant::Wrapper
         void runAsync();
         void runSync();
         void wait();
+        bool isFinished();
 
         VkCommandBuffer __getCommandBuffer()
         {

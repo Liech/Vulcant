@@ -30,6 +30,10 @@ namespace Vulcant::VulcantV
     {
         cmd->wait();
     }
+    bool VulcantVGraphicCommand::isFinished()
+    {
+        return cmd ? cmd->isFinished() : true;
+    }
 
     void VulcantVGraphicCommand::startRecord()
     {
