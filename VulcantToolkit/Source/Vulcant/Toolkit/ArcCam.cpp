@@ -293,17 +293,6 @@ namespace Vulcant::Toolkit
             return true;
         }
 
-        if (key == Vulcant::VulcantInputValue::Esc)
-        {
-            active = !active;
-            if (active)
-            {
-                lastMousePosition = glm::dvec2(window.getResolution()) * 0.5;
-                window.getInput().setMousePosition(lastMousePosition);
-                firstMouse = true;
-            }
-            return true;
-        }
         return false;
     }
 
