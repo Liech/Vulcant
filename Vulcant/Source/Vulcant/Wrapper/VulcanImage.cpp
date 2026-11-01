@@ -85,7 +85,7 @@ namespace Vulcant::Wrapper
         imageInfo.tiling            = VK_IMAGE_TILING_OPTIMAL;
         imageInfo.initialLayout     = VK_IMAGE_LAYOUT_UNDEFINED;
 
-        imageInfo.usage = VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
+        imageInfo.usage = VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
         if (isDepth())
             imageInfo.usage |= VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
         else
@@ -238,7 +238,7 @@ namespace Vulcant::Wrapper
                                                     barrier.subresourceRange.layerCount     = 1;
                                                     barrier.subresourceRange.aspectMask     = isDepth() ? VK_IMAGE_ASPECT_DEPTH_BIT : VK_IMAGE_ASPECT_COLOR_BIT;
 
-                                                    // Zugriffsmasken definieren, damit die Pipeline weiß, worauf sie warten muss
+                                                    // Zugriffsmasken definieren, damit die Pipeline weiï¿½, worauf sie warten muss
                                                     if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_GENERAL)
                                                     {
                                                         barrier.srcAccessMask = 0;
