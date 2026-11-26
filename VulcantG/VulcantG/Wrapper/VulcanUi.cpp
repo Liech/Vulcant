@@ -332,11 +332,10 @@ namespace Vulcant::VulcantG::Wrapper
 
         godot::PackedByteArray pc_data;
         pc_data.resize(sizeof(float) * 4);
-        float* pc_floats = reinterpret_cast<float*>(pc_data.ptrw());
-        pc_floats[0]     = scaleX;
-        pc_floats[1]     = scaleY;
-        pc_floats[2]     = transX;
-        pc_floats[3]     = transY;
+        pc_data.encode_float(0 * sizeof(float), scaleX);
+        pc_data.encode_float(1 * sizeof(float), scaleY);
+        pc_data.encode_float(2 * sizeof(float), transX);
+        pc_data.encode_float(3 * sizeof(float), transY);
 
         struct DrawBatch
         {

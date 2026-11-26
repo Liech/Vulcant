@@ -88,7 +88,7 @@ namespace Vulcant::VulcantG::Wrapper
           });
     }
 
-    void VulcanGraphicCommand::draw(uint32_t vertexCount, VulcanSet* set, VulcanBuffer* vertexBuffer, uint32_t instanceCount)
+    void VulcanGraphicCommand::draw(uint32_t vertexCount, const VulcanSet* set, VulcanBuffer* vertexBuffer, uint32_t instanceCount)
     {
         assert(currentPipeline);
         auto* pipe = currentPipeline;
@@ -168,7 +168,7 @@ namespace Vulcant::VulcantG::Wrapper
 
     void VulcanGraphicCommand::add(uint32_t vertexCount, const VulcanSet& set, VulcanShader& shader, VulcanBuffer* vertexBuffer)
     {
-        draw(vertexCount, const_cast<VulcanSet*>(&set), vertexBuffer);
+        draw(vertexCount, &set, vertexBuffer);
     }
 
     void VulcanGraphicCommand::addBarrier(VulcanImage& inputImg, const VulcantResourceLayout& dest)

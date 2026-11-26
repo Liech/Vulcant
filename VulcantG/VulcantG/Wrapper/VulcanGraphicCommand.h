@@ -1,12 +1,12 @@
 ﻿#pragma once
 
-#include "Vulcant/Interface/VulcantResourceLayout.h"
 #include "VulcanBuffer.h"
 #include "VulcanDevice.h"
 #include "VulcanGraphicPipeline.h"
 #include "VulcanImage.h"
 #include "VulcanSet.h"
 #include "VulcanShader.h"
+#include "Vulcant/Interface/VulcantResourceLayout.h"
 #include <functional>
 #include <godot_cpp/classes/rendering_device.hpp>
 #include <godot_cpp/variant/packed_color_array.hpp>
@@ -26,7 +26,7 @@ namespace Vulcant::VulcantG::Wrapper
 
         void startRecord();
         void setViewportAndScissor(glm::uvec2 extent);
-        void draw(uint32_t vertexCount, VulcanSet* set = nullptr, VulcanBuffer* vertexBuffer = nullptr, uint32_t instanceCount = 1);
+        void draw(uint32_t vertexCount, const VulcanSet* set = nullptr, VulcanBuffer* vertexBuffer = nullptr, uint32_t instanceCount = 1);
         void add(uint32_t vertexCount, const VulcanSet& set, VulcanShader& shader, VulcanBuffer* vertexBuffer);
         void addBarrier(VulcanImage& inputImg, const VulcantResourceLayout& dest);
         void addBarrier(VulcanBuffer& buffer);
@@ -37,7 +37,7 @@ namespace Vulcant::VulcantG::Wrapper
         void runSync();
         void wait();
 
-        int64_t getDrawList() const;
+        int64_t       getDrawList() const;
         VulcanDevice& getDevice();
 
       private:
