@@ -1,4 +1,4 @@
-#include "BlitShader.h"
+﻿#include "BlitShader.h"
 #include <stdexcept>
 #include <string_view>
 

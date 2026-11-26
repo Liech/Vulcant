@@ -1,4 +1,4 @@
-#include "VulcanBuffer.h"
+﻿#include "VulcanBuffer.h"
 
 #include "VulcanDevice.h"
 #include "VulcanInstance.h"

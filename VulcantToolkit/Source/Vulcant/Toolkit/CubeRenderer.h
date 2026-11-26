@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "Vulcant/Toolkit/SceneData.h"
 #include "Vulcant/Toolkit/SphereData.h"
@@ -21,8 +21,6 @@ namespace Vulcant
 
 namespace Vulcant::Toolkit
 {
-    using CubeData = SphereData;
-
     class CubeRenderer
     {
       public:
@@ -41,10 +39,22 @@ namespace Vulcant::Toolkit
         void setActiveCubeCount(size_t count);
 
         // Aliases for convenience / drop-in compatibility
-        void setSpheres(const std::vector<SphereData>& cubes) { setCubes(cubes); }
-        void setSpheres(const SphereData* cubes, size_t count) { setCubes(cubes, count); }
-        void setSpheresBuffer(Vulcant::VulcantBuffer& buffer, size_t count) { setCubesBuffer(buffer, count); }
-        void setActiveSphereCount(size_t count) { setActiveCubeCount(count); }
+        void setSpheres(const std::vector<SphereData>& cubes)
+        {
+            setCubes(cubes);
+        }
+        void setSpheres(const SphereData* cubes, size_t count)
+        {
+            setCubes(cubes, count);
+        }
+        void setSpheresBuffer(Vulcant::VulcantBuffer& buffer, size_t count)
+        {
+            setCubesBuffer(buffer, count);
+        }
+        void setActiveSphereCount(size_t count)
+        {
+            setActiveCubeCount(count);
+        }
 
         // Frustum culling
         void setCullingEnabled(bool enable);
@@ -68,12 +78,18 @@ namespace Vulcant::Toolkit
 
         // Resource accessors
         Vulcant::VulcantBuffer& getCubesBuffer() const;
-        Vulcant::VulcantBuffer& getSpheresBuffer() const { return getCubesBuffer(); }
+        Vulcant::VulcantBuffer& getSpheresBuffer() const
+        {
+            return getCubesBuffer();
+        }
         Vulcant::VulcantBuffer& getCulledCubesBuffer() const;
         Vulcant::VulcantBuffer& getIndirectDrawBuffer() const;
         size_t                  getActiveCubeCount() const;
-        size_t                  getActiveSphereCount() const { return getActiveCubeCount(); }
-        size_t                  getMaxCubes() const;
+        size_t                  getActiveSphereCount() const
+        {
+            return getActiveCubeCount();
+        }
+        size_t getMaxCubes() const;
 
       private:
         void createPipeline();

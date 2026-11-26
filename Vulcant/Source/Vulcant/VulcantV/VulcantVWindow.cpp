@@ -1,4 +1,4 @@
-#include "VulcantVWindow.h"
+﻿#include "VulcantVWindow.h"
 
 #include "Vulcant/Wrapper/VulcanDevice.h"
 #include "Vulcant/Wrapper/Window.h"

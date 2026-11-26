@@ -1,4 +1,4 @@
-#include "VulcanGraphicCommand.h"
+﻿#include "VulcanGraphicCommand.h"
 #include <cassert>
 #include <iostream>
 

@@ -1,4 +1,4 @@
-#include "MandelbrotImage.h"
+﻿#include "MandelbrotImage.h"
 
 #include "Vulcant/Interface/VulcantComputeCommand.h"
 #include "Vulcant/Interface/VulcantDevice.h"

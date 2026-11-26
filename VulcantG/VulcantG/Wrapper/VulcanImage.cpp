@@ -1,4 +1,4 @@
-#include "VulcanImage.h"
+﻿#include "VulcanImage.h"
 #include <cassert>
 #include <godot_cpp/classes/rd_sampler_state.hpp>
 #include <godot_cpp/classes/rd_texture_format.hpp>

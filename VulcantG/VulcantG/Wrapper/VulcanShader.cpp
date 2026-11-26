@@ -1,4 +1,4 @@
-#include "VulcanShader.h"
+﻿#include "VulcanShader.h"
 
 #include <godot_cpp/classes/rd_shader_source.hpp>
 #include <godot_cpp/classes/rd_shader_spirv.hpp>

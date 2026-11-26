@@ -80,6 +80,7 @@ set(Toolkit_Files
     "Source/Vulcant/Toolkit/BlitShader.h"
     "Source/Vulcant/Toolkit/BlitShader.cpp"
     "Source/Vulcant/Toolkit/Camera.h"
+    "Source/Vulcant/Toolkit/Camera.cpp"
     "Source/Vulcant/Toolkit/CubeRenderer.h"
     "Source/Vulcant/Toolkit/CubeRenderer.cpp"
     "Source/Vulcant/Toolkit/DeferredShading.h"

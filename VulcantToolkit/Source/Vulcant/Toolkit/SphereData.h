@@ -1,8 +1,8 @@
-#pragma once
+﻿#pragma once
 
+#include <cstdint>
 #include <glm/glm.hpp>
 #include <glm/gtc/packing.hpp>
-#include <cstdint>
 
 namespace Vulcant::Toolkit
 {
@@ -27,8 +27,8 @@ namespace Vulcant::Toolkit
 
         void setRadiusAndColor(float radius, uint32_t rgba8888)
         {
-            uint32_t rHalf = packFloatToHalf(radius);
-            uint32_t c16   = packColorRGBA4444(rgba8888);
+            uint32_t rHalf     = packFloatToHalf(radius);
+            uint32_t c16       = packColorRGBA4444(rgba8888);
             radiusHalfAndColor = rHalf | (c16 << 16);
         }
 
@@ -51,5 +51,3 @@ namespace Vulcant::Toolkit
 
     static_assert(sizeof(SphereData) == 16, "SphereData layout must be 16 bytes");
 }
-
-using SphereData = Vulcant::Toolkit::SphereData;

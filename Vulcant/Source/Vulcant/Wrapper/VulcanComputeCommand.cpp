@@ -1,4 +1,4 @@
-#include "VulcanComputeCommand.h"
+﻿#include "VulcanComputeCommand.h"
 
 #include "Helper/VulcanBarrier.h"
 #include "Helper/VulcanCommand.h"

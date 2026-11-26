@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "VulcantResourceLayout.h"
 #include <glm/glm.hpp>
@@ -14,8 +14,8 @@ namespace Vulcant
     class VulcantGraphicCommand
     {
       public:
-        VulcantGraphicCommand()          = default;
-        virtual ~VulcantGraphicCommand() = default;
+        VulcantGraphicCommand();
+        virtual ~VulcantGraphicCommand();
 
         virtual void startRecord() = 0;
         virtual void endRecord()   = 0;

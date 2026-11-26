@@ -1,4 +1,4 @@
-#include "VulcantGBuffer.h"
+﻿#include "VulcantGBuffer.h"
 
 #include "VulcantG/Wrapper/VulcanBuffer.h"
 #include "VulcantG/Wrapper/VulcanResource.h"

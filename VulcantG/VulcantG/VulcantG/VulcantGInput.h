@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "Vulcant/Interface/VulcantInput.h"
 #include <map>

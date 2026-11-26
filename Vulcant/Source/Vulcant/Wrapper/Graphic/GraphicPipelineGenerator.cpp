@@ -1,4 +1,4 @@
-#include "GraphicPipelineGenerator.h"
+﻿#include "GraphicPipelineGenerator.h"
 
 #include "Vulcant/Interface/VulcantRasterizationConfig.h"
 #include "Vulcant/Wrapper/ShaderCompiler.h"

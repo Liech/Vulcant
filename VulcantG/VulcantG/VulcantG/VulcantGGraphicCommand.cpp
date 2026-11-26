@@ -1,4 +1,4 @@
-#include "VulcantGGraphicCommand.h"
+﻿#include "VulcantGGraphicCommand.h"
 
 #include "VulcantG/VulcantG/VulcantGBuffer.h"
 #include "VulcantG/VulcantG/VulcantGGraphicPipeline.h"

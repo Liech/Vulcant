@@ -1,4 +1,4 @@
-#include "VulcanGraphicCommand.h"
+﻿#include "VulcanGraphicCommand.h"
 #include "Vulcant/Wrapper/VulcanDevice.h"
 #include "Vulcant/Wrapper/VulcanInstance.h"
 #include "Vulcant/Wrapper/VulcanPool.h"

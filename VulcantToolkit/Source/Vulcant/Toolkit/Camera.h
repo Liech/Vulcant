@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "SceneData.h"
 #include "Vulcant/Interface/VulcantInputValue.h"
@@ -10,7 +10,7 @@ namespace Vulcant::Toolkit
     class Camera
     {
       public:
-        virtual ~Camera() = default;
+        virtual ~Camera();
 
         virtual void      tick(double delta)                              = 0;
         virtual bool      keyEvent(const Vulcant::VulcantInputValue& key) = 0;

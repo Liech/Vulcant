@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "VulcantG/VulcantG/VulcantGImage.h"
 #include "Vulcant/Interface/VulcantInputValue.h"

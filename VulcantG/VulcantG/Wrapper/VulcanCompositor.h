@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "VulcantG/VulcantG/VulcantGImage.h"
 #include <godot_cpp/classes/compositor_effect.hpp>

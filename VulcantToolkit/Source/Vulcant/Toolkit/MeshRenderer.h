@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "Vulcant/Interface/VulcantCullMode.h"
 #include "Vulcant/Toolkit/MeshShaderParams.h"

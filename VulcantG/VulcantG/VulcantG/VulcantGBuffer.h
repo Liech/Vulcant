@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "Vulcant/Interface/VulcantBuffer.h"
 #include "Vulcant/Interface/VulcantBufferType.h"

@@ -1,4 +1,4 @@
-#include "VulcanCompositor.h"
+﻿#include "VulcanCompositor.h"
 #include <stdexcept>
 
 #include "Vulcant/Interface/VulcantImage.h"

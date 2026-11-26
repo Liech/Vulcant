@@ -1,4 +1,4 @@
-#include "VulcantGUi.h"
+﻿#include "VulcantGUi.h"
 
 #include "VulcantG/Wrapper/VulcanUi.h"
 #include "VulcantG/Wrapper/VulcanGraphicCommand.h"

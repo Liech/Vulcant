@@ -1,4 +1,4 @@
-#include "VulcantGWindow.h"
+﻿#include "VulcantGWindow.h"
 
 #include "VulcantG/VulcantG/VulcantGImage.h"
 #include "VulcantG/VulcantG/VulcantGInput.h"

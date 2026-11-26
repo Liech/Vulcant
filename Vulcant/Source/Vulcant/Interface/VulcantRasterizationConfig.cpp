@@ -1,4 +1,4 @@
-#include "VulcantRasterizationConfig.h"
+﻿#include "VulcantRasterizationConfig.h"
 
 namespace Vulcant
 {

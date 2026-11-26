@@ -1,4 +1,4 @@
-#include "VulcanBarrier.h"
+﻿#include "VulcanBarrier.h"
 #include "Vulcant/Wrapper/VulcanBuffer.h"
 #include "Vulcant/Wrapper/VulcanImage.h"
 #include "VulcanCommand.h"

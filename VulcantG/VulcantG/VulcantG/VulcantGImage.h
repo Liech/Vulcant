@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "Vulcant/Interface/VulcantImage.h"
 #include "Vulcant/Interface/VulcantImageFormat.h"

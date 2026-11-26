@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "VulcanGraphicPipeline.h"
 #include "Vulcant/Wrapper/Helper/VulcanBarrier.h"

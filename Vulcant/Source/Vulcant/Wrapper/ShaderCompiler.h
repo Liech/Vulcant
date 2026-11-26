@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "ShaderBindingDefinition.h"
 #include <string>

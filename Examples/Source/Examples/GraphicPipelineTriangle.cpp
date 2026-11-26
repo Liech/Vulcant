@@ -1,4 +1,4 @@
-#include "GraphicPipelineTriangle.h"
+﻿#include "GraphicPipelineTriangle.h"
 
 #include "Vulcant/Interface/VulcantBuffer.h"
 #include "Vulcant/Interface/VulcantDevice.h"

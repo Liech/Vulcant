@@ -1,4 +1,4 @@
-#include "VulcantVComputeCommand.h"
+﻿#include "VulcantVComputeCommand.h"
 
 #include "Vulcant/Wrapper/VulcanBuffer.h"
 #include "Vulcant/Wrapper/VulcanComputeCommand.h"

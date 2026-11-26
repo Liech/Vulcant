@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "VulcantCullMode.h"
 #include "VulcantFrontFace.h"

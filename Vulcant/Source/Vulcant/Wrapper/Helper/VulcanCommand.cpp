@@ -1,4 +1,4 @@
-#include "VulcanCommand.h"
+﻿#include "VulcanCommand.h"
 
 #include "Vulcant/Wrapper/VulcanDevice.h"
 #include "Vulcant/Wrapper/VulcanInstance.h"

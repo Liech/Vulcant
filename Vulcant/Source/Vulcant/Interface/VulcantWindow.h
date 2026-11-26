@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <functional>
 #include <glm/glm.hpp>
@@ -11,8 +11,8 @@ namespace Vulcant
     class VulcantWindow
     {
       public:
-        VulcantWindow()          = default;
-        virtual ~VulcantWindow() = default;
+        VulcantWindow();
+        virtual ~VulcantWindow();
 
         virtual void start(
           const std::function<void(double delta)>&                 onLogic  = [](double delta) {},

@@ -1,4 +1,4 @@
-#include "VulcanShader.h"
+﻿#include "VulcanShader.h"
 
 #include "ShaderCompiler.h"
 #include "VulcanDevice.h"

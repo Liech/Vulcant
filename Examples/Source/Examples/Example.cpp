@@ -1,4 +1,4 @@
-#include "Example.h"
+﻿#include "Example.h"
 
 #include "SphereImage.h"
 #include "MandelbrotImage.h"

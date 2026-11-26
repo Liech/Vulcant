@@ -1,4 +1,4 @@
-#include "VulcanGraphicPipeline.h"
+﻿#include "VulcanGraphicPipeline.h"
 
 #include "Vulcant/Wrapper/Graphic/GraphicPipelineGenerator.h"
 #include "Vulcant/Wrapper/VulcanDevice.h"

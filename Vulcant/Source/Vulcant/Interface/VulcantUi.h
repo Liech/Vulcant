@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <memory>
 
@@ -10,10 +10,10 @@ namespace Vulcant
     class VulcantUi
     {
       public:
-        VulcantUi() = default;
-        virtual ~VulcantUi() = default;
+        VulcantUi();
+        virtual ~VulcantUi();
 
-        virtual void newFrame()                                                     = 0;
+        virtual void newFrame()                                                    = 0;
         virtual void record(VulcantGraphicCommand& cmd, VulcantImage& targetImage) = 0;
     };
 }

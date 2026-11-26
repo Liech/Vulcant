@@ -1,13 +1,13 @@
-#include "Window.h"
+﻿#include "Window.h"
+#include "Helper/glwf2VulcantInputValue.h"
+#include "Vulcant/VulcantV/VulcantVComputeCommand.h"
+#include "Vulcant/VulcantV/VulcantVDevice.h"
+#include "Vulcant/VulcantV/VulcantVImage.h"
 #include "Vulcant/Wrapper/VulcanComputeCommand.h"
 #include "Vulcant/Wrapper/VulcanDevice.h"
 #include "Vulcant/Wrapper/VulcanImage.h"
 #include "Vulcant/Wrapper/VulcanInstance.h"
 #include "Vulcant/Wrapper/VulcanPool.h"
-#include "Vulcant/VulcantV/VulcantVComputeCommand.h"
-#include "Vulcant/VulcantV/VulcantVDevice.h"
-#include "Vulcant/VulcantV/VulcantVImage.h"
-#include "Helper/glwf2VulcantInputValue.h"
 
 #include <GLFW/glfw3.h>
 #include <cassert>
@@ -34,16 +34,16 @@ namespace Vulcant::Wrapper
         static void mouseCallback(GLFWwindow* window, int button, int action, int mods);
         static void scrollCallback(GLFWwindow* window, double xoffset, double yoffset);
 
-        GLFWwindow*                     window;
-        unsigned int                    numberOfSwapchainImages;
-        Vulcant::Wrapper::VulcanDevice& device;
-        Vulcant::Wrapper::VulcanPool&   pool;
+        GLFWwindow*                            window;
+        unsigned int                           numberOfSwapchainImages;
+        Vulcant::Wrapper::VulcanDevice&        device;
+        Vulcant::Wrapper::VulcanPool&          pool;
         Vulcant::Wrapper::VulcanComputeCommand cmd;
-        VkSurfaceKHR                    surface = nullptr;
-        VkSwapchainKHR                  swapchain;
-        glm::ivec2                      resolution;
-        unsigned int                    currentImageIndex      = 0;
-        size_t                          semaphoreAndFenceIndex = 0;
+        VkSurfaceKHR                           surface = nullptr;
+        VkSwapchainKHR                         swapchain;
+        glm::ivec2                             resolution;
+        unsigned int                           currentImageIndex      = 0;
+        size_t                                 semaphoreAndFenceIndex = 0;
 
         std::vector<VkImage>                                        swapchainImages;
         std::vector<std::unique_ptr<Vulcant::Wrapper::VulcanImage>> depthImages;
@@ -266,7 +266,7 @@ namespace Vulcant::Wrapper
     void Window::pimpl::keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
     {
         // todo: mods GLFW_MOD_SHIFT
-        auto app = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
+        auto app = static_cast<Window*>(glfwGetWindowUserPointer(window));
         auto v   = glwfKeyboard2Vulcant(key);
         if (action == GLFW_PRESS)
         {
@@ -281,7 +281,7 @@ namespace Vulcant::Wrapper
 
     void Window::pimpl::mouseCallback(GLFWwindow* window, int button, int action, int mods)
     {
-        auto app = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
+        auto app = static_cast<Window*>(glfwGetWindowUserPointer(window));
         auto v   = glwfMouse2Vulcant(button);
         if (action == GLFW_PRESS)
         {
@@ -296,7 +296,7 @@ namespace Vulcant::Wrapper
 
     void Window::pimpl::scrollCallback(GLFWwindow* window, double xoffset, double yoffset)
     {
-        auto app = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
+        auto app = static_cast<Window*>(glfwGetWindowUserPointer(window));
         if (yoffset > 0.0)
         {
             app->inputQueue.push_back(VulcantInputValue::MouseWheelUp);
@@ -309,7 +309,7 @@ namespace Vulcant::Wrapper
 
     void Window::pimpl::framebufferResizeCallback(GLFWwindow* window, int width, int height)
     {
-        auto app                = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
+        auto app                = static_cast<Window*>(glfwGetWindowUserPointer(window));
         app->framebufferResized = true;
     }
 

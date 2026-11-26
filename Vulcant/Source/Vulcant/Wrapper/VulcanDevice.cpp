@@ -1,4 +1,4 @@
-#include "VulcanDevice.h"
+﻿#include "VulcanDevice.h"
 
 #include <cstring>
 #include <iostream>

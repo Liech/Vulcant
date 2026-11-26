@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "VulcantInputValue.h"
 #include <functional>
@@ -9,8 +9,8 @@ namespace Vulcant
     class VulcantInput
     {
       public:
-        VulcantInput()          = default;
-        virtual ~VulcantInput() = default;
+        VulcantInput();
+        virtual ~VulcantInput();
 
         virtual void       setCallback(std::function<void(const VulcantInputValue&)> newInput) = 0;
         virtual glm::dvec2 getMousePosition() const                                            = 0;

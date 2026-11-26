@@ -4,6 +4,7 @@ project(Examples)
 
 set(SphereScene_Files
     "Source/Examples/SphereRasterizerScenes/SphereScene.h"
+    "Source/Examples/SphereRasterizerScenes/SphereScene.cpp"
     "Source/Examples/SphereRasterizerScenes/FloatingSpheresScene.h"
     "Source/Examples/SphereRasterizerScenes/FloatingSpheresScene.cpp"
     "Source/Examples/SphereRasterizerScenes/CubeGridScene.h"

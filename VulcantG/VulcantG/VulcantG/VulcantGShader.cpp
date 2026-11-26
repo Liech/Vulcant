@@ -1,4 +1,4 @@
-#include "VulcantGShader.h"
+﻿#include "VulcantGShader.h"
 
 #include "VulcantG/Wrapper/VulcanShader.h"
 

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "VulcantResourceLayout.h"
 #include <glm/glm.hpp>
@@ -13,8 +13,8 @@ namespace Vulcant
     class VulcantComputeCommand
     {
       public:
-        VulcantComputeCommand()          = default;
-        virtual ~VulcantComputeCommand() = default;
+        VulcantComputeCommand();
+        virtual ~VulcantComputeCommand();
 
         virtual void runSync()                                                                                                                      = 0;
         virtual void runAsync()                                                                                                                     = 0;

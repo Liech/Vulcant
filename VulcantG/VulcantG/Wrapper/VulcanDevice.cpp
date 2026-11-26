@@ -1,4 +1,4 @@
-#include "VulcanDevice.h"
+﻿#include "VulcanDevice.h"
 
 #include <godot_cpp/classes/rendering_server.hpp>
 #include <iostream>

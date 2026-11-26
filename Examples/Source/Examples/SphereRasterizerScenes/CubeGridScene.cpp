@@ -1,4 +1,4 @@
-#include "Examples/SphereRasterizerScenes/CubeGridScene.h"
+﻿#include "Examples/SphereRasterizerScenes/CubeGridScene.h"
 #include <algorithm>
 #include <cmath>
 #include <cstdlib>
@@ -7,7 +7,7 @@ namespace Vulcant
 {
     namespace Examples
     {
-        void CubeGridScene::generate(size_t count, float baseRadius, std::vector<SphereData>& outSpheres, std::vector<SphereInitData>& outInitData)
+        void CubeGridScene::generate(size_t count, float baseRadius, std::vector<Vulcant::Toolkit::SphereData>& outSpheres, std::vector<SphereInitData>& outInitData)
         {
             outSpheres.clear();
             outInitData.clear();
@@ -39,7 +39,7 @@ namespace Vulcant
 
                         glm::vec3 pos(posX, posY, posZ);
 
-                        float dist = glm::length(pos) + 0.1f;
+                        float dist  = glm::length(pos) + 0.1f;
                         float theta = std::atan2(posZ, posX);
                         float speed = 0.8f + 0.4f * std::sin(posX * 0.5f + posY * 0.5f);
 
@@ -47,16 +47,16 @@ namespace Vulcant
                         float g = 0.5f + 0.5f * std::sin(posY * 0.3f + 2.094f);
                         float b = 0.5f + 0.5f * std::sin(posZ * 0.3f + 4.188f);
 
-                        uint32_t cr = (uint32_t)(std::clamp(r, 0.0f, 1.0f) * 255.0f);
-                        uint32_t cg = (uint32_t)(std::clamp(g, 0.0f, 1.0f) * 255.0f);
-                        uint32_t cb = (uint32_t)(std::clamp(b, 0.0f, 1.0f) * 255.0f);
-                        uint32_t ca = 255;
+                        uint32_t cr          = (uint32_t)(std::clamp(r, 0.0f, 1.0f) * 255.0f);
+                        uint32_t cg          = (uint32_t)(std::clamp(g, 0.0f, 1.0f) * 255.0f);
+                        uint32_t cb          = (uint32_t)(std::clamp(b, 0.0f, 1.0f) * 255.0f);
+                        uint32_t ca          = 255;
                         uint32_t packedColor = cr | (cg << 8) | (cb << 16) | (ca << 24);
 
                         float radiusScale = 0.6f + 0.4f * (float)(x + y + z) / (dimX + dimY + dimZ);
                         float sphereRad   = baseRadius * radiusScale;
 
-                        SphereData sd;
+                        Vulcant::Toolkit::SphereData sd;
                         sd.center = pos;
                         sd.setRadiusAndColor(sphereRad, packedColor);
                         outSpheres.push_back(sd);

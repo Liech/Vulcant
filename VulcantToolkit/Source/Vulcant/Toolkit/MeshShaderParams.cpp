@@ -1,4 +1,4 @@
-#include "MeshShaderParams.h"
+﻿#include "MeshShaderParams.h"
 
 namespace Vulcant::Toolkit
 {

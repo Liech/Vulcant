@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "Vulcant/Interface/VulcantImage.h"
 #include "Vulcant/Interface/VulcantImageFormat.h"
@@ -24,6 +24,8 @@ namespace Vulcant::VulcantV
         virtual std::unique_ptr<VulcantResource> asResource() const override;
         virtual void                             saveRenderedImage(const std::string& path) override;
         virtual void                             setUsage(const Vulcant::VulcantImageUsage& usage) override;
+        virtual std::vector<uint8_t>             readPixelsRgba8() override;
+        virtual void                             uploadPixelsRgba8(const std::vector<uint8_t>& rgbaPixels) override;
 
         std::unique_ptr<Wrapper::VulcanImage> img = nullptr;
     };

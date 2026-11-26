@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "Vulcant/Interface/VulcantRasterizationConfig.h"
 #include <glm/glm.hpp>

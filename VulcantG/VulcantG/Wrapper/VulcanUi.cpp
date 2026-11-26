@@ -1,4 +1,4 @@
-#include "VulcanUi.h"
+﻿#include "VulcanUi.h"
 
 #include "VulcanDevice.h"
 #include "VulcanGraphicCommand.h"

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <glm/glm.hpp>
 #include <memory>
@@ -7,8 +7,8 @@
 
 #include "Examples/Example.h"
 #include "Examples/SphereRasterizerScenes/SphereScene.h"
-#include "Vulcant/Toolkit/SceneData.h"
 #include "Vulcant/Toolkit/Light.h"
+#include "Vulcant/Toolkit/SceneData.h"
 namespace Vulcant
 {
     class VulcantDevice;
@@ -43,8 +43,8 @@ struct SphereAnimUniforms
     uint32_t pad2;
 };
 
-#include "Vulcant/Toolkit/SphereRenderer.h"
 #include "Vulcant/Toolkit/CubeRenderer.h"
+#include "Vulcant/Toolkit/SphereRenderer.h"
 
 struct FrameResources
 {
@@ -106,23 +106,27 @@ class SphereRasterizer : public Vulcant::Examples::Example
 
     Vulcant::VulcantDevice* device = nullptr;
 
-    std::vector<SphereData>     spheres;
-    std::vector<SphereInitData> sphereInitData;
+    std::vector<Vulcant::Toolkit::SphereData> spheres;
+    std::vector<SphereInitData>               sphereInitData;
 
     std::vector<std::unique_ptr<Vulcant::Examples::SphereScene>> scenes;
-    int                                                           currentSceneIndex = 0;
+    int                                                          currentSceneIndex = 0;
 
     // Simulation / Rendering parameters
-    enum class RenderMode { Spheres, Cubes };
-    RenderMode  renderMode        = RenderMode::Spheres;
-    static constexpr size_t MAX_SPHERES = 50000000;
-    int   activeSphereCount = 50000;
-    float baseRadius        = 0.05f;
-    float animSpeed         = 1.0f;
-    bool  animate           = true;
-    bool  prevAnimate       = true;
-    bool  enableCulling     = true;
-    float elapsedTime       = 0.0f;
+    enum class RenderMode
+    {
+        Spheres,
+        Cubes
+    };
+    RenderMode              renderMode        = RenderMode::Spheres;
+    static constexpr size_t MAX_SPHERES       = 50000000;
+    int                     activeSphereCount = 50000;
+    float                   baseRadius        = 0.05f;
+    float                   animSpeed         = 1.0f;
+    bool                    animate           = true;
+    bool                    prevAnimate       = true;
+    bool                    enableCulling     = true;
+    float                   elapsedTime       = 0.0f;
 
     void syncAnimationBuffers();
 
@@ -130,19 +134,23 @@ class SphereRasterizer : public Vulcant::Examples::Example
     uint32_t                    currentFrame = 0;
 
     std::unique_ptr<Vulcant::Toolkit::DeferredShading> deferred;
-    std::unique_ptr<Vulcant::VulcantBuffer>              sphereInitBuffer;
-    std::unique_ptr<Vulcant::VulcantShader>              animShader;
+    std::unique_ptr<Vulcant::VulcantBuffer>            sphereInitBuffer;
+    std::unique_ptr<Vulcant::VulcantShader>            animShader;
 
-    std::unique_ptr<Vulcant::VulcantImage>               color;
-    std::unique_ptr<Vulcant::VulcantImage>               depth;
-    std::unique_ptr<Vulcant::VulcantImage>               normal;
+    std::unique_ptr<Vulcant::VulcantImage> color;
+    std::unique_ptr<Vulcant::VulcantImage> depth;
+    std::unique_ptr<Vulcant::VulcantImage> normal;
 
-    std::unique_ptr<Vulcant::VulcantWindow>              window;
-    std::unique_ptr<Vulcant::VulcantUi>                  ui;
+    std::unique_ptr<Vulcant::VulcantWindow> window;
+    std::unique_ptr<Vulcant::VulcantUi>     ui;
 
-    enum class CameraType { Freecam, ArcCam };
-    CameraType                                           cameraType = CameraType::Freecam;
-    std::unique_ptr<Vulcant::Toolkit::Freecam>         freecam;
-    std::unique_ptr<Vulcant::Toolkit::ArcCam>          arccam;
-    Vulcant::Toolkit::Camera*                          cam = nullptr;
+    enum class CameraType
+    {
+        Freecam,
+        ArcCam
+    };
+    CameraType                                 cameraType = CameraType::Freecam;
+    std::unique_ptr<Vulcant::Toolkit::Freecam> freecam;
+    std::unique_ptr<Vulcant::Toolkit::ArcCam>  arccam;
+    Vulcant::Toolkit::Camera*                  cam = nullptr;
 };

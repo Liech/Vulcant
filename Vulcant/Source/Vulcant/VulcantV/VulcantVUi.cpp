@@ -1,4 +1,4 @@
-#include "VulcantVUi.h"
+﻿#include "VulcantVUi.h"
 #include "VulcantVGraphicCommand.h"
 #include "VulcantVImage.h"
 #include "VulcantVWindow.h"

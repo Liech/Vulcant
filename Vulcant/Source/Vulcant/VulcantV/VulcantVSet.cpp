@@ -1,4 +1,4 @@
-#include "VulcantVSet.h"
+﻿#include "VulcantVSet.h"
 
 #include "Vulcant/Interface/VulcantResource.h"
 #include "Vulcant/Wrapper/VulcanResource.h"

@@ -1,4 +1,4 @@
-#include "SphereRasterizer.h"
+﻿#include "SphereRasterizer.h"
 
 #include "Examples/SphereRasterizerScenes/ConcentricRingsScene.h"
 #include "Examples/SphereRasterizerScenes/CubeGridScene.h"

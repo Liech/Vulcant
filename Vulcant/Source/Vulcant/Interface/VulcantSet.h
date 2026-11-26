@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <cstddef>
 
@@ -9,8 +9,8 @@ namespace Vulcant
     class VulcantSet
     {
       public:
-        VulcantSet()          = default;
-        virtual ~VulcantSet() = default;
+        VulcantSet();
+        virtual ~VulcantSet();
 
         virtual void updateResource(size_t set_idx, size_t binding_idx, const VulcantResource& newResource) = 0;
     };

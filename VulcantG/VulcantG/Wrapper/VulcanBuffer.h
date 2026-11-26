@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "Vulcant/Interface/VulcantBufferType.h"
 #include <godot_cpp/classes/rendering_device.hpp>

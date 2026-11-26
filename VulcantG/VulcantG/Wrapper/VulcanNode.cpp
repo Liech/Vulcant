@@ -1,4 +1,4 @@
-#include "VulcanNode.h"
+﻿#include "VulcanNode.h"
 #include <stdexcept>
 
 #include "Vulcant/Interface/VulcantImage.h"

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <glm/glm.hpp>
 #include <memory>
@@ -10,7 +10,7 @@ namespace Vulcant
     class VulcantGraphicPipeline
     {
       public:
-        VulcantGraphicPipeline()          = default;
-        virtual ~VulcantGraphicPipeline() = default;
+        VulcantGraphicPipeline();
+        virtual ~VulcantGraphicPipeline();
     };
 }

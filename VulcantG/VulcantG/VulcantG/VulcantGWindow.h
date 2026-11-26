@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "Vulcant/Interface/VulcantWindow.h"
 #include <godot_cpp/classes/ref.hpp>

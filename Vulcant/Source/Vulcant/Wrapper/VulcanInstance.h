@@ -1,10 +1,10 @@
-#pragma once
+﻿#pragma once
 
 #include <cassert>
 #include <functional>
+#include <string>
 #include <vector>
 #include <vulkan/vulkan.h>
-#include <string>
 
 // Used for validating return values of Vulkan API calls.
 #define VK_CHECK_RESULT(f)                                                                                                                                                                             \
@@ -22,15 +22,14 @@ namespace Vulcant::Wrapper
     class VulcanInstance
     {
       public:
-        VulcanInstance(const std::vector<std::string>& extensions = {},bool debug = true);
+        VulcanInstance(const std::vector<std::string>& extensions = {}, bool debug = true);
         virtual ~VulcanInstance();
 
         bool                      isDebug() const;
         VkInstance                getInstance();
         std::vector<const char*>& getEnabledLayers();
 
-        using ValidationCallback = std::function<void(VkDebugUtilsMessageSeverityFlagBitsEXT, VkDebugUtilsMessageTypeFlagsEXT, const VkDebugUtilsMessengerCallbackDataEXT*)>;
-        static void setValidationCallback(ValidationCallback cb);
+        static void setValidationCallback(std::function<void(VkDebugUtilsMessageSeverityFlagBitsEXT, VkDebugUtilsMessageTypeFlagsEXT, const VkDebugUtilsMessengerCallbackDataEXT*)> cb);
 
       private:
         void initValidationLayer();
@@ -44,7 +43,7 @@ namespace Vulcant::Wrapper
         std::vector<const char*> enabledLayers;
         VkDebugUtilsMessengerEXT debugMessenger = VK_NULL_HANDLE;
 
-        static inline ValidationCallback customValidationCallback = nullptr;
+        static inline std::function<void(VkDebugUtilsMessageSeverityFlagBitsEXT, VkDebugUtilsMessageTypeFlagsEXT, const VkDebugUtilsMessengerCallbackDataEXT*)> customValidationCallback = nullptr;
 
         static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT      messageSeverity,
                                                             VkDebugUtilsMessageTypeFlagsEXT             messageType,

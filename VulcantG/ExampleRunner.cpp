@@ -1,4 +1,4 @@
-#include "ExampleRunner.h"
+﻿#include "ExampleRunner.h"
 
 #include "Examples/Example.h"
 #include "VulcantG/VulcantG/VulcantGDevice.h"

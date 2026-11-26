@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 namespace Vulcant
 {
@@ -10,7 +10,7 @@ namespace Vulcant
         ShaderReadOnly,  // Wenn der nächste Pass daraus liest (Sampler/Deferred)
         TransferSrc,     // Bilddaten von der GPU kopieren (z.B. für Screenshots)
         TransferDst,     // Daten auf die GPU kopieren
-        Present,          // Das fertige Bild an den Monitor/Godot senden
+        Present,         // Das fertige Bild an den Monitor/Godot senden
         DepthStencilAttachment
     };
 }

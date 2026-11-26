@@ -1,4 +1,4 @@
-#include "VulcanImage.h"
+﻿#include "VulcanImage.h"
 #include "VulcanComputeCommand.h"
 #include "VulcanDevice.h"
 #include "VulcanInstance.h"
@@ -6,6 +6,7 @@
 #include "VulcanResource.h"
 #include "lodepng.h"
 #include <algorithm>
+#include <cstring>
 #include <stdexcept>
 
 namespace Vulcant::Wrapper
@@ -23,6 +24,7 @@ namespace Vulcant::Wrapper
         createSemaphore();
 
         transitionImageLayout(VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_GENERAL);
+        currentLayout = VK_IMAGE_LAYOUT_GENERAL;
     }
 
     VulcanImage::~VulcanImage()
@@ -50,6 +52,13 @@ namespace Vulcant::Wrapper
         usage = inputUsage;
         if (sampler == VK_NULL_HANDLE && inputUsage == Vulcant::VulcantImageUsage::SampleOnly)
             createSampler();
+
+        VkImageLayout targetLayout = (usage == Vulcant::VulcantImageUsage::SampleOnly) ? VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL : VK_IMAGE_LAYOUT_GENERAL;
+        if (currentLayout != targetLayout && currentLayout != VK_IMAGE_LAYOUT_UNDEFINED)
+        {
+            transitionImageLayout(currentLayout, targetLayout);
+            currentLayout = targetLayout;
+        }
     }
 
     VkDescriptorImageInfo VulcanImage::getInfo() const
@@ -239,20 +248,39 @@ namespace Vulcant::Wrapper
                                                     barrier.subresourceRange.aspectMask     = isDepth() ? VK_IMAGE_ASPECT_DEPTH_BIT : VK_IMAGE_ASPECT_COLOR_BIT;
 
                                                     // Zugriffsmasken definieren, damit die Pipeline wei�, worauf sie warten muss
+                                                    VkPipelineStageFlags srcStage = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
+                                                    VkPipelineStageFlags dstStage = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
+
                                                     if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_GENERAL)
                                                     {
                                                         barrier.srcAccessMask = 0;
-                                                        barrier.dstAccessMask = VK_ACCESS_SHADER_WRITE_BIT;
+                                                        barrier.dstAccessMask = VK_ACCESS_SHADER_WRITE_BIT | VK_ACCESS_SHADER_READ_BIT;
+                                                        srcStage              = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+                                                        dstStage              = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
                                                     }
                                                     else if (oldLayout == VK_IMAGE_LAYOUT_GENERAL && newLayout == VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL)
                                                     {
-                                                        barrier.srcAccessMask = VK_ACCESS_SHADER_WRITE_BIT;
+                                                        barrier.srcAccessMask = VK_ACCESS_SHADER_WRITE_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
                                                         barrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+                                                        srcStage              = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
+                                                        dstStage              = VK_PIPELINE_STAGE_TRANSFER_BIT;
+                                                    }
+                                                    else if (newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
+                                                    {
+                                                        barrier.srcAccessMask = VK_ACCESS_SHADER_WRITE_BIT | VK_ACCESS_TRANSFER_WRITE_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+                                                        barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+                                                        srcStage              = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
+                                                        dstStage              = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT | VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT;
+                                                    }
+                                                    else if (newLayout == VK_IMAGE_LAYOUT_GENERAL)
+                                                    {
+                                                        barrier.srcAccessMask = VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_TRANSFER_WRITE_BIT;
+                                                        barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT;
                                                     }
 
                                                     vkCmdPipelineBarrier(cmd,
-                                                                         VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,    // Worauf warten?
-                                                                         VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, // Wer wartet?
+                                                                         srcStage,
+                                                                         dstStage,
                                                                          0,
                                                                          0,
                                                                          nullptr,
@@ -265,10 +293,15 @@ namespace Vulcant::Wrapper
 
     void VulcanImage::saveRenderedImage(const std::string& path)
     {
+        std::vector<uint8_t> rgbaPixels = readPixelsRgba8();
+        lodepng::encode(path, rgbaPixels.data(), width, height);
+    }
+
+    std::vector<uint8_t> VulcanImage::readPixelsRgba8()
+    {
         assert(depth == 1);
         VkFormat dstFormat = VK_FORMAT_R8G8B8A8_UNORM;
 
-        // 1. Create Intermediate Image (Device Local)
         VkImage           dstImage;
         VkDeviceMemory    dstImageMemory;
         VkImageCreateInfo imageInfo = {};
@@ -291,13 +324,11 @@ namespace Vulcant::Wrapper
         VkMemoryAllocateInfo imgAlloc = {};
         imgAlloc.sType                = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
         imgAlloc.allocationSize       = imgMemReqs.size;
-        // CHANGE: Images used for blitting usually need to be DEVICE_LOCAL_BIT
-        imgAlloc.memoryTypeIndex = device.findMemoryType(imgMemReqs.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+        imgAlloc.memoryTypeIndex      = device.findMemoryType(imgMemReqs.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
         VK_CHECK_RESULT(vkAllocateMemory(device.getDevice(), &imgAlloc, nullptr, &dstImageMemory));
         vkBindImageMemory(device.getDevice(), dstImage, dstImageMemory, 0);
 
-        // 2. Create Staging Buffer (Host Visible)
-        VkDeviceSize       imageSize = width * height * 4;
+        VkDeviceSize       imageSize = static_cast<VkDeviceSize>(width) * static_cast<VkDeviceSize>(height) * 4;
         VkBuffer           stagingBuffer;
         VkDeviceMemory     stagingBufferMemory;
         VkBufferCreateInfo bufferInfo = {};
@@ -314,18 +345,17 @@ namespace Vulcant::Wrapper
         VkMemoryAllocateInfo bufAlloc = {};
         bufAlloc.sType                = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
         bufAlloc.allocationSize       = bufMemReqs.size;
-        // Staging buffers MUST be HOST_VISIBLE to be mapped
-        bufAlloc.memoryTypeIndex = device.findMemoryType(bufMemReqs.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+        bufAlloc.memoryTypeIndex      = device.findMemoryType(bufMemReqs.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
         VK_CHECK_RESULT(vkAllocateMemory(device.getDevice(), &bufAlloc, nullptr, &stagingBufferMemory));
         vkBindBufferMemory(device.getDevice(), stagingBuffer, stagingBufferMemory, 0);
 
-        // 3. Execute Commands with Transitions
+        VkImageLayout restoreLayout = (currentLayout == VK_IMAGE_LAYOUT_UNDEFINED) ? VK_IMAGE_LAYOUT_GENERAL : currentLayout;
+
         VulcanComputeCommand::executeSingleTime(
           pool,
           device,
           [&](VkCommandBuffer cmd)
           {
-              // Helper to transition layouts
               auto transition = [&](VkImage img, VkImageLayout oldL, VkImageLayout newL, VkAccessFlags srcAcc, VkAccessFlags dstAcc, VkPipelineStageFlags srcStg, VkPipelineStageFlags dstStg)
               {
                   VkImageMemoryBarrier barrier = {};
@@ -339,13 +369,12 @@ namespace Vulcant::Wrapper
                   vkCmdPipelineBarrier(cmd, srcStg, dstStg, 0, 0, nullptr, 0, nullptr, 1, &barrier);
               };
 
-              // Transition: Src Image -> SRC_OPTIMAL, Dst Image -> DST_OPTIMAL
               transition(image,
-                         VK_IMAGE_LAYOUT_GENERAL,
+                         restoreLayout,
                          VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                         VK_ACCESS_SHADER_WRITE_BIT,
+                         VK_ACCESS_SHADER_WRITE_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_SHADER_READ_BIT,
                          VK_ACCESS_TRANSFER_READ_BIT,
-                         VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
+                         VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
                          VK_PIPELINE_STAGE_TRANSFER_BIT);
               transition(dstImage, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 0, VK_ACCESS_TRANSFER_WRITE_BIT, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT);
 
@@ -357,7 +386,6 @@ namespace Vulcant::Wrapper
 
               vkCmdBlitImage(cmd, image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, dstImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &blit, VK_FILTER_NEAREST);
 
-              // Transition: Dst Image -> SRC_OPTIMAL for buffer copy
               transition(dstImage,
                          VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                          VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
@@ -371,26 +399,110 @@ namespace Vulcant::Wrapper
               region.imageExtent       = { width, height, 1 };
               vkCmdCopyImageToBuffer(cmd, dstImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, stagingBuffer, 1, &region);
 
-              // Cleanup: Transition original image back to GENERAL
               transition(image,
                          VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                         VK_IMAGE_LAYOUT_GENERAL,
+                         restoreLayout,
                          VK_ACCESS_TRANSFER_READ_BIT,
-                         VK_ACCESS_SHADER_WRITE_BIT,
+                         VK_ACCESS_SHADER_WRITE_BIT | VK_ACCESS_SHADER_READ_BIT,
                          VK_PIPELINE_STAGE_TRANSFER_BIT,
-                         VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT);
+                         VK_PIPELINE_STAGE_ALL_COMMANDS_BIT);
           });
 
-        // 4. Map, Save, and Cleanup
-        void* data;
+        std::vector<uint8_t> pixels(static_cast<size_t>(imageSize));
+        void*                data = nullptr;
         vkMapMemory(device.getDevice(), stagingBufferMemory, 0, imageSize, 0, &data);
-        lodepng::encode(path, static_cast<unsigned char*>(data), width, height);
+        std::memcpy(pixels.data(), data, static_cast<size_t>(imageSize));
         vkUnmapMemory(device.getDevice(), stagingBufferMemory);
 
         vkDestroyBuffer(device.getDevice(), stagingBuffer, nullptr);
         vkFreeMemory(device.getDevice(), stagingBufferMemory, nullptr);
         vkDestroyImage(device.getDevice(), dstImage, nullptr);
         vkFreeMemory(device.getDevice(), dstImageMemory, nullptr);
+
+        return pixels;
+    }
+
+    void VulcanImage::uploadPixelsRgba8(const std::vector<uint8_t>& rgbaPixels)
+    {
+        assert(depth == 1);
+        VkDeviceSize imageSize = static_cast<VkDeviceSize>(width) * static_cast<VkDeviceSize>(height) * 4;
+        if (rgbaPixels.size() != static_cast<size_t>(imageSize))
+        {
+            throw std::invalid_argument("uploadPixelsRgba8 buffer size does not match width * height * 4");
+        }
+
+        VkBuffer           stagingBuffer;
+        VkDeviceMemory     stagingBufferMemory;
+        VkBufferCreateInfo bufferInfo = {};
+        bufferInfo.sType              = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+        bufferInfo.size               = imageSize;
+        bufferInfo.usage              = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
+        bufferInfo.sharingMode        = VK_SHARING_MODE_EXCLUSIVE;
+
+        VK_CHECK_RESULT(vkCreateBuffer(device.getDevice(), &bufferInfo, nullptr, &stagingBuffer));
+
+        VkMemoryRequirements bufMemReqs;
+        vkGetBufferMemoryRequirements(device.getDevice(), stagingBuffer, &bufMemReqs);
+
+        VkMemoryAllocateInfo bufAlloc = {};
+        bufAlloc.sType                = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+        bufAlloc.allocationSize       = bufMemReqs.size;
+        bufAlloc.memoryTypeIndex      = device.findMemoryType(bufMemReqs.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+        VK_CHECK_RESULT(vkAllocateMemory(device.getDevice(), &bufAlloc, nullptr, &stagingBufferMemory));
+        vkBindBufferMemory(device.getDevice(), stagingBuffer, stagingBufferMemory, 0);
+
+        void* data = nullptr;
+        vkMapMemory(device.getDevice(), stagingBufferMemory, 0, imageSize, 0, &data);
+        std::memcpy(data, rgbaPixels.data(), static_cast<size_t>(imageSize));
+        vkUnmapMemory(device.getDevice(), stagingBufferMemory);
+
+        VkImageLayout oldLayout   = (currentLayout == VK_IMAGE_LAYOUT_UNDEFINED) ? VK_IMAGE_LAYOUT_UNDEFINED : currentLayout;
+        VkImageLayout finalLayout = (usage == Vulcant::VulcantImageUsage::SampleOnly) ? VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL : VK_IMAGE_LAYOUT_GENERAL;
+
+        VulcanComputeCommand::executeSingleTime(
+          pool,
+          device,
+          [&](VkCommandBuffer cmd)
+          {
+              auto transition = [&](VkImage img, VkImageLayout oldL, VkImageLayout newL, VkAccessFlags srcAcc, VkAccessFlags dstAcc, VkPipelineStageFlags srcStg, VkPipelineStageFlags dstStg)
+              {
+                  VkImageMemoryBarrier barrier = {};
+                  barrier.sType                = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+                  barrier.oldLayout            = oldL;
+                  barrier.newLayout            = newL;
+                  barrier.srcAccessMask        = srcAcc;
+                  barrier.dstAccessMask        = dstAcc;
+                  barrier.image                = img;
+                  barrier.subresourceRange     = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
+                  vkCmdPipelineBarrier(cmd, srcStg, dstStg, 0, 0, nullptr, 0, nullptr, 1, &barrier);
+              };
+
+              transition(image,
+                         oldLayout,
+                         VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                         0,
+                         VK_ACCESS_TRANSFER_WRITE_BIT,
+                         VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+                         VK_PIPELINE_STAGE_TRANSFER_BIT);
+
+              VkBufferImageCopy region = {};
+              region.imageSubresource  = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
+              region.imageExtent       = { width, height, 1 };
+              vkCmdCopyBufferToImage(cmd, stagingBuffer, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
+
+              transition(image,
+                         VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                         finalLayout,
+                         VK_ACCESS_TRANSFER_WRITE_BIT,
+                         VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT,
+                         VK_PIPELINE_STAGE_TRANSFER_BIT,
+                         VK_PIPELINE_STAGE_ALL_COMMANDS_BIT);
+          });
+
+        currentLayout = finalLayout;
+
+        vkDestroyBuffer(device.getDevice(), stagingBuffer, nullptr);
+        vkFreeMemory(device.getDevice(), stagingBufferMemory, nullptr);
     }
 
     VulcanResource VulcanImage::asResource() const

@@ -1,4 +1,4 @@
-#include "VulcanInstance.h"
+﻿#include "VulcanInstance.h"
 
 #include <cstring>
 #include <stdexcept>
@@ -10,7 +10,6 @@ namespace Vulcant::Wrapper
         additionalExtensions = extensions;
         for (const auto& x : additionalExtensions)
             enabledExtensions.push_back(x.c_str());
-
 
         if (debugInput)
             initValidationLayer();
@@ -160,7 +159,7 @@ namespace Vulcant::Wrapper
         return enabledLayers;
     }
 
-    void VulcanInstance::setValidationCallback(ValidationCallback cb)
+    void VulcanInstance::setValidationCallback(std::function<void(VkDebugUtilsMessageSeverityFlagBitsEXT, VkDebugUtilsMessageTypeFlagsEXT, const VkDebugUtilsMessengerCallbackDataEXT*)> cb)
     {
         customValidationCallback = cb;
     }

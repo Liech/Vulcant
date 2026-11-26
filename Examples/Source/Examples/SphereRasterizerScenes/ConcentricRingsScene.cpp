@@ -1,4 +1,4 @@
-#include "Examples/SphereRasterizerScenes/ConcentricRingsScene.h"
+﻿#include "Examples/SphereRasterizerScenes/ConcentricRingsScene.h"
 #include <algorithm>
 #include <cmath>
 #include <cstdlib>
@@ -7,7 +7,7 @@ namespace Vulcant
 {
     namespace Examples
     {
-        void ConcentricRingsScene::generate(size_t count, float baseRadius, std::vector<SphereData>& outSpheres, std::vector<SphereInitData>& outInitData)
+        void ConcentricRingsScene::generate(size_t count, float baseRadius, std::vector<Vulcant::Toolkit::SphereData>& outSpheres, std::vector<SphereInitData>& outInitData)
         {
             outSpheres.clear();
             outInitData.clear();
@@ -20,17 +20,17 @@ namespace Vulcant
             const int numRings = 12;
             for (size_t i = 0; i < count; i++)
             {
-                int ringIndex = (int)(i % numRings);
+                int   ringIndex  = (int)(i % numRings);
                 float ringRadius = 0.8f + ringIndex * 0.7f;
-                float theta = ((float)rand() / (float)RAND_MAX) * 2.0f * 3.14159265f;
+                float theta      = ((float)rand() / (float)RAND_MAX) * 2.0f * 3.14159265f;
 
-                float heightVar = ((float)rand() / (float)RAND_MAX - 0.5f) * 0.3f;
+                float heightVar   = ((float)rand() / (float)RAND_MAX - 0.5f) * 0.3f;
                 float radialNoise = ((float)rand() / (float)RAND_MAX - 0.5f) * 0.2f;
 
                 float dist = ringRadius + radialNoise;
-                float x = dist * std::cos(theta);
-                float z = dist * std::sin(theta);
-                float y = heightVar + std::sin(ringIndex * 0.5f) * 0.4f;
+                float x    = dist * std::cos(theta);
+                float z    = dist * std::sin(theta);
+                float y    = heightVar + std::sin(ringIndex * 0.5f) * 0.4f;
 
                 glm::vec3 pos(x, y, z);
 
@@ -50,7 +50,7 @@ namespace Vulcant
                 float radiusScale = 0.5f + 0.7f * ((float)rand() / RAND_MAX);
                 float sphereRad   = baseRadius * radiusScale;
 
-                SphereData sd;
+                Vulcant::Toolkit::SphereData sd;
                 sd.center = pos;
                 sd.setRadiusAndColor(sphereRad, packedColor);
                 outSpheres.push_back(sd);

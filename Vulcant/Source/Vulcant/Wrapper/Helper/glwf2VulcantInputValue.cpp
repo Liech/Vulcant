@@ -1,4 +1,4 @@
-#include "glwf2VulcantInputValue.h"
+﻿#include "glwf2VulcantInputValue.h"
 
 #include <GLFW/glfw3.h>
 #include <unordered_map>

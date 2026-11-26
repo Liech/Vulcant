@@ -1,4 +1,4 @@
-#include "Examples/SphereRasterizerScenes/FloatingSpheresScene.h"
+﻿#include "Examples/SphereRasterizerScenes/FloatingSpheresScene.h"
 #include "Examples/SphereRasterizerScenes/ConcentricRingsScene.h"
 #include "Examples/SphereRasterizerScenes/CubeGridScene.h"
 #include "Examples/SphereRasterizerScenes/HillLandscapeScene.h"
@@ -10,7 +10,7 @@ namespace Vulcant
 {
     namespace Examples
     {
-        void FloatingSpheresScene::generate(size_t count, float baseRadius, std::vector<SphereData>& outSpheres, std::vector<SphereInitData>& outInitData)
+        void FloatingSpheresScene::generate(size_t count, float baseRadius, std::vector<Vulcant::Toolkit::SphereData>& outSpheres, std::vector<SphereInitData>& outInitData)
         {
             outSpheres.clear();
             outInitData.clear();
@@ -52,7 +52,7 @@ namespace Vulcant
                 float radiusScale = 0.5f + 0.8f * ((float)rand() / RAND_MAX);
                 float sphereRad   = baseRadius * radiusScale;
 
-                SphereData sd;
+                Vulcant::Toolkit::SphereData sd;
                 sd.center = pos;
                 sd.setRadiusAndColor(sphereRad, packedColor);
                 outSpheres.push_back(sd);
@@ -85,8 +85,8 @@ TEST_CASE("SphereRasterizerScenes Generation", "[SphereRasterizerScenes]")
     REQUIRE(ringScene.getName() == "Concentric Rings");
     REQUIRE(hillScene.getName() == "Hill Landscape");
 
-    std::vector<SphereData>     spheres;
-    std::vector<SphereInitData> initData;
+    std::vector<Vulcant::Toolkit::SphereData> spheres;
+    std::vector<SphereInitData>               initData;
 
     floatingScene.generate(100, 0.05f, spheres, initData);
     REQUIRE(spheres.size() == 100);
@@ -105,19 +105,19 @@ TEST_CASE("SphereRasterizerScenes Generation", "[SphereRasterizerScenes]")
     REQUIRE(initData.size() == 500);
 
     // Verify non-flat landscape elevation
-    float minY = spheres[0].center.y;
-    float maxY = spheres[0].center.y;
+    float minY    = spheres[0].center.y;
+    float maxY    = spheres[0].center.y;
     float maxDist = 0.0f;
 
     for (const auto& s : spheres)
     {
-        minY = std::min(minY, s.center.y);
-        maxY = std::max(maxY, s.center.y);
+        minY       = std::min(minY, s.center.y);
+        maxY       = std::max(maxY, s.center.y);
         float dist = glm::length(glm::vec2(s.center.x, s.center.z));
-        maxDist = std::max(maxDist, dist);
+        maxDist    = std::max(maxDist, dist);
     }
 
     REQUIRE(maxY - minY > 2.0f); // Non-flat hills check
-    REQUIRE(maxDist > 100.0f);  // Huge distance extent check
+    REQUIRE(maxDist > 100.0f);   // Huge distance extent check
 }
 #endif

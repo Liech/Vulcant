@@ -1,4 +1,4 @@
-#include "VulcantVImage.h"
+﻿#include "VulcantVImage.h"
 
 #include "Vulcant/Wrapper/VulcanImage.h"
 #include "Vulcant/Wrapper/VulcanResource.h"
@@ -54,6 +54,16 @@ namespace Vulcant::VulcantV
     void VulcantVImage::setUsage(const Vulcant::VulcantImageUsage& usage)
     {
         img->setUsage(usage);
+    }
+
+    std::vector<uint8_t> VulcantVImage::readPixelsRgba8()
+    {
+        return img->readPixelsRgba8();
+    }
+
+    void VulcantVImage::uploadPixelsRgba8(const std::vector<uint8_t>& rgbaPixels)
+    {
+        img->uploadPixelsRgba8(rgbaPixels);
     }
 }
 

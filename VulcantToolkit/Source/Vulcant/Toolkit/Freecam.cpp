@@ -1,4 +1,4 @@
-#include "Freecam.h"
+﻿#include "Freecam.h"
 
 #include "Vulcant/Interface/VulcantInput.h"
 

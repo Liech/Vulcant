@@ -1,4 +1,4 @@
-#include "CubeRenderer.h"
+﻿#include "CubeRenderer.h"
 
 #include "ShaderLibrary/Example/CubeRasterizer_frag.h"
 #include "ShaderLibrary/Example/CubeRasterizer_vert.h"

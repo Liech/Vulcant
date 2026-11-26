@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "Vulcant/Interface/VulcantResource.h"
 #include "VulcantG/Wrapper/VulcanResource.h"

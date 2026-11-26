@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "VulcanResource.h"
 #include <godot_cpp/classes/rd_uniform.hpp>

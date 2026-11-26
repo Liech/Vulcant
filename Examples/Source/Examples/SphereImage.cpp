@@ -1,4 +1,4 @@
-#include "SphereImage.h"
+﻿#include "SphereImage.h"
 #include "Vulcant/Interface/VulcantBuffer.h"
 #include "Vulcant/Interface/VulcantComputeCommand.h"
 #include "Vulcant/Interface/VulcantDevice.h"

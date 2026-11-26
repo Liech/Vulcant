@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "VulcanImage.h"
 #include "VulcanShader.h"

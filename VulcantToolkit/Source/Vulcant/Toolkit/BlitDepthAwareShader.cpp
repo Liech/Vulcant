@@ -1,4 +1,4 @@
-#include "BlitDepthAwareShader.h"
+﻿#include "BlitDepthAwareShader.h"
 #include <stdexcept>
 #include <string_view>
 
