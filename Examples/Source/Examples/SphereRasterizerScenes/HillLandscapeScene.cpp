@@ -27,6 +27,8 @@ namespace Vulcant
             return cr | (cg << 8) | (cb << 16) | (ca << 24);
         }
 
+        HillLandscapeScene::~HillLandscapeScene() {}
+
         void HillLandscapeScene::generate(size_t count, float baseRadius, std::vector<Vulcant::Toolkit::SphereData>& outSpheres, std::vector<SphereInitData>& outInitData)
         {
             outSpheres.clear();

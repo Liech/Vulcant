@@ -7,6 +7,8 @@ namespace Vulcant
 {
     namespace Examples
     {
+        CubeGridScene::~CubeGridScene() {}
+
         void CubeGridScene::generate(size_t count, float baseRadius, std::vector<Vulcant::Toolkit::SphereData>& outSpheres, std::vector<SphereInitData>& outInitData)
         {
             outSpheres.clear();
