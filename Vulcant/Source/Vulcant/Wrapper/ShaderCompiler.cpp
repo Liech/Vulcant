@@ -1,15 +1,18 @@
 ﻿#include "ShaderCompiler.h"
 
 #include <algorithm>
+#include <cstring>
 #include <iostream>
 #include <map>
 #include <shaderc/shaderc.hpp>
+#include <slang-com-ptr.h>
+#include <slang.h>
 #include <spirv-reflect/spirv_reflect.h>
 #include <stdexcept>
 
 namespace Vulcant::Wrapper
 {
-    std::vector<uint32_t> ShaderCompiler::compile(const std::string& source)
+    std::vector<uint32_t> ShaderCompiler::compileGlsl(const std::string& source)
     {
         try
         {
@@ -25,12 +28,7 @@ namespace Vulcant::Wrapper
             options.SetOptimizationLevel(shaderc_optimization_level_performance);
 #endif
 
-            shaderc::SpvCompilationResult result = compiler.CompileGlslToSpv(source.c_str(),
-                                                                             source.size(),
-                                                                             shaderc_compute_shader,
-                                                                             "compute_shader.comp", // File name used for error reporting
-                                                                             "main",
-                                                                             options);
+            shaderc::SpvCompilationResult result = compiler.CompileGlslToSpv(source.c_str(), source.size(), shaderc_compute_shader, "compute_shader.comp", "main", options);
 
             if (result.GetCompilationStatus() != shaderc_compilation_status_success)
             {
@@ -39,9 +37,6 @@ namespace Vulcant::Wrapper
             }
 
             std::vector<uint32_t> spirv_data = { result.cbegin(), result.cend() };
-            // std::cout << "Successfully compiled GLSL to SPIR-V!" << std::endl;
-            // std::cout << "SPIR-V size: " << spirv_data.size() * sizeof(uint32_t) << " bytes." << std::endl;
-
             return spirv_data;
         }
         catch (const std::exception& e)
@@ -49,6 +44,90 @@ namespace Vulcant::Wrapper
             std::cerr << "Error: " << e.what() << std::endl;
             return {};
         }
+    }
+
+    std::vector<uint32_t> ShaderCompiler::compileSlang(const std::string& source)
+    {
+        Slang::ComPtr<slang::IGlobalSession> globalSession;
+        if (SLANG_FAILED(slang::createGlobalSession(globalSession.writeRef())))
+        {
+            throw std::runtime_error("Failed to create Slang global session.");
+        }
+
+        slang::TargetDesc targetDesc{};
+        targetDesc.format  = SLANG_SPIRV;
+        targetDesc.profile = globalSession->findProfile("spirv_1_3");
+
+        slang::SessionDesc sessionDesc{};
+        sessionDesc.targets     = &targetDesc;
+        sessionDesc.targetCount = 1;
+
+        Slang::ComPtr<slang::ISession> session;
+        if (SLANG_FAILED(globalSession->createSession(sessionDesc, session.writeRef())))
+        {
+            throw std::runtime_error("Failed to create Slang session.");
+        }
+
+        Slang::ComPtr<slang::IBlob> diagnosticsBlob;
+        slang::IModule*             module = session->loadModuleFromSourceString("runtime_shader", "runtime_shader.slang", source.c_str(), diagnosticsBlob.writeRef());
+        if (module == nullptr)
+        {
+            std::string msg =
+              diagnosticsBlob != nullptr ? std::string(static_cast<const char*>(diagnosticsBlob->getBufferPointer()), diagnosticsBlob->getBufferSize()) : "Failed to load Slang module.";
+            throw std::runtime_error("Slang compilation failed: " + msg);
+        }
+
+        SlangStage slangStage = SLANG_STAGE_COMPUTE;
+        if (source.find("[shader(\"vertex\")]") != std::string::npos)
+        {
+            slangStage = SLANG_STAGE_VERTEX;
+        }
+        else if (source.find("[shader(\"fragment\")]") != std::string::npos)
+        {
+            slangStage = SLANG_STAGE_FRAGMENT;
+        }
+
+        Slang::ComPtr<slang::IEntryPoint> entryPointObj;
+        diagnosticsBlob = nullptr;
+        if (SLANG_FAILED(module->findAndCheckEntryPoint("main", slangStage, entryPointObj.writeRef(), diagnosticsBlob.writeRef())))
+        {
+            std::string msg =
+              diagnosticsBlob != nullptr ? std::string(static_cast<const char*>(diagnosticsBlob->getBufferPointer()), diagnosticsBlob->getBufferSize()) : "Failed to find Slang entry point main.";
+            throw std::runtime_error("Slang entry point lookup failed: " + msg);
+        }
+
+        slang::IComponentType*               components[] = { module, entryPointObj.get() };
+        Slang::ComPtr<slang::IComponentType> composedProgram;
+        diagnosticsBlob = nullptr;
+        if (SLANG_FAILED(session->createCompositeComponentType(components, 2, composedProgram.writeRef(), diagnosticsBlob.writeRef())))
+        {
+            std::string msg =
+              diagnosticsBlob != nullptr ? std::string(static_cast<const char*>(diagnosticsBlob->getBufferPointer()), diagnosticsBlob->getBufferSize()) : "Failed to compose Slang program.";
+            throw std::runtime_error("Slang composition failed: " + msg);
+        }
+
+        Slang::ComPtr<slang::IComponentType> linkedProgram;
+        diagnosticsBlob = nullptr;
+        if (SLANG_FAILED(composedProgram->link(linkedProgram.writeRef(), diagnosticsBlob.writeRef())))
+        {
+            std::string msg =
+              diagnosticsBlob != nullptr ? std::string(static_cast<const char*>(diagnosticsBlob->getBufferPointer()), diagnosticsBlob->getBufferSize()) : "Failed to link Slang program.";
+            throw std::runtime_error("Slang link failed: " + msg);
+        }
+
+        Slang::ComPtr<slang::IBlob> spirvBlob;
+        diagnosticsBlob = nullptr;
+        if (SLANG_FAILED(linkedProgram->getEntryPointCode(0, 0, spirvBlob.writeRef(), diagnosticsBlob.writeRef())))
+        {
+            std::string msg =
+              diagnosticsBlob != nullptr ? std::string(static_cast<const char*>(diagnosticsBlob->getBufferPointer()), diagnosticsBlob->getBufferSize()) : "Failed to emit SPIR-V from Slang program.";
+            throw std::runtime_error("Slang SPIR-V emission failed: " + msg);
+        }
+
+        size_t                byteSize = spirvBlob->getBufferSize();
+        std::vector<uint32_t> spirvData(byteSize / sizeof(uint32_t));
+        std::memcpy(spirvData.data(), spirvBlob->getBufferPointer(), spirvData.size() * sizeof(uint32_t));
+        return spirvData;
     }
     std::vector<std::vector<ShaderBindingDefinition>> ShaderCompiler::getLayout(const std::vector<uint32_t>& spirv)
     {
@@ -204,7 +283,7 @@ namespace Vulcant::Wrapper
 
     std::vector<VertexAttribute> ShaderCompiler::getVertexInputLayout(const std::vector<uint32_t>& spirv)
     {
-        SpvReflectShaderModule module; 
+        SpvReflectShaderModule module;
         spvReflectCreateShaderModule(spirv.size() * sizeof(uint32_t), spirv.data(), &module);
 
         uint32_t var_count = 0;
@@ -224,10 +303,7 @@ namespace Vulcant::Wrapper
                 }
 
                 auto f = mapSpvFormatToVk(var);
-                attributes.push_back({ var->location,
-                                       f,
-                                       getSizeOfVkFormat(f), 
-                                       isInstance ? InputRate::Instance : InputRate::Vertex });
+                attributes.push_back({ var->location, f, getSizeOfVkFormat(f), isInstance ? InputRate::Instance : InputRate::Vertex });
             }
         }
         std::sort(attributes.begin(), attributes.end(), [](auto& a, auto& b) { return a.location < b.location; });

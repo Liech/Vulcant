@@ -13,6 +13,7 @@ find_package(lodepng CONFIG REQUIRED)
 find_package(Vulkan REQUIRED)
 find_package(unofficial-shaderc CONFIG REQUIRED)
 find_package(unofficial-spirv-reflect CONFIG REQUIRED)
+find_package(slang CONFIG REQUIRED)
 find_package(glfw3 CONFIG REQUIRED)
 find_package(imgui REQUIRED)
 
@@ -169,6 +170,7 @@ lodepng
 Vulkan::Vulkan
 unofficial::shaderc::shaderc
 unofficial::spirv-reflect
+slang::slang
 glfw
 imgui::imgui
 )
@@ -199,6 +201,7 @@ lodepng
 Vulkan::Vulkan
 unofficial::shaderc::shaderc
 unofficial::spirv-reflect
+slang::slang
 glfw
 )
 
@@ -224,6 +227,7 @@ file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/VulcantConfig.cmake"
 "find_dependency(Vulkan)\n"
 "find_dependency(unofficial-shaderc CONFIG)\n"
 "find_dependency(unofficial-spirv-reflect CONFIG)\n"
+"find_dependency(slang CONFIG)\n"
 "find_dependency(glfw3 CONFIG)\n"
 "include(\"\${CMAKE_CURRENT_LIST_DIR}/VulcantTargets.cmake\")\n"
 "if(EXISTS \"\${CMAKE_CURRENT_LIST_DIR}/VulcantToolkitTargets.cmake\")\n"

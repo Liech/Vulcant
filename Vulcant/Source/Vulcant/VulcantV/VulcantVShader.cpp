@@ -7,21 +7,21 @@ namespace Vulcant::VulcantV
 {
     VulcantVShader::VulcantVShader(const std::string& source, Wrapper::VulcanDevice& device)
     {
-        auto spirv = Wrapper::ShaderCompiler::compile(source);
+        auto spirv = Wrapper::ShaderCompiler::compileGlsl(source);
         shader     = std::make_unique<Wrapper::VulcanShader>(spirv, device);
     }
 
     VulcantVShader::VulcantVShader(const std::vector<uint32_t>& spirv, Wrapper::VulcanDevice& device)
     {
-        shader     = std::make_unique<Wrapper::VulcanShader>(spirv, device);
+        shader = std::make_unique<Wrapper::VulcanShader>(spirv, device);
     }
 
     VulcantVShader::~VulcantVShader() {}
 }
 
 #ifdef ISTESTPROJECT
-#include <catch2/catch_test_macros.hpp>
 #include "VulcantVDevice.h"
+#include <catch2/catch_test_macros.hpp>
 
 TEST_CASE("VulcantVShader Compilation from GLSL Source", "[VulcantVShader]")
 {
